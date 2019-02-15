@@ -1,2 +1,7 @@
+# Please consider
+# https://help.github.com/articles/ignoring-files/#create-a-global-gitignore
+# before adding to this file
+
 dist/
 venv/
+
