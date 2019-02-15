@@ -17,7 +17,8 @@ reinstall:
 	pip uninstall -y solo-python
 	flit install
 
-publish: build
+publish:
+	black --check solo/
 	flit publish
 
 venv:

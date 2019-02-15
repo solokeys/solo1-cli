@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.0.1a1] - 2019-02-15
 ### Changed
+- Bugfixes related to refactor
+
+## [0.0.1a1] - 2019-02-15
+### Changed
 - Start to split out commands, helpers and client
 
 ## [0.0.1a0] - 2019-02-15

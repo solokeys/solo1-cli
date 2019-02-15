@@ -36,6 +36,8 @@ from intelhex import IntelHex
 import serial
 
 import solo
+from solo import helpers
+
 
 def get_firmware_object(sk_name, hex_file):
     from ecdsa import SigningKey, NIST256p
@@ -43,7 +45,7 @@ def get_firmware_object(sk_name, hex_file):
     sk = SigningKey.from_pem(open(sk_name).read())
     fw = open(hex_file, "r").read()
     fw = base64.b64encode(fw.encode())
-    fw = to_websafe(fw.decode())
+    fw = helpers.to_websafe(fw.decode())
     ih = IntelHex()
     ih.fromfile(hex_file, format="hex")
     # start of firmware and the size of the flash region allocated for it.
@@ -70,12 +72,11 @@ def get_firmware_object(sk_name, hex_file):
     print("sig", binascii.hexlify(sig))
 
     sig = base64.b64encode(sig)
-    sig = to_websafe(sig.decode())
+    sig = helpers.to_websafe(sig.decode())
 
     # msg = {'data': read()}
     msg = {"firmware": fw, "signature": sig}
     return msg
-
 
 
 # hot patch for windows libusb backend
@@ -297,7 +298,7 @@ def solo_main():
     )
     args = parser.parse_args()
 
-    p = SoloClient()
+    p = solo.client.SoloClient()
     p.find_device()
 
     if args.reset:
@@ -579,7 +580,7 @@ def programmer_main():
 
     fw = args.__dict__["[firmware]"]
 
-    p = SoloClient()
+    p = solo.client.SoloClient()
 
     try:
         p.find_device()
@@ -711,6 +712,7 @@ def main_mergehex():
 
     first.tofile(args[len(args) - 1], format="hex")
 
+
 def main_version():
     print(solo.__version__)
 
@@ -724,7 +726,8 @@ def main_main():
         print("Diverse command line tool for working with Solo")
         print("usage: solotool <command> [options] [-h]")
         print("commands: program, solo, monitor, sign, genkey, mergehex, version")
-        print("""
+        print(
+            """
 Examples:
     {0} program <filename.hex|filename.json>
     {0} program <all.hex> --use-dfu
@@ -738,7 +741,10 @@ Examples:
     {0} genkey <output-pem-file> [rng-seed-file]
     {0} mergehex bootloader.hex solo.hex combined.hex
     {0} version
-""".format("solotool"))
+""".format(
+                "solotool"
+            )
+        )
         sys.exit(1)
 
     c = sys.argv[1]

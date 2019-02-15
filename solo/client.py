@@ -1,5 +1,20 @@
+import base64
+import json
+import struct
+import sys
+import tempfile
+import time
+
+from fido2.client import Fido2Client, ClientError
+from fido2.ctap import CtapError
+from fido2.ctap1 import CTAP1
+from fido2.ctap2 import CTAP2
+from fido2.hid import CtapHidDevice, CTAPHID
+from fido2.utils import Timeout
+from intelhex import IntelHex
+
 from solo.commands import SoloBootloader, SoloExtension
-import solo.helpers
+from solo import helpers
 
 
 class SoloClient:
@@ -252,4 +267,3 @@ class SoloClient:
                 self.verify_flash(sig)
             else:
                 self.verify_flash(b"A" * 64)
-
