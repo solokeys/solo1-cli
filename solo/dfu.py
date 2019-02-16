@@ -2,6 +2,10 @@ import usb.core
 import usb.util
 import usb._objfinalizer
 
+import time
+
+from solo.commands import *
+
 # hot patch for windows libusb backend
 olddel = usb._objfinalizer._AutoFinalizedObjectBase.__del__
 
