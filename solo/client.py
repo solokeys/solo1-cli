@@ -5,6 +5,9 @@ import sys
 import tempfile
 import time
 
+from cryptography import x509
+from cryptography.hazmat.backends import default_backend
+from fido2.attestation import Attestation
 from fido2.client import Fido2Client, ClientError
 from fido2.ctap import CtapError
 from fido2.ctap1 import CTAP1
@@ -129,7 +132,7 @@ class SoloClient:
         return data[0]
 
     def solo_version(self,):
-        data = self.exchange_fido2(SoloExtension.version)
+        data = self.exchange(SoloExtension.version)
         return (data[0], data[1], data[2])
 
     def write_flash(self, addr, data):
@@ -269,7 +272,8 @@ class SoloClient:
                 self.verify_flash(b"A" * 64)
 
 
-def find():
+def find(transport="u2f"):
     p = SoloClient()
+    p.use_u2f()
     p.find_device()
     return p

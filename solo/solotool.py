@@ -113,66 +113,8 @@ def attempt_to_boot_bootloader(p):
 
 
 def solo_main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--rng",
-        action="store_true",
-        help="Continuously dump random numbers generated from Solo.",
-    )
-
-    parser.add_argument("--wink", action="store_true", help="HID Wink command.")
-    parser.add_argument(
-        "--reset",
-        action="store_true",
-        help="Issue a FIDO2 reset command.  Warning: your credentials will be lost.",
-    )
-    parser.add_argument(
-        "--verify-solo",
-        action="store_true",
-        help="Verify that the Solo firmware is from SoloKeys.  Check firmware version.",
-    )
-    parser.add_argument(
-        "--version", action="store_true", help="Check firmware version on Solo."
-    )
-    args = parser.parse_args()
-
-    p = solo.client.SoloClient()
-    p.find_device()
-
-    if args.reset:
-        p.reset()
-
-    if args.rng:
-        while True:
-            r = p.get_rng(255)
-            sys.stdout.buffer.write(r)
-        sys.exit(0)
-
-    if args.wink:
-        p.wink()
-        sys.exit(0)
-
-    if args.verify_solo:
-        cert = p.make_credential()
-
-        solo_fingerprint = b"r\xd5\x831&\xac\xfc\xe9\xa8\xe8&`\x18\xe6AI4\xc8\xbeJ\xb8h_\x91\xb0\x99!\x13\xbb\xd42\x95"
-        hacker_fingerprint = b"\xd0ml\xcb\xda}\xe5j\x16'\xc2\xa7\x89\x9c5\xa2\xa3\x16\xc8Q\xb3j\xd8\xed~\xd7\x84y\xbbx~\xf7"
-
-        if cert.fingerprint(hashes.SHA256()) == solo_fingerprint:
-            print("Valid SOLO firmware from SoloKeys")
-        elif cert.fingerprint(hashes.SHA256()) == hacker_fingerprint:
-            print("Valid HACKER firmware")
-        else:
-            print("Unknown fingerprint! ", cert.fingerprint(hashes.SHA256()))
-
-        args.version = True
-
-    if args.version:
-        try:
-            v = p.solo_version()
-            print("Version: ", v)
-        except ApduError:
-            print("Firmware is out of date.")
+    # moved to new CLI
+    pass
 
 
 def asked_for_help():
