@@ -50,8 +50,9 @@ def reset():
     if click.confirm(
         "Warning: Your credentials will be lost!!! Do you wish to continue?"
     ):
-        click.echo("....aaaand they're gone")
+        print("Press the button to confirm -- again, your credentials will be lost!!!")
         solo.client.find().reset()
+        click.echo("....aaaand they're gone")
 
 
 @click.command()
