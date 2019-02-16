@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.1a3] - 2019-02-16
+### Added
+- Start redo of CLI using click
+
 ## [0.0.1a2] - 2019-02-15
 ### Changed
 - Bugfixes related to refactor

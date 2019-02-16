@@ -267,3 +267,9 @@ class SoloClient:
                 self.verify_flash(sig)
             else:
                 self.verify_flash(b"A" * 64)
+
+
+def find():
+    p = SoloClient()
+    p.find_device()
+    return p

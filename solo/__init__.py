@@ -16,4 +16,5 @@ __version__ = open(pathlib.Path(__file__).parent / "VERSION").read().strip()
 del pathlib
 
 from . import client
+from . import dfu
 from . import commands
