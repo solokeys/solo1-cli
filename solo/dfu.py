@@ -7,13 +7,13 @@
 # http://opensource.org/licenses/MIT>, at your option. This file may not be
 # copied, modified, or distributed except according to those terms.
 
+import time
+
 import usb.core
 import usb.util
 import usb._objfinalizer
 
-import time
-
-from solo.commands import *
+from solo.commands import DFU
 
 # hot patch for windows libusb backend
 olddel = usb._objfinalizer._AutoFinalizedObjectBase.__del__
