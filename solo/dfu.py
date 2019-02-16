@@ -29,17 +29,19 @@ def newdel(self):
 usb._objfinalizer._AutoFinalizedObjectBase.__del__ = newdel
 
 
-def find(dfu_serial=None, attempts=8):
+def find(dfu_serial=None, attempts=8, raw_device=None):
     """dfu_serial is also the ST chip identifier"""
     for i in range(attempts):
         dfu = DFUDevice()
         try:
-            dfu.find(ser=dfu_serial)
+            dfu.find(ser=dfu_serial, dev=raw_device)
             return dfu
         except RuntimeError:
             time.sleep(0.25)
 
-    return None
+    # return None
+    raise Exception("no DFU found")
+
 
 
 class DFUDevice:

@@ -29,17 +29,20 @@ from solo.commands import SoloBootloader, SoloExtension
 from solo import helpers
 
 
-def find(retries=5) -> bool:
+def find(retries=5, raw_device=None):
     # TODO: change `p` (for programmer) throughout
     p = SoloClient()
+
+    # This... is not the right way to do it yet
     p.use_u2f()
 
     for i in range(retries):
         try:
-            p.find_device()
+            p.find_device(dev=raw_device)
             return p
         except RuntimeError:
             time.sleep(0.2)
+
     # return None
     raise Exception("no Solo found")
 
