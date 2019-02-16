@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.1a4] - 2019-02-16
+### Added
+- Everything moved out of solotool, except programming chunk
+
 ## [0.0.1a3] - 2019-02-16
 ### Added
 - Start redo of CLI using click

@@ -10,8 +10,10 @@ import solo
 # https://pocoo-click.readthedocs.io/en/latest/commands/#nested-handling-and-contexts
 # TODO: decide where to put the switch of the transports
 __DEVICE_TRANSPORT = None
+
+
 @click.group()
-@click.option('--transport', default="hid")
+@click.option("--transport", default="hid")
 # @click.pass_context
 # def device(ctx, transport):
 def device(transport):
@@ -45,7 +47,9 @@ def raw():
 
 @click.command()
 def reset():
-    if click.confirm("Warning: Your credentials will be lost!!! Do you wish to continue?"):
+    if click.confirm(
+        "Warning: Your credentials will be lost!!! Do you wish to continue?"
+    ):
         click.echo("....aaaand they're gone")
         solo.client.find().reset()
 
@@ -65,6 +69,7 @@ def verify():
     else:
         print("Unknown fingerprint! ", cert.fingerprint(hashes.SHA256()))
 
+
 @click.command()
 def version():
     try:
@@ -74,9 +79,11 @@ def version():
         # Older
         print("Firmware is out of date (device does not know the SOLO_VERSION command.")
 
+
 @click.command()
 def wink():
     solo.client.find().wink()
+
 
 device.add_command(rng)
 rng.add_command(hexbytes)

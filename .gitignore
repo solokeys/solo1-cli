@@ -4,4 +4,6 @@
 
 dist/
 venv/
+solo-*.json
+*.hex
 

@@ -3,6 +3,7 @@ import sys
 import click
 import serial
 
+
 @click.command()
 @click.argument("serial_port")
 def monitor(serial_port):

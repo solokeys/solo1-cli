@@ -41,43 +41,8 @@ from solo import helpers
 
 
 def get_firmware_object(sk_name, hex_file):
-    from ecdsa import SigningKey, NIST256p
-
-    sk = SigningKey.from_pem(open(sk_name).read())
-    fw = open(hex_file, "r").read()
-    fw = base64.b64encode(fw.encode())
-    fw = helpers.to_websafe(fw.decode())
-    ih = IntelHex()
-    ih.fromfile(hex_file, format="hex")
-    # start of firmware and the size of the flash region allocated for it.
-    # TODO put this somewhere else.
-    START = ih.segments()[0][0]
-    END = (0x08000000 + ((128 - 19) * 2048)) - 8
-
-    ih = IntelHex(hex_file)
-    segs = ih.segments()
-    arr = ih.tobinarray(start=START, size=END - START)
-
-    im_size = END - START
-
-    print("im_size: ", im_size)
-    print("firmware_size: ", len(arr))
-
-    byts = (arr).tobytes() if hasattr(arr, "tobytes") else (arr).tostring()
-    h = sha256()
-    h.update(byts)
-    sig = binascii.unhexlify(h.hexdigest())
-    print("hash", binascii.hexlify(sig))
-    sig = sk.sign_digest(sig)
-
-    print("sig", binascii.hexlify(sig))
-
-    sig = base64.b64encode(sig)
-    sig = helpers.to_websafe(sig.decode())
-
-    # msg = {'data': read()}
-    msg = {"firmware": fw, "signature": sig}
-    return msg
+    # move to helpers
+    return helpers.sign_firmware(sk_name, hex_file)
 
 
 def attempt_to_find_device(p):
@@ -125,99 +90,18 @@ def asked_for_help():
 
 
 def monitor_main():
-    if asked_for_help() or len(sys.argv) != 2:
-        print(
-            """
-    Reads serial output from USB serial port on Solo hacker.  Automatically reconnects.
-    usage: %s <serial-port> [-h]
-          * <serial-port> will look like COM10 or /dev/ttyACM0 or something.
-          * baud is 115200.
-    """
-            % sys.argv[0]
-        )
-        sys.exit(1)
-
-    port = sys.argv[1]
-
-    ser = serial.Serial(port, 115200, timeout=0.05)
-
-    def reconnect():
-        while 1:
-            time.sleep(0.02)
-            try:
-                ser = serial.Serial(port, 115200, timeout=0.05)
-                return ser
-            except serial.SerialException:
-                pass
-
-    while 1:
-        try:
-            d = ser.read(1)
-        except serial.SerialException:
-            print("reconnecting...")
-            ser = reconnect()
-            print("done")
-        sys.stdout.buffer.write(d)
-        sys.stdout.flush()
+    # moved to new CLI
+    pass
 
 
 def genkey_main():
-    from ecdsa import SigningKey, NIST256p
-    from ecdsa.util import randrange_from_seed__trytryagain
-
-    if asked_for_help() or len(sys.argv) not in (2, 3):
-        print(
-            """
-    Generates key pair that can be used for Solo's signed firmware updates.
-    usage: %s <output-pem-file> [input-seed-file] [-h]
-          * Generates NIST P256 keypair.
-          * Public key must be copied into correct source location in solo bootloader
-          * The private key can be used for signing updates.
-          * You may optionally supply a file to seed the RNG for key generating.
-    """
-            % sys.argv[0]
-        )
-        sys.exit(1)
-
-    if len(sys.argv) > 2:
-        seed = sys.argv[2]
-        print("using input seed file ", seed)
-        rng = open(seed, "rb").read()
-        secexp = randrange_from_seed__trytryagain(rng, NIST256p.order)
-        sk = SigningKey.from_secret_exponent(secexp, curve=NIST256p)
-    else:
-        sk = SigningKey.generate(curve=NIST256p)
-
-    sk_name = sys.argv[1]
-    print("Signing key for signing device firmware: " + sk_name)
-    open(sk_name, "wb+").write(sk.to_pem())
-
-    vk = sk.get_verifying_key()
-
-    print("Public key in various formats:")
-    print()
-    print([c for c in vk.to_string()])
-    print()
-    print("".join(["%02x" % c for c in vk.to_string()]))
-    print()
-    print('"\\x' + "\\x".join(["%02x" % c for c in vk.to_string()]) + '"')
-    print()
+    # moved to new CLI
+    pass
 
 
 def sign_main():
-
-    if asked_for_help() or len(sys.argv) != 4:
-        print(
-            "Signs a firmware hex file, outputs a .json file that can be used for signed update."
-        )
-        print("usage: %s <signing-key.pem> <app.hex> <output.json> [-h]" % sys.argv[0])
-        print()
-        sys.exit(1)
-    msg = get_firmware_object(sys.argv[1], sys.argv[2])
-    print("Saving signed firmware to", sys.argv[3])
-    wfile = open(sys.argv[3], "wb+")
-    wfile.write(json.dumps(msg).encode())
-    wfile.close()
+    # moved to new CLI
+    pass
 
 
 def use_dfu(args):
@@ -432,65 +316,8 @@ def programmer_main():
 
 
 def main_mergehex():
-    if len(sys.argv) < 3:
-        print(
-            "usage: %s <file1.hex> <file2.hex> [...] [-s <secret_attestation_key>] <output.hex>"
-        )
-        sys.exit(1)
-
-    def flash_addr(num):
-        return 0x08000000 + num * 2048
-
-    args = sys.argv[:]
-
-    # generic / hacker attestation key
-    secret_attestation_key = (
-        "1b2626ecc8f69b0f69e34fb236d76466ba12ac16c3ab5750ba064e8b90e02448"
-    )
-
-    # user supplied, optional
-    for i, x in enumerate(args):
-        if x == "-s":
-            secret_attestation_key = args[i + 1]
-            args = args[:i] + args[i + 2 :]
-            break
-
-    # TODO put definitions somewhere else
-    PAGES = 128
-    APPLICATION_END_PAGE = PAGES - 19
-    AUTH_WORD_ADDR = flash_addr(APPLICATION_END_PAGE) - 8
-    ATTEST_ADDR = flash_addr(PAGES - 15)
-
-    first = IntelHex(args[1])
-    for i in range(2, len(args) - 1):
-        print("merging %s with " % (args[1]), args[i])
-        first.merge(IntelHex(args[i]), overlap="replace")
-
-    first[flash_addr(APPLICATION_END_PAGE - 1)] = 0x41
-    first[flash_addr(APPLICATION_END_PAGE - 1) + 1] = 0x41
-
-    first[AUTH_WORD_ADDR - 4] = 0
-    first[AUTH_WORD_ADDR - 1] = 0
-    first[AUTH_WORD_ADDR - 2] = 0
-    first[AUTH_WORD_ADDR - 3] = 0
-
-    first[AUTH_WORD_ADDR] = 0
-    first[AUTH_WORD_ADDR + 1] = 0
-    first[AUTH_WORD_ADDR + 2] = 0
-    first[AUTH_WORD_ADDR + 3] = 0
-
-    first[AUTH_WORD_ADDR + 4] = 0xFF
-    first[AUTH_WORD_ADDR + 5] = 0xFF
-    first[AUTH_WORD_ADDR + 6] = 0xFF
-    first[AUTH_WORD_ADDR + 7] = 0xFF
-
-    if secret_attestation_key is not None:
-        key = unhexlify(secret_attestation_key)
-
-        for i, x in enumerate(key):
-            first[ATTEST_ADDR + i] = x
-
-    first.tofile(args[len(args) - 1], format="hex")
+    # moved to new CLI
+    pass
 
 
 def main_version():
