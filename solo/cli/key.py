@@ -17,29 +17,22 @@ import solo
 
 
 # https://pocoo-click.readthedocs.io/en/latest/commands/#nested-handling-and-contexts
-# TODO: decide where to put the switch of the transports
-__DEVICE_TRANSPORT = None
-
-
 @click.group()
-@click.option("--transport", default="hid")
-# @click.pass_context
-# def device(ctx, transport):
-def device(transport):
-    """Interact with Solo devices, see subcommands."""
-    global __DEVICE_TRANSPORT
-    __DEVICE_TRANSPORT = transport
+def key():
+    """Interact with Solo keys, see subcommands."""
     pass
 
 
 @click.group()
 def rng():
+    """Access TRNG on key, see subcommands."""
     pass
 
 
 @click.command()
 @click.option("--count", default=8, help="How many bytes to generate (defaults to 8)")
 def hexbytes(count):
+    """Output COUNT number of random bytes, hex-encoded."""
     if not 0 <= count <= 255:
         print(f"Number of bytes must be between 0 and 255, you passed {count}")
         sys.exit(1)
@@ -49,6 +42,7 @@ def hexbytes(count):
 
 @click.command()
 def raw():
+    """Output raw entropy endlessly."""
     p = solo.client.find()
     while True:
         r = p.get_rng(255)
@@ -57,6 +51,7 @@ def raw():
 
 @click.command()
 def reset():
+    """Reset key - wipes all credentials!!!"""
     if click.confirm(
         "Warning: Your credentials will be lost!!! Do you wish to continue?"
     ):
@@ -67,6 +62,7 @@ def reset():
 
 @click.command()
 def verify():
+    """Verify key is valid Solo Secure or Solo Hacker."""
     # Any longer and this needs to go in a submodule
     cert = solo.client.find().make_credential()
 
@@ -83,23 +79,25 @@ def verify():
 
 @click.command()
 def version():
+    """Version of firmware on key."""
     try:
         major, minor, patch = solo.client.find().solo_version()
         print(f"{major}.{minor}.{patch}")
     except ApduError:
         # Older
-        print("Firmware is out of date (device does not know the SOLO_VERSION command.")
+        print("Firmware is out of date (key does not know the SOLO_VERSION command.")
 
 
 @click.command()
 def wink():
+    """Send wink command to key (blinks LED a few times)."""
     solo.client.find().wink()
 
 
-device.add_command(rng)
+key.add_command(rng)
 rng.add_command(hexbytes)
 rng.add_command(raw)
-device.add_command(reset)
-device.add_command(version)
-device.add_command(verify)
-device.add_command(wink)
+key.add_command(reset)
+key.add_command(version)
+key.add_command(verify)
+key.add_command(wink)

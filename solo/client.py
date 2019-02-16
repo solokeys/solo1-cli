@@ -29,6 +29,21 @@ from solo.commands import SoloBootloader, SoloExtension
 from solo import helpers
 
 
+def find(retries=5) -> bool:
+    # TODO: change `p` (for programmer) throughout
+    p = SoloClient()
+    p.use_u2f()
+
+    for i in range(retries):
+        try:
+            p.find_device()
+            return p
+        except RuntimeError:
+            time.sleep(0.2)
+    # return None
+    raise Exception("no Solo found")
+
+
 class SoloClient:
     def __init__(self,):
         self.origin = "https://example.org"
@@ -280,10 +295,3 @@ class SoloClient:
                 self.verify_flash(sig)
             else:
                 self.verify_flash(b"A" * 64)
-
-
-def find(transport="u2f"):
-    p = SoloClient()
-    p.use_u2f()
-    p.find_device()
-    return p

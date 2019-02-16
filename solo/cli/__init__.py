@@ -12,13 +12,19 @@ import json
 
 import solo
 import solo.operations
-import solo.cli.monitor
-import solo.cli.device
+from solo.cli.key import key
+from solo.cli.monitor import monitor
+from solo.cli.program import program
 
 
 @click.group()
 def solo_cli():
     pass
+
+
+solo_cli.add_command(key)
+solo_cli.add_command(monitor)
+solo_cli.add_command(program)
 
 
 @click.command()
@@ -28,9 +34,6 @@ def version():
 
 
 solo_cli.add_command(version)
-
-solo_cli.add_command(solo.cli.monitor.monitor)
-solo_cli.add_command(solo.cli.device.device)
 
 
 @click.command()

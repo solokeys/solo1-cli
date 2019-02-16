@@ -1,3 +1,4 @@
+
 .PHONY: black build clean publish reinstall
 
 init: update-venv
@@ -17,7 +18,7 @@ clean:
 
 # Package management
 
-build: black
+build: code-checks
 	flit build
 
 publish:
@@ -28,6 +29,8 @@ venv:
 	python3 -m venv venv
 	venv/bin/pip install -U pip
 
+# re-run if dev or runtime dependencies change,
+# or when adding new scripts
 update-venv: venv
 	venv/bin/pip install -U pip
 	venv/bin/pip install -U -r dev-requirements.txt
