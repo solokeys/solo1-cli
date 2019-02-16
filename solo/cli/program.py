@@ -37,7 +37,13 @@ def program():
     "-a", "--connect-attempts", default=8, help="number of times to attempt connecting"
 )
 # @click.option("--attach", default=False, help="Attempt switching to DFU before starting")
-@click.option("-d", "--detach", default=False, is_flag=True, help="Reboot after successful programming")
+@click.option(
+    "-d",
+    "--detach",
+    default=False,
+    is_flag=True,
+    help="Reboot after successful programming",
+)
 @click.option("-n", "--dry-run", is_flag=True, help="Just attach and detach")
 @click.argument("firmware")  # , help="firmware (bundle) to program")
 def dfu(serial, connect_attempts, detach, dry_run, firmware):
@@ -78,7 +84,7 @@ def dfu(serial, connect_attempts, detach, dry_run, firmware):
         print("erasing...")
         try:
             dfu.mass_erase()
-        except usb.core.USBError as e:
+        except usb.core.USBError:
             # garbage write, sometimes needed before mass_erase
             dfu.write_page(0x08000000 + 2048 * 10, "ZZFF" * (2048 // 4))
             dfu.mass_erase()
@@ -113,7 +119,8 @@ def dfu(serial, connect_attempts, detach, dry_run, firmware):
                 total += chunk
                 progress = total / float(size) * 100
                 sys.stdout.write(
-                    "reading %.2f%%  %08x - %08x ...         \r" % (progress, i, i + page)
+                    "reading %.2f%%  %08x - %08x ...         \r"
+                    % (progress, i, i + page)
                 )
                 if (end - start) == chunk:
                     assert data1 == data2
@@ -137,7 +144,7 @@ program.add_command(aux)
 
 @click.command()
 def enter_bootloader():
-    """Attempt to switch to Solo bootloader."""
+    """Attempt to switch from Solo firmware to Solo bootloader."""
 
     p = solo.client.find()
 
@@ -163,8 +170,17 @@ aux.add_command(enter_bootloader)
 
 
 @click.command()
+def leave_bootloader():
+    """Attempt to switch from Solo bootloader to Solo firmware."""
+    raise NotImplementedError
+
+
+aux.add_command(leave_bootloader)
+
+
+@click.command()
 def enter_dfu():
-    """Attempt to switch to ST DFU bootloader."""
+    """Attempt to switch from Solo bootloader to ST DFU bootloader."""
 
     p = solo.client.find()
     p.enter_st_dfu()
@@ -173,6 +189,18 @@ def enter_dfu():
 
 
 aux.add_command(enter_dfu)
+
+
+@click.command()
+def leave_dfu():
+    """Attempt to switch from ST DFU bootloader to (?) Solo bootloader and/or firmware."""
+
+    dfu = solo.dfu.find()
+    dfu.init()
+    dfu.detach()
+
+
+aux.add_command(leave_dfu)
 
 
 @click.command()
@@ -185,5 +213,6 @@ def reboot():
     """
     p = solo.client.find()
     p.reboot()
+
 
 aux.add_command(reboot)

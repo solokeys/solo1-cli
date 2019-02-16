@@ -43,7 +43,6 @@ def find(dfu_serial=None, attempts=8, raw_device=None):
     raise Exception("no DFU found")
 
 
-
 class DFUDevice:
     def __init__(self,):
         pass
