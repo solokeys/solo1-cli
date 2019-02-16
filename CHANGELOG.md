@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.1a5] - 2019-02-16
+### Changed
+- Unwrap genkey from CLI to operations
+
 ## [0.0.1a4] - 2019-02-16
 ### Added
 - Everything moved out of solotool, except programming chunk

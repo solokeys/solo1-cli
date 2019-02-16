@@ -9,7 +9,6 @@ import solo
 import solo.operations
 import solo.cli.monitor
 import solo.cli.device
-import solo.cli.genkey
 
 
 @click.group()
@@ -27,7 +26,34 @@ solo_cli.add_command(version)
 
 solo_cli.add_command(monitor.monitor)
 solo_cli.add_command(device.device)
-solo_cli.add_command(genkey.genkey)
+
+
+@click.command()
+@click.option("--input-seed-file")
+@click.argument("output_pem_file")
+def genkey(input_seed_file, output_pem_file):
+    """Generates key par that can be used for Solo signed firmware updates.
+
+    \b
+    * Generates NIST P256 keypair.
+    * Public key must be copied into correct source location in solo bootloader
+    * The private key can be used for signing updates.
+    * You may optionally supply a file to seed the RNG for key generating.
+    """
+
+    vk = solo.operations.genkey(output_pem_file, input_seed_file=input_seed_file)
+
+    print("Public key in various formats:")
+    print()
+    print([c for c in vk.to_string()])
+    print()
+    print("".join(["%02x" % c for c in vk.to_string()]))
+    print()
+    print('"\\x' + "\\x".join(["%02x" % c for c in vk.to_string()]) + '"')
+    print()
+
+
+solo_cli.add_command(genkey)
 
 
 @click.command()

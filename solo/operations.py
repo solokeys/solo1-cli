@@ -4,6 +4,29 @@ from intelhex import IntelHex
 from solo import helpers
 
 
+def genkey(output_pem_file, input_seed_file=None):
+    from ecdsa import SigningKey, NIST256p
+    from ecdsa.util import randrange_from_seed__trytryagain
+
+    if input_seed_file is not None:
+        seed = input_seed_file
+        print("using input seed file ", seed)
+        rng = open(seed, "rb").read()
+        secexp = randrange_from_seed__trytryagain(rng, NIST256p.order)
+        sk = SigningKey.from_secret_exponent(secexp, curve=NIST256p)
+    else:
+        sk = SigningKey.generate(curve=NIST256p)
+
+    sk_name = output_pem_file
+    print(f"Signing key for signing device firmware: {sk_name}")
+    with open(sk_name, "wb+") as fh:
+        fh.write(sk.to_pem())
+
+    vk = sk.get_verifying_key()
+
+    return vk
+
+
 def mergehex(input_hex_files, output_hex_file, attestation_key=None):
     """Merges hex files, and patches in the attestation key.
 
