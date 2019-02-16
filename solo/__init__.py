@@ -12,9 +12,11 @@
 
 import pathlib
 
+from . import client
+from . import commands
+from . import dfu
+
 __version__ = open(pathlib.Path(__file__).parent / "VERSION").read().strip()
 del pathlib
 
-from . import client
-from . import dfu
-from . import commands
+__all__ = ["client", "commands", "dfu"]

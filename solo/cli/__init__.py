@@ -7,11 +7,7 @@
 # http://opensource.org/licenses/MIT>, at your option. This file may not be
 # copied, modified, or distributed except according to those terms.
 
-import sys
-
 import click
-from cryptography.hazmat.primitives import hashes
-from fido2.ctap1 import ApduError
 import json
 
 import solo
@@ -33,8 +29,8 @@ def version():
 
 solo_cli.add_command(version)
 
-solo_cli.add_command(monitor.monitor)
-solo_cli.add_command(device.device)
+solo_cli.add_command(solo.cli.monitor.monitor)
+solo_cli.add_command(solo.cli.device.device)
 
 
 @click.command()

@@ -17,7 +17,7 @@ import time
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 from fido2.attestation import Attestation
-from fido2.client import Fido2Client, ClientError
+from fido2.client import Fido2Client
 from fido2.ctap import CtapError
 from fido2.ctap1 import CTAP1
 from fido2.ctap2 import CTAP2
@@ -67,7 +67,8 @@ class SoloClient:
 
     @staticmethod
     def format_request(cmd, addr=0, data=b"A" * 16):
-        arr = b"\x00" * 9
+        # not sure why this is here?
+        # arr = b"\x00" * 9
         addr = struct.pack("<L", addr)
         cmd = struct.pack("B", cmd)
         length = struct.pack(">H", len(data))
@@ -75,12 +76,12 @@ class SoloClient:
         return cmd + addr[:3] + SoloBootloader.TAG + length + data
 
     def send_only_hid(self, cmd, data):
-        if type(data) != type(b""):
+        if not isinstance(data, bytes):
             data = struct.pack("%dB" % len(data), *[ord(x) for x in data])
         self.dev._dev.InternalSend(0x80 | cmd, bytearray(data))
 
     def send_data_hid(self, cmd, data):
-        if type(data) != type(b""):
+        if not isinstance(data, bytes):
             data = struct.pack("%dB" % len(data), *[ord(x) for x in data])
         with Timeout(1.0) as event:
             return self.dev.call(cmd, data, event)

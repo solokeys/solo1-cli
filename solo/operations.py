@@ -97,7 +97,7 @@ def sign_firmware(sk_name, hex_file):
     import base64
 
     import binascii
-    from ecdsa import SigningKey, NIST256p
+    from ecdsa import SigningKey
     from hashlib import sha256
     from intelhex import IntelHex
 
@@ -113,7 +113,7 @@ def sign_firmware(sk_name, hex_file):
     END = (0x08000000 + ((128 - 19) * 2048)) - 8
 
     ih = IntelHex(hex_file)
-    segs = ih.segments()
+    # segs = ih.segments()
     arr = ih.tobinarray(start=START, size=END - START)
 
     im_size = END - START

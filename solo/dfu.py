@@ -97,7 +97,7 @@ class DFUDevice:
 
     def clear_status(self,):
         # bmReqType, bmReq, wValue, wIndex, data/size
-        s = self.dev.ctrl_transfer(
+        _ = self.dev.ctrl_transfer(
             DFU.type.SEND, DFU.bmReq.CLRSTATUS, 0, self.intNum, None
         )
 
@@ -139,7 +139,6 @@ class DFUDevice:
         if self.state() not in (DFU.state.IDLE, DFU.state.DOWNLOAD_IDLE):
             raise RuntimeError("DFU device not in correct state for writing memory.")
 
-        oldaddr = addr
         addr = DFUDevice.addr2block(addr, len(data))
         # print('flashing %d bytes to block %d/%08x...' % (len(data), addr,oldaddr))
 

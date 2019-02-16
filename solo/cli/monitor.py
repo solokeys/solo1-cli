@@ -8,6 +8,7 @@
 # copied, modified, or distributed except according to those terms.
 
 import sys
+import time
 
 import click
 import serial
@@ -22,15 +23,13 @@ def monitor(serial_port):
     Automatically reconnects. Baud rate is 115200.
     """
 
-    import serial
-
     ser = serial.Serial(serial_port, 115200, timeout=0.05)
 
     def reconnect():
         while True:
             time.sleep(0.02)
             try:
-                ser = serial.Serial(port, 115200, timeout=0.05)
+                ser = serial.Serial(serial_port, 115200, timeout=0.05)
                 return ser
             except serial.SerialException:
                 pass

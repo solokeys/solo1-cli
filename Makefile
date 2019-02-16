@@ -2,8 +2,13 @@
 
 init: update-venv
 
+code-checks: black lint
+
 black:
 	black solo/
+
+lint:
+	flake8 solo/
 
 clean:
 	rm -rf venv
