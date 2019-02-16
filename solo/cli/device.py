@@ -17,6 +17,7 @@ __DEVICE_TRANSPORT = None
 # @click.pass_context
 # def device(ctx, transport):
 def device(transport):
+    """Interact with Solo devices, see subcommands."""
     global __DEVICE_TRANSPORT
     __DEVICE_TRANSPORT = transport
     pass

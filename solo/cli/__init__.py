@@ -19,6 +19,7 @@ def solo_cli():
 
 @click.command()
 def version():
+    """Version of python-solo library and tool."""
     print(solo.__version__)
 
 
