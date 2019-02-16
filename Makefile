@@ -1,4 +1,6 @@
-.PHONY: update-venv black build clean publish
+.PHONY: black build clean publish reinstall
+
+init: update-venv
 
 black:
 	black solo/
@@ -13,10 +15,6 @@ clean:
 build: black
 	flit build
 
-reinstall:
-	pip uninstall -y solo-python
-	flit install
-
 publish:
 	black --check solo/
 	flit publish
@@ -28,3 +26,4 @@ venv:
 update-venv: venv
 	venv/bin/pip install -U pip
 	venv/bin/pip install -U -r dev-requirements.txt
+	venv/bin/flit install --symlink
