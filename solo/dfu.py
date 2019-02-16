@@ -64,18 +64,20 @@ class DFUDevice:
         addr += 0x08000000
         return addr
 
-    def find(self, altsetting=0, ser=None):
+    def find(self, altsetting=0, ser=None, dev=None):
 
-        self.dev = None
-        if ser:
-            devs = usb.core.find(idVendor=0x0483, idProduct=0xDF11, find_all=1)
-            for x in devs:
-                if ser == (usb.util.get_string(x, x.iSerialNumber)):
-                    print("connecting to ", ser)
-                    self.dev = x
-                    break
+        if dev is not None:
+            self.dev = dev
         else:
-            self.dev = usb.core.find(idVendor=0x0483, idProduct=0xDF11)
+            if ser:
+                devs = usb.core.find(idVendor=0x0483, idProduct=0xDF11, find_all=1)
+                for x in devs:
+                    if ser == (usb.util.get_string(x, x.iSerialNumber)):
+                        print("connecting to ", ser)
+                        self.dev = x
+                        break
+            else:
+                self.dev = usb.core.find(idVendor=0x0483, idProduct=0xDF11)
 
         if self.dev is None:
             raise RuntimeError("No ST DFU devices found.")

@@ -68,17 +68,21 @@ class SoloClient:
         except OSError:
             pass
 
-    def find_device(self,):
-        dev = next(CtapHidDevice.list_devices(), None)
-        if not dev:
-            raise RuntimeError("No FIDO device found")
+    def find_device(self, dev=None):
+        if dev is None:
+            dev = next(CtapHidDevice.list_devices(), None)
+            if not dev:
+                raise RuntimeError("No FIDO device found")
         self.dev = dev
+
         self.ctap1 = CTAP1(dev)
         self.ctap2 = CTAP2(dev)
         self.client = Fido2Client(dev, self.origin)
 
         if self.exchange == self.exchange_hid:
             self.send_data_hid(CTAPHID.INIT, "\x11\x11\x11\x11\x11\x11\x11\x11")
+
+        return self.dev
 
     @staticmethod
     def format_request(cmd, addr=0, data=b"A" * 16):
