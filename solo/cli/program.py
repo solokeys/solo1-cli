@@ -168,6 +168,8 @@ def enter_dfu():
 
     p = solo.client.find()
     p.enter_st_dfu()
+    # this doesn't really work yet ;)
+    p.reboot()
 
 
 aux.add_command(enter_dfu)
@@ -175,6 +177,12 @@ aux.add_command(enter_dfu)
 
 @click.command()
 def reboot():
+    """Reboot.
+
+    \b
+    This should reboot from anything (firmware, bootloader, DFU).
+    Separately, need to be able to set boot options.
+    """
     p = solo.client.find()
     p.reboot()
 

@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.1a6] - 2019-02-16
+### Changed
+- Implements part of `solo program dfu` and `solo program aux`
+- Adds Conor's change allowing to pass in raw devices to DFU+SoloClient
+
 ## [0.0.1a5] - 2019-02-16
 ### Changed
 - Unwrap genkey from CLI to operations
