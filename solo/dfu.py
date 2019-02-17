@@ -14,6 +14,7 @@ import usb.util
 import usb._objfinalizer
 
 from solo.commands import DFU
+import solo.exceptions
 
 # hot patch for windows libusb backend
 olddel = usb._objfinalizer._AutoFinalizedObjectBase.__del__
@@ -30,7 +31,11 @@ usb._objfinalizer._AutoFinalizedObjectBase.__del__ = newdel
 
 
 def find(dfu_serial=None, attempts=8, raw_device=None):
-    """dfu_serial is also the ST chip identifier"""
+    """dfu_serial is the ST bootloader serial number.
+
+    It is not directly the ST chip identifier, but related via
+    https://github.com/libopencm3/libopencm3/blob/master/lib/stm32/desig.c#L68
+    """
     for i in range(attempts):
         dfu = DFUDevice()
         try:
@@ -76,14 +81,23 @@ class DFUDevice:
             self.dev = dev
         else:
             if ser:
-                devs = usb.core.find(idVendor=0x0483, idProduct=0xDF11, find_all=1)
-                for x in devs:
-                    if ser == (usb.util.get_string(x, x.iSerialNumber)):
-                        print("connecting to ", ser)
-                        self.dev = x
-                        break
+                devs = usb.core.find(idVendor=0x0483, idProduct=0xDF11, find_all=True)
+                eligible = [
+                    d for d in devs if ser == usb.util.get_string(d, d.iSerialNumber)
+                ]
+                if len(eligible) > 1:
+                    raise solo.exceptions.NonUniqueDeviceError
+                if len(eligible) == 0:
+                    raise RuntimeError("No ST DFU devices found.")
+
+                self.dev = eligible[0]
+                print("connecting to ", ser)
             else:
-                self.dev = usb.core.find(idVendor=0x0483, idProduct=0xDF11)
+                self.dev = usb.core.find(
+                    idVendor=0x0483, idProduct=0xDF11, find_all=True
+                )
+                if len(eligible) > 1:
+                    raise solo.exceptions.NonUniqueDeviceError
 
         if self.dev is None:
             raise RuntimeError("No ST DFU devices found.")

@@ -26,10 +26,11 @@ from fido2.utils import Timeout
 from intelhex import IntelHex
 
 from solo.commands import SoloBootloader, SoloExtension
+import solo.exceptions
 from solo import helpers
 
 
-def find(retries=5, raw_device=None):
+def find(retries=5, raw_device=None, solo_serial=None):
     # TODO: change `p` (for programmer) throughout
     p = SoloClient()
 
@@ -38,7 +39,7 @@ def find(retries=5, raw_device=None):
 
     for i in range(retries):
         try:
-            p.find_device(dev=raw_device)
+            p.find_device(dev=raw_device, solo_serial=solo_serial)
             return p
         except RuntimeError:
             time.sleep(0.2)
@@ -87,11 +88,18 @@ class SoloClient:
         except OSError:
             pass
 
-    def find_device(self, dev=None):
+    def find_device(self, dev=None, solo_serial=None):
+        if solo_serial is not None:
+            # need to find a way to determine serial number in USB info
+            # maybe via usb.util.get_string(dev, dev.iSerialNumber)
+            raise NotImplementedError
         if dev is None:
-            dev = next(CtapHidDevice.list_devices(), None)
-            if not dev:
+            devices = list(CtapHidDevice.list_devices())
+            if len(devices) > 1:
+                raise solo.exceptions.NonUniqueDeviceError
+            if len(devices) == 0:
                 raise RuntimeError("No FIDO device found")
+            dev = devices[0]
         self.dev = dev
 
         self.ctap1 = CTAP1(dev)
