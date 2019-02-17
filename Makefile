@@ -1,9 +1,14 @@
-
 .PHONY: black build clean publish reinstall
 
+# setup development environment
 init: update-venv
 
-code-checks: black lint
+# ensure this passes before commiting
+check: lint
+	black --check solo/
+
+# automatic code fixes
+fix: black
 
 black:
 	black solo/
@@ -11,18 +16,20 @@ black:
 lint:
 	flake8 solo/
 
-clean:
+semi-clean:
+	rm -rf **/__pycache__
+
+clean: semi-clean
 	rm -rf venv
 	rm -rf dist
 
 
 # Package management
 
-build: code-checks
+build: check
 	flit build
 
-publish:
-	black --check solo/
+publish: check
 	flit publish
 
 venv:

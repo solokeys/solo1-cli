@@ -33,9 +33,9 @@ def program():
 
 @click.command()
 @click.option("-s", "--serial", help="serial number of DFU to use")
-@click.option(
-    "-a", "--connect-attempts", default=8, help="number of times to attempt connecting"
-)
+# @click.option(
+#     "-a", "--connect-attempts", default=8, help="number of times to attempt connecting"
+# )
 # @click.option("--attach", default=False, help="Attempt switching to DFU before starting")
 @click.option(
     "-d",
@@ -50,7 +50,7 @@ def dfu(serial, connect_attempts, detach, dry_run, firmware):
     """Program via STMicroelectronics DFU interface.
 
 
-    Enter this mode using `solo program lowlevel enter-dfu` first.
+    Enter dfu mode using `solo program aux enter-dfu` first.
     """
 
     import time
@@ -134,8 +134,36 @@ def dfu(serial, connect_attempts, detach, dry_run, firmware):
 program.add_command(dfu)
 
 
+@click.command()
+@click.argument("firmware")  # , help="firmware (bundle) to program")
+def bootloader(firmware):
+    """Program via Solo bootloader interface.
+
+    \b
+    FIRMWARE argument should be either a .hex or .json file.
+
+    If the bootloader is verifying, the .json is needed containing
+    a signature for the verifying key in the bootloader.
+
+    If the bootloader is nonverifying, either .hex or .json can be used.
+
+    DANGER: if you try to flash a firmware with signature that doesn't
+    match the bootloader's verifying key, you will be stuck in bootloader
+    mode until you find a signed firmware that does match.
+
+    Enter bootloader mode using `solo program aux enter-bootloader` first.
+    """
+
+    p = solo.client.find()
+    p.program_file(firmware)
+
+
+program.add_command(bootloader)
+
+
 @click.group()
 def aux():
+    """Auxiliary commands related to firmware/bootloader/dfu mode."""
     pass
 
 
@@ -144,7 +172,11 @@ program.add_command(aux)
 
 @click.command()
 def enter_bootloader():
-    """Attempt to switch from Solo firmware to Solo bootloader."""
+    """Switch from Solo firmware to Solo bootloader.
+
+    Note that after powercycle, you will be in the firmware again,
+    assuming it is valid.
+    """
 
     p = solo.client.find()
 
@@ -171,8 +203,11 @@ aux.add_command(enter_bootloader)
 
 @click.command()
 def leave_bootloader():
-    """Attempt to switch from Solo bootloader to Solo firmware."""
-    raise NotImplementedError
+    """Switch from Solo bootloader to Solo firmware."""
+    p = solo.client.find()
+    # this is a bit too low-level...
+    # p.exchange(solo.commands.SoloBootloader.done, 0, b"A" * 64)
+    p.reboot()
 
 
 aux.add_command(leave_bootloader)
@@ -180,12 +215,18 @@ aux.add_command(leave_bootloader)
 
 @click.command()
 def enter_dfu():
-    """Attempt to switch from Solo bootloader to ST DFU bootloader."""
+    """Switch from Solo bootloader to ST DFU bootloader.
+
+    This changes the boot options of the key, which only reliably
+    take effect after a powercycle.
+    """
 
     p = solo.client.find()
     p.enter_st_dfu()
     # this doesn't really work yet ;)
     p.reboot()
+
+    print("Please powercycle the device (pull out, plug in again)")
 
 
 aux.add_command(enter_dfu)
@@ -193,11 +234,20 @@ aux.add_command(enter_dfu)
 
 @click.command()
 def leave_dfu():
-    """Attempt to switch from ST DFU bootloader to (?) Solo bootloader and/or firmware."""
+    """Leave ST DFU bootloader.
+
+    Switches to Solo bootloader or firmware, latter if firmware is valid.
+
+    This changes the boot options of the key, which only reliably
+    take effect after a powercycle.
+
+    """
 
     dfu = solo.dfu.find()
     dfu.init()
     dfu.detach()
+
+    print("Please powercycle the device (pull out, plug in again)")
 
 
 aux.add_command(leave_dfu)
@@ -211,8 +261,20 @@ def reboot():
     This should reboot from anything (firmware, bootloader, DFU).
     Separately, need to be able to set boot options.
     """
-    p = solo.client.find()
-    p.reboot()
+
+    # this implementation actually only works for bootloader
+    # firmware doesn't have a reboot command
+    solo.client.find().reboot()
 
 
 aux.add_command(reboot)
+
+
+@click.command()
+def bootloader_version():
+    """Version of bootloader."""
+    p = solo.client.find()
+    print(".".join(map(str, p.bootloader_version())))
+
+
+aux.add_command(bootloader_version)

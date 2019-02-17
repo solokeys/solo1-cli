@@ -97,3 +97,24 @@ def mergehex(attestation_key, input_hex_files, output_hex_file):
 
 
 solo_cli.add_command(mergehex)
+
+
+@click.command()
+def ls():
+    """List Solos (in firmware or bootloader mode) and potential Solos in dfu mode."""
+
+    solos = solo.client.find_all()
+    print(":: Solos")
+    for c in solos:
+        descriptor = c.dev.descriptor
+        print(f"{descriptor['path']}: {descriptor['product_string']}")
+
+    st_dfus = solo.dfu.find_all()
+    print(":: Potential Solos in DFU mode")
+    for d in st_dfus:
+        dev_raw = d.dev
+        dfu_serial = dev_raw.serial_number
+        print(f"{dfu_serial}")
+
+
+solo_cli.add_command(ls)

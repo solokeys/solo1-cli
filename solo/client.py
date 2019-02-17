@@ -47,6 +47,22 @@ def find(retries=5, raw_device=None):
     raise Exception("no Solo found")
 
 
+def find_all():
+    hid_devices = list(CtapHidDevice.list_devices())
+    solo_devices = [
+        d
+        for d in hid_devices
+        if all(
+            (
+                d.descriptor["vendor_id"] == 1155,
+                d.descriptor["product_id"] == 41674,
+                # "Solo" in d.descriptor["product_string"],
+            )
+        )
+    ]
+    return [find(raw_device=device) for device in solo_devices]
+
+
 class SoloClient:
     def __init__(self,):
         self.origin = "https://example.org"

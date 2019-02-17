@@ -43,6 +43,11 @@ def find(dfu_serial=None, attempts=8, raw_device=None):
     raise Exception("no DFU found")
 
 
+def find_all():
+    st_dfus = usb.core.find(idVendor=0x0483, idProduct=0xDF11, find_all=True)
+    return [find(raw_device=st_dfu) for st_dfu in st_dfus]
+
+
 class DFUDevice:
     def __init__(self,):
         pass

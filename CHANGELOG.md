@@ -6,6 +6,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.1a8] - 2019-02-17
+### Added
+- Forgot to add some files in last release
+- Add client/dfu find\_all methods
+- Add `solo ls` command
+
+## [0.0.1a7] - 2019-02-16
+### Added
+- More implementation of `solo program aux` (mode changes)
+- Implement `solo program bootloader`.
+- More comments
+
 ## [0.0.1a6] - 2019-02-16
 ### Changed
 - Implements part of `solo program dfu` and `solo program aux`
