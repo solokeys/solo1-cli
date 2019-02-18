@@ -93,11 +93,14 @@ class DFUDevice:
                 self.dev = eligible[0]
                 print("connecting to ", ser)
             else:
-                self.dev = usb.core.find(
-                    idVendor=0x0483, idProduct=0xDF11, find_all=True
+                eligible = list(
+                    usb.core.find(idVendor=0x0483, idProduct=0xDF11, find_all=True)
                 )
                 if len(eligible) > 1:
                     raise solo.exceptions.NonUniqueDeviceError
+                if len(eligible) == 0:
+                    raise RuntimeError("No ST DFU devices found.")
+                self.dev = eligible[0]
 
         if self.dev is None:
             raise RuntimeError("No ST DFU devices found.")

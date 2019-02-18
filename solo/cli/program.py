@@ -96,7 +96,8 @@ def dfu(serial, connect_attempts, detach, dry_run, firmware):
                 data = ih.tobinarray(start=i, size=chunk)
                 dfu.write_page(i, data)
                 total += chunk
-                progress = total / float(size) * 100
+                # here and below, progress would overshoot 100% otherwise
+                progress = min(100, total / float(size) * 100)
 
                 sys.stdout.write(
                     "downloading %.2f%%  %08x - %08x ...         \r"
@@ -117,7 +118,7 @@ def dfu(serial, connect_attempts, detach, dry_run, firmware):
                 data1 = dfu.read_mem(i, 2048)
                 data2 = ih.tobinarray(start=i, size=chunk)
                 total += chunk
-                progress = total / float(size) * 100
+                progress = min(100, total / float(size) * 100)
                 sys.stdout.write(
                     "reading %.2f%%  %08x - %08x ...         \r"
                     % (progress, i, i + page)
@@ -224,7 +225,7 @@ def enter_dfu():
     p = solo.client.find()
     p.enter_st_dfu()
     # this doesn't really work yet ;)
-    p.reboot()
+    # p.reboot()
 
     print("Please powercycle the device (pull out, plug in again)")
 

@@ -11,6 +11,7 @@ import sys
 
 import click
 from cryptography.hazmat.primitives import hashes
+from fido2.client import ClientError as Fido2ClientError
 from fido2.ctap1 import ApduError
 
 import solo
@@ -66,7 +67,12 @@ def verify():
     """Verify key is valid Solo Secure or Solo Hacker."""
     # Any longer and this needs to go in a submodule
     print("Please press the button on your Solo key")
-    cert = solo.client.find().make_credential()
+    try:
+        cert = solo.client.find().make_credential()
+    except Fido2ClientError:
+        print("Error getting credential, is your key in bootloader mode?")
+        print("Try: `solo program aux leave-bootloader`")
+        sys.exit(1)
 
     solo_fingerprint = b"r\xd5\x831&\xac\xfc\xe9\xa8\xe8&`\x18\xe6AI4\xc8\xbeJ\xb8h_\x91\xb0\x99!\x13\xbb\xd42\x95"
     hacker_fingerprint = b"\xd0ml\xcb\xda}\xe5j\x16'\xc2\xa7\x89\x9c5\xa2\xa3\x16\xc8Q\xb3j\xd8\xed~\xd7\x84y\xbbx~\xf7"
