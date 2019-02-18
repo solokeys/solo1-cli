@@ -110,7 +110,10 @@ def ls():
     print(":: Solos")
     for c in solos:
         descriptor = c.dev.descriptor
-        print(f"{descriptor['path']}: {descriptor['product_string']}")
+        if "serial_number" in descriptor:
+            print(f"{descriptor['serial_number']}: {descriptor['product_string']}")
+        else:
+            print(f"{descriptor['path']}: {descriptor['product_string']}")
 
     print(":: Potential Solos in DFU mode")
     try:

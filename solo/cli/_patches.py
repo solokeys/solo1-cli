@@ -1,4 +1,5 @@
 # Monkey patch FIDO2 backend to get serial number
+
 ## windows
 import fido2._pyu2f.windows
 
