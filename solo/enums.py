@@ -7,13 +7,15 @@
 # http://opensource.org/licenses/MIT>, at your option. This file may not be
 # copied, modified, or distributed except according to those terms.
 
+from enum import Enum
 
-class NonUniqueDeviceError(Exception):
-    """When specifying a potentially destructive command...
 
-    we check that either there is exactly one applicable device,
-    or demand passing the serial number (same for ST DFU bootloader
-    and Solo bootloader+firmware.
-    """
+class SoloMode(Enum):
+    firmware = 1
+    bootloader = 2
+    dfu = 3
 
-    pass
+
+class SoloVariant(Enum):
+    secure = 1
+    hacker = 2

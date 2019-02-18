@@ -19,6 +19,7 @@ from . import helpers
 from . import operations
 
 __version__ = open(pathlib.Path(__file__).parent / "VERSION").read().strip()
-del pathlib
 
-__all__ = ["client", "commands", "dfu", "helpers", "operations"]
+
+del pathlib
+__all__ = ["client", "commands", "dfu", "enums", "exceptions", "helpers", "operations"]

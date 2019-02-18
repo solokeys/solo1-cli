@@ -14,6 +14,7 @@ from cryptography.hazmat.primitives import hashes
 from fido2.ctap1 import ApduError
 
 import solo
+from solo.cli.update import update
 
 
 # https://pocoo-click.readthedocs.io/en/latest/commands/#nested-handling-and-contexts
@@ -64,6 +65,7 @@ def reset():
 def verify():
     """Verify key is valid Solo Secure or Solo Hacker."""
     # Any longer and this needs to go in a submodule
+    print("Please press the button on your Solo key")
     cert = solo.client.find().make_credential()
 
     solo_fingerprint = b"r\xd5\x831&\xac\xfc\xe9\xa8\xe8&`\x18\xe6AI4\xc8\xbeJ\xb8h_\x91\xb0\x99!\x13\xbb\xd42\x95"
@@ -98,6 +100,7 @@ key.add_command(rng)
 rng.add_command(hexbytes)
 rng.add_command(raw)
 key.add_command(reset)
+key.add_command(update)
 key.add_command(version)
 key.add_command(verify)
 key.add_command(wink)

@@ -307,7 +307,7 @@ class SoloClient:
         size = seg[1] - seg[0]
         total = 0
         t1 = time.time() * 1000
-        print("erasing...")
+        print("erasing firmware...")
         for i in range(seg[0], seg[1], chunk):
             s = i
             e = min(i + chunk, seg[1])
@@ -315,14 +315,15 @@ class SoloClient:
             self.write_flash(i, data)
             total += chunk
             progress = total / float(size) * 100
-            sys.stdout.write("downloading %.2f%%...\r" % progress)
-        sys.stdout.write("downloaded 100%             \r\n")
+            sys.stdout.write("updating firmware %.2f%%...\r" % progress)
+        sys.stdout.write("updated firmware 100%             \r\n")
         t2 = time.time() * 1000
         print("time: %.2f s" % ((t2 - t1) / 1000.0))
 
-        print("Verifying...")
+        if sig is None:
+            sig = b"A" * 64
+
         if self.do_reboot:
-            if sig is not None:
-                self.verify_flash(sig)
-            else:
-                self.verify_flash(b"A" * 64)
+            self.verify_flash(sig)
+
+        return sig

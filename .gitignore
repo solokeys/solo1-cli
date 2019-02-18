@@ -4,6 +4,7 @@
 
 dist/
 venv/
-solo-*.json
+firmware-*.json
+firmware-*.sha2
 *.hex
 

@@ -17,6 +17,7 @@ requires = [
   "intelhex",
   "pyserial",
   "pyusb",
+  "requests",
 ]
 classifiers=[
     "License :: OSI Approved :: MIT License",
