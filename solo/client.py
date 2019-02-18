@@ -45,7 +45,7 @@ def find(retries=5, raw_device=None, solo_serial=None):
             time.sleep(0.2)
 
     # return None
-    raise Exception("no Solo found")
+    raise solo.exceptions.NoSoloFoundError("no Solo found")
 
 
 def find_all():

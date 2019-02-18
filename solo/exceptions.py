@@ -17,3 +17,9 @@ class NonUniqueDeviceError(Exception):
     """
 
     pass
+
+
+class NoSoloFoundError(Exception):
+    """Can signify no Solo, or missing udev rule on Linux."""
+
+    pass

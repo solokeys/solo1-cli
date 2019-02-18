@@ -91,9 +91,12 @@ def version():
     try:
         major, minor, patch = solo.client.find().solo_version()
         print(f"{major}.{minor}.{patch}")
-    except ApduError:
+    except solo.exceptions.NoSoloFoundError:
+        print("No Solo found.")
+        print("If you are on Linux, are your udev rules up to date?")
+    except (solo.exceptions.NoSoloFoundError, ApduError):
         # Older
-        print("Firmware is out of date (key does not know the SOLO_VERSION command.")
+        print("Firmware is out of date (key does not know the SOLO_VERSION command).")
 
 
 @click.command()

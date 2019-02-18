@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.5] - 2019-02-18
+### Changed
+- Initial feedback from https://github.com/solokeys/solo/issues/113
+
 ## [0.0.4] - 2019-02-18
 ### Changed
 - Enforce passing exactly one of `--hacker|--secure` in `solo key update`

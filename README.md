@@ -7,6 +7,11 @@ We require Python >= 3.6, and intend to support Linux, Windows and macOS.
 
 To get started, run `pip install solo-python`, this installs both the `solo` library and the `solo` interface.
 
+Possible issues:
+
+- on Linux, ensure you have suitable udev rules in place: <https://github.com/solokeys/solo/blob/master/99-solo.rules>
+- on Windows, optionally install a libusb backend: <https://github.com/libusb/libusb/wiki/Windows#driver-installation>
+
 For development, we suggest you run `make init` instead, which
 
 - sets up a virtual environment
@@ -40,6 +45,8 @@ to update the firmware on your Solo Secure ("regular" version) to the latest ver
 - run `solo key update --secure`
 
 To update an (unmodified) Solo Hacker, instead run `solo key update --hacker`.
+
+For possibly helpful additional information, see <https://github.com/solokeys/solo/issues/113>.
 
 ## Library Usage
 
