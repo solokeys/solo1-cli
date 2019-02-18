@@ -22,6 +22,7 @@ Example:
 
 ```bash
 solo ls  # lists all Solo keys connected to your machine
+solo version  # outputs version of installed `solo` library and tool
 
 solo key wink  # blinks the LED
 solo key verify  # checks whether your Solo is genuine
@@ -75,7 +76,7 @@ at your option.
 ## Contributing
 Any contribution intentionally submitted for inclusion in the work by you, as defined in the Apache-2.0 license, shall be dual licensed as above, without any additional terms or conditions.
 
-Code is to be formatted and linted according to [Black](https://black.readthedocs.io/) and our [Flake8](http://flake8.pycqa.org/en/latest/) [configuration](.flake8)  
+Code is to be formatted and linted according to [Black](https://black.readthedocs.io/) and our [Flake8](http://flake8.pycqa.org/en/latest/) [configuration](.flake8)
 Run `make check` to test compliance, run `make fix` to apply some automatic fixes.
 
 We keep a [CHANGELOG](CHANGELOG.md).
