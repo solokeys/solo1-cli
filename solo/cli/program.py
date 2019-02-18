@@ -33,9 +33,9 @@ def program():
 
 @click.command()
 @click.option("-s", "--serial", help="serial number of DFU to use")
-# @click.option(
-#     "-a", "--connect-attempts", default=8, help="number of times to attempt connecting"
-# )
+@click.option(
+    "-a", "--connect-attempts", default=8, help="number of times to attempt connecting"
+)
 # @click.option("--attach", default=False, help="Attempt switching to DFU before starting")
 @click.option(
     "-d",

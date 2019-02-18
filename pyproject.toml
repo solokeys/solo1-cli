@@ -30,5 +30,4 @@ classifiers=[
 ]
 
 [tool.flit.scripts]
-solotool = "solo.solotool:main_main"
 solo = "solo.cli:solo_cli"
