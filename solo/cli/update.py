@@ -26,14 +26,25 @@ from solo import helpers
     "--hacker", is_flag=True, default=False, help="Use this flag to flash hacker build"
 )
 @click.option(
+    "--secure", is_flag=True, default=False, help="Use this flag to flash secure build"
+)
+@click.option(
     "-lfs",
     "--local-firmware-server",
     is_flag=True,
-    default=False,  # hidden=True,
+    default=False,
+    hidden=True,
     help="Development option: pull firmware from http://localhost:8000",
 )
-def update(serial, hacker, local_firmware_server):
+def update(serial, hacker, secure, local_firmware_server):
     """Update Solo key to latest firmware version."""
+
+    # Check exactly one of --hacker/--secure is selected
+    exactly_one_variant = len({hacker, secure}) == 2
+    if not exactly_one_variant:
+        print("Please pass exactly one of `--hacker` or `--secure` as flag!")
+        print("This flag should correspond to the key you are updating.")
+        sys.exit(1)
 
     # Determine target key
     try:
