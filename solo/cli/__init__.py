@@ -10,6 +10,8 @@
 import click
 import json
 
+import usb.core
+
 import solo
 import solo.operations
 from solo.cli.key import key
@@ -109,12 +111,18 @@ def ls():
         descriptor = c.dev.descriptor
         print(f"{descriptor['path']}: {descriptor['product_string']}")
 
-    st_dfus = solo.dfu.find_all()
     print(":: Potential Solos in DFU mode")
-    for d in st_dfus:
-        dev_raw = d.dev
-        dfu_serial = dev_raw.serial_number
-        print(f"{dfu_serial}")
+    try:
+        st_dfus = solo.dfu.find_all()
+        for d in st_dfus:
+            dev_raw = d.dev
+            dfu_serial = dev_raw.serial_number
+            print(f"{dfu_serial}")
+    except usb.core.NoBackendError:
+        print("No libusb available.")
+        print("This error is only relevant if you plan to use the ST DFU interface.")
+        print("If you are on Windows, please install a driver:")
+        print("https://github.com/libusb/libusb/wiki/Windows#driver-installation")
 
 
 solo_cli.add_command(ls)

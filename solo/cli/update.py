@@ -14,6 +14,7 @@ import sys
 import tempfile
 
 import click
+from fido2.ctap1 import ApduError
 import requests
 
 import solo
@@ -49,19 +50,37 @@ def update(serial, hacker, secure, local_firmware_server):
     # Determine target key
     try:
         solo_client = solo.client.find(solo_serial=serial)
-    except Exception:
+    except solo.exceptions.NoSoloFoundError:
+        print()
+        print("No Solo key found!")
+        print()
+        print("If you are on Linux, are your udev rules up to date?")
+        print("Try adding a rule line such as the following:")
+        print(
+            'ATTRS{idVendor}=="0483", ATTRS{idProduct}=="a2ca", TAG+="uaccess", GROUP="plugdev"'
+        )
+        print("For more, see https://docs.solokeys.io/solo/udev/")
+        print()
+        sys.exit(1)
+    except solo.exceptions.NonUniqueDeviceError:
         print()
         print("Multiple Solo keys are plugged in! Please:")
-        print("  * unplug all but one key, or")
-        print("  * specify target key via `--serial SERIAL_NUMBER`")
+        # print("  * unplug all but one key, or")
+        # print("  * specify target key via `--serial SERIAL_NUMBER`")
+        print("  * unplug all but one key")
         print()
-        # sys.exit(1)
-        raise
+        sys.exit(1)
+    except Exception:
+        print()
+        print("Unhandled error connecting to key.")
+        print("Please report via https://github.com/solokeys/solo-python/issues/")
+        print()
+        sys.exit(1)
 
     # Ensure we are in bootloader mode
     try:
         solo_client.is_solo_bootloader()
-    except RuntimeError:
+    except (RuntimeError, ApduError):
         print("Please switch key to bootloader mode:")
         print("Unplug, hold button, plug in, wait for flashing yellow light.")
         sys.exit(1)
