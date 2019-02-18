@@ -17,7 +17,7 @@ import solo.operations
 from solo.cli.key import key
 from solo.cli.monitor import monitor
 from solo.cli.program import program
-from . import _patches
+from . import _patches  # noqa  (since otherwise "unused")
 
 
 @click.group()
