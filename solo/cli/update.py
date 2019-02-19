@@ -49,7 +49,8 @@ def update(serial, hacker, secure, local_firmware_server):
 
     # Determine target key
     try:
-        solo_client = solo.client.find(solo_serial=serial)
+        solo_client = solo.client.find(serial)
+
     except solo.exceptions.NoSoloFoundError:
         print()
         print("No Solo key found!")
@@ -62,6 +63,7 @@ def update(serial, hacker, secure, local_firmware_server):
         print("For more, see https://docs.solokeys.io/solo/udev/")
         print()
         sys.exit(1)
+
     except solo.exceptions.NonUniqueDeviceError:
         print()
         print("Multiple Solo keys are plugged in! Please:")
@@ -70,6 +72,7 @@ def update(serial, hacker, secure, local_firmware_server):
         print("  * unplug all but one key")
         print()
         sys.exit(1)
+
     except Exception:
         print()
         print("Unhandled error connecting to key.")

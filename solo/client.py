@@ -30,7 +30,7 @@ import solo.exceptions
 from solo import helpers
 
 
-def find(retries=5, raw_device=None, solo_serial=None):
+def find(solo_serial=None, retries=5, raw_device=None):
     # TODO: change `p` (for programmer) throughout
     p = SoloClient()
 
@@ -89,12 +89,12 @@ class SoloClient:
             pass
 
     def find_device(self, dev=None, solo_serial=None):
-        if solo_serial is not None:
-            # need to find a way to determine serial number in USB info
-            # maybe via usb.util.get_string(dev, dev.iSerialNumber)
-            raise NotImplementedError
         if dev is None:
             devices = list(CtapHidDevice.list_devices())
+            if solo_serial is not None:
+                devices = [
+                    d for d in devices if d.descriptor["serial_number"] == solo_serial
+                ]
             if len(devices) > 1:
                 raise solo.exceptions.NonUniqueDeviceError
             if len(devices) == 0:
