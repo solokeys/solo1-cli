@@ -58,7 +58,7 @@ def dfu(serial, connect_attempts, detach, dry_run, firmware):
     from intelhex import IntelHex
     import usb.core
 
-    dfu = solo.dfu.find(dfu_serial=serial, attempts=connect_attempts)
+    dfu = solo.dfu.find(serial, attempts=connect_attempts)
 
     if dfu is None:
         print("No STU DFU device found.")
@@ -136,8 +136,9 @@ program.add_command(dfu)
 
 
 @click.command()
+@click.option("-s", "--serial", help="Serial number of Solo to wink")
 @click.argument("firmware")  # , help="firmware (bundle) to program")
-def bootloader(firmware):
+def bootloader(serial, firmware):
     """Program via Solo bootloader interface.
 
     \b
@@ -155,7 +156,7 @@ def bootloader(firmware):
     Enter bootloader mode using `solo program aux enter-bootloader` first.
     """
 
-    p = solo.client.find()
+    p = solo.client.find(serial)
     p.program_file(firmware)
 
 
@@ -172,14 +173,15 @@ program.add_command(aux)
 
 
 @click.command()
-def enter_bootloader():
+@click.option("-s", "--serial", help="Serial number of Solo to wink")
+def enter_bootloader(serial):
     """Switch from Solo firmware to Solo bootloader.
 
     Note that after powercycle, you will be in the firmware again,
     assuming it is valid.
     """
 
-    p = solo.client.find()
+    p = solo.client.find(serial)
 
     try:
         p.enter_solo_bootloader()
@@ -195,7 +197,7 @@ def enter_bootloader():
             raise (e)
     print("Solo rebooted.  Reconnecting...")
     time.sleep(0.5)
-    if solo.client.find() is None:
+    if solo.client.find(serial) is None:
         raise RuntimeError("Failed to reconnect!")
 
 
@@ -203,9 +205,10 @@ aux.add_command(enter_bootloader)
 
 
 @click.command()
-def leave_bootloader():
+@click.option("-s", "--serial", help="Serial number of Solo to wink")
+def leave_bootloader(serial):
     """Switch from Solo bootloader to Solo firmware."""
-    p = solo.client.find()
+    p = solo.client.find(serial)
     # this is a bit too low-level...
     # p.exchange(solo.commands.SoloBootloader.done, 0, b"A" * 64)
     p.reboot()
@@ -215,14 +218,15 @@ aux.add_command(leave_bootloader)
 
 
 @click.command()
-def enter_dfu():
+@click.option("-s", "--serial", help="Serial number of Solo to wink")
+def enter_dfu(serial):
     """Switch from Solo bootloader to ST DFU bootloader.
 
     This changes the boot options of the key, which only reliably
     take effect after a powercycle.
     """
 
-    p = solo.client.find()
+    p = solo.client.find(serial)
     p.enter_st_dfu()
     # this doesn't really work yet ;)
     # p.reboot()
@@ -234,7 +238,8 @@ aux.add_command(enter_dfu)
 
 
 @click.command()
-def leave_dfu():
+@click.option("-s", "--serial", help="Serial number of Solo to wink")
+def leave_dfu(serial):
     """Leave ST DFU bootloader.
 
     Switches to Solo bootloader or firmware, latter if firmware is valid.
@@ -244,7 +249,7 @@ def leave_dfu():
 
     """
 
-    dfu = solo.dfu.find()
+    dfu = solo.dfu.find(serial)
     dfu.init()
     dfu.detach()
 
@@ -255,7 +260,8 @@ aux.add_command(leave_dfu)
 
 
 @click.command()
-def reboot():
+@click.option("-s", "--serial", help="Serial number of Solo to wink")
+def reboot(serial):
     """Reboot.
 
     \b
@@ -265,16 +271,17 @@ def reboot():
 
     # this implementation actually only works for bootloader
     # firmware doesn't have a reboot command
-    solo.client.find().reboot()
+    solo.client.find(serial).reboot()
 
 
 aux.add_command(reboot)
 
 
 @click.command()
-def bootloader_version():
+@click.option("-s", "--serial", help="Serial number of Solo to wink")
+def bootloader_version(serial):
     """Version of bootloader."""
-    p = solo.client.find()
+    p = solo.client.find(serial)
     print(".".join(map(str, p.bootloader_version())))
 
 

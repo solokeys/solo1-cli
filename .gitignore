@@ -8,3 +8,5 @@ firmware-*.json
 *.sha2
 *.hex
 
+*.pyc
+.tags*

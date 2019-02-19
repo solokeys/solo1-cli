@@ -33,42 +33,46 @@ def rng():
 
 @click.command()
 @click.option("--count", default=8, help="How many bytes to generate (defaults to 8)")
-def hexbytes(count):
+@click.option("-s", "--serial", help="Serial number of Solo to wink")
+def hexbytes(count, serial):
     """Output COUNT number of random bytes, hex-encoded."""
     if not 0 <= count <= 255:
         print(f"Number of bytes must be between 0 and 255, you passed {count}")
         sys.exit(1)
 
-    print(solo.client.find().get_rng(count).hex())
+    print(solo.client.find(serial).get_rng(count).hex())
 
 
 @click.command()
-def raw():
+@click.option("-s", "--serial", help="Serial number of Solo to wink")
+def raw(serial):
     """Output raw entropy endlessly."""
-    p = solo.client.find()
+    p = solo.client.find(serial)
     while True:
         r = p.get_rng(255)
         sys.stdout.buffer.write(r)
 
 
 @click.command()
-def reset():
+@click.option("-s", "--serial", help="Serial number of Solo to wink")
+def reset(serial):
     """Reset key - wipes all credentials!!!"""
     if click.confirm(
         "Warning: Your credentials will be lost!!! Do you wish to continue?"
     ):
         print("Press the button to confirm -- again, your credentials will be lost!!!")
-        solo.client.find().reset()
+        solo.client.find(serial).reset()
         click.echo("....aaaand they're gone")
 
 
 @click.command()
-def verify():
+@click.option("-s", "--serial", help="Serial number of Solo to wink")
+def verify(serial):
     """Verify key is valid Solo Secure or Solo Hacker."""
     # Any longer and this needs to go in a submodule
     print("Please press the button on your Solo key")
     try:
-        cert = solo.client.find().make_credential()
+        cert = solo.client.find(serial).make_credential()
     except Fido2ClientError:
         print("Error getting credential, is your key in bootloader mode?")
         print("Try: `solo program aux leave-bootloader`")
@@ -86,10 +90,11 @@ def verify():
 
 
 @click.command()
-def version():
+@click.option("-s", "--serial", help="Serial number of Solo to wink")
+def version(serial):
     """Version of firmware on key."""
     try:
-        major, minor, patch = solo.client.find().solo_version()
+        major, minor, patch = solo.client.find(serial).solo_version()
         print(f"{major}.{minor}.{patch}")
     except solo.exceptions.NoSoloFoundError:
         print("No Solo found.")
@@ -100,9 +105,10 @@ def version():
 
 
 @click.command()
-def wink():
+@click.option("-s", "--serial", help="Serial number of Solo to wink")
+def wink(serial):
     """Send wink command to key (blinks LED a few times)."""
-    solo.client.find().wink()
+    solo.client.find(serial).wink()
 
 
 key.add_command(rng)

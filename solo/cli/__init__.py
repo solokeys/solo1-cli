@@ -17,6 +17,7 @@ import solo.operations
 from solo.cli.key import key
 from solo.cli.monitor import monitor
 from solo.cli.program import program
+from . import _patches  # noqa  (since otherwise "unused")
 
 
 @click.group()
@@ -102,27 +103,36 @@ solo_cli.add_command(mergehex)
 
 
 @click.command()
-def ls():
+@click.option(
+    "-a", "--all", is_flag=True, default=False, help="Show ST DFU devices too."
+)
+def ls(all):
     """List Solos (in firmware or bootloader mode) and potential Solos in dfu mode."""
 
     solos = solo.client.find_all()
     print(":: Solos")
     for c in solos:
         descriptor = c.dev.descriptor
-        print(f"{descriptor['path']}: {descriptor['product_string']}")
+        if "serial_number" in descriptor:
+            print(f"{descriptor['serial_number']}: {descriptor['product_string']}")
+        else:
+            print(f"{descriptor['path']}: {descriptor['product_string']}")
 
-    print(":: Potential Solos in DFU mode")
-    try:
-        st_dfus = solo.dfu.find_all()
-        for d in st_dfus:
-            dev_raw = d.dev
-            dfu_serial = dev_raw.serial_number
-            print(f"{dfu_serial}")
-    except usb.core.NoBackendError:
-        print("No libusb available.")
-        print("This error is only relevant if you plan to use the ST DFU interface.")
-        print("If you are on Windows, please install a driver:")
-        print("https://github.com/libusb/libusb/wiki/Windows#driver-installation")
+    if all:
+        print(":: Potential Solos in DFU mode")
+        try:
+            st_dfus = solo.dfu.find_all()
+            for d in st_dfus:
+                dev_raw = d.dev
+                dfu_serial = dev_raw.serial_number
+                print(f"{dfu_serial}")
+        except usb.core.NoBackendError:
+            print("No libusb available.")
+            print(
+                "This error is only relevant if you plan to use the ST DFU interface."
+            )
+            print("If you are on Windows, please install a driver:")
+            print("https://github.com/libusb/libusb/wiki/Windows#driver-installation")
 
 
 solo_cli.add_command(ls)
