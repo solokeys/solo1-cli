@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.6a2] - 2019-02-20
+### Added
+- Monkey-patch to communicate via UDP with software key
+- Flag `--udp` to use it for certain `solo key` commands
+
 ## [0.0.6a1] - 2019-02-19
 ### Added
 - Serial number support
