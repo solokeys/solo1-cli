@@ -16,6 +16,7 @@ from fido2.ctap1 import ApduError
 
 import solo
 from solo.cli.update import update
+import solo.fido2
 
 
 # https://pocoo-click.readthedocs.io/en/latest/commands/#nested-handling-and-contexts
@@ -33,7 +34,7 @@ def rng():
 
 @click.command()
 @click.option("--count", default=8, help="How many bytes to generate (defaults to 8)")
-@click.option("-s", "--serial", help="Serial number of Solo to wink")
+@click.option("-s", "--serial", help="Serial number of Solo to use")
 def hexbytes(count, serial):
     """Output COUNT number of random bytes, hex-encoded."""
     if not 0 <= count <= 255:
@@ -44,7 +45,7 @@ def hexbytes(count, serial):
 
 
 @click.command()
-@click.option("-s", "--serial", help="Serial number of Solo to wink")
+@click.option("-s", "--serial", help="Serial number of Solo to use")
 def raw(serial):
     """Output raw entropy endlessly."""
     p = solo.client.find(serial)
@@ -54,7 +55,7 @@ def raw(serial):
 
 
 @click.command()
-@click.option("-s", "--serial", help="Serial number of Solo to wink")
+@click.option("-s", "--serial", help="Serial number of Solo use")
 def reset(serial):
     """Reset key - wipes all credentials!!!"""
     if click.confirm(
@@ -66,9 +67,16 @@ def reset(serial):
 
 
 @click.command()
-@click.option("-s", "--serial", help="Serial number of Solo to wink")
-def verify(serial):
+@click.option("-s", "--serial", help="Serial number of Solo use")
+@click.option(
+    "--udp", is_flag=True, default=False, help="Communicate over UDP with software key"
+)
+def verify(serial, udp):
     """Verify key is valid Solo Secure or Solo Hacker."""
+
+    if udp:
+        solo.fido2.forceUDPBackend()
+
     # Any longer and this needs to go in a submodule
     print("Please press the button on your Solo key")
     try:
@@ -90,9 +98,16 @@ def verify(serial):
 
 
 @click.command()
-@click.option("-s", "--serial", help="Serial number of Solo to wink")
-def version(serial):
+@click.option("-s", "--serial", help="Serial number of Solo use")
+@click.option(
+    "--udp", is_flag=True, default=False, help="Communicate over UDP with software key"
+)
+def version(serial, udp):
     """Version of firmware on key."""
+
+    if udp:
+        solo.fido2.forceUDPBackend()
+
     try:
         major, minor, patch = solo.client.find(serial).solo_version()
         print(f"{major}.{minor}.{patch}")
@@ -105,9 +120,16 @@ def version(serial):
 
 
 @click.command()
-@click.option("-s", "--serial", help="Serial number of Solo to wink")
-def wink(serial):
+@click.option("-s", "--serial", help="Serial number of Solo use")
+@click.option(
+    "--udp", is_flag=True, default=False, help="Communicate over UDP with software key"
+)
+def wink(serial, udp):
     """Send wink command to key (blinks LED a few times)."""
+    if udp:
+        solo.fido2.forceUDPBackend()
+
+    print(locals())
     solo.client.find(serial).wink()
 
 
