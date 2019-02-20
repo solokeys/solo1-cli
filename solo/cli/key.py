@@ -132,7 +132,6 @@ def wink(serial, udp):
     if udp:
         solo.fido2.force_udp_backend()
 
-    print(locals())
     solo.client.find(serial).wink()
 
 

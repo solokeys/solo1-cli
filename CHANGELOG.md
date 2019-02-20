@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.6a3] - 2019-02-20
+### Changed
+- Typo
+
 ## [0.0.6a2] - 2019-02-20
 ### Added
 - Monkey-patch to communicate via UDP with software key
