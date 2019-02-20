@@ -75,7 +75,7 @@ def verify(serial, udp):
     """Verify key is valid Solo Secure or Solo Hacker."""
 
     if udp:
-        solo.fido2.forceUDPBackend()
+        solo.fido2.force_udp_backend()
 
     # Any longer and this needs to go in a submodule
     print("Please press the button on your Solo key")
@@ -88,11 +88,14 @@ def verify(serial, udp):
 
     solo_fingerprint = b"r\xd5\x831&\xac\xfc\xe9\xa8\xe8&`\x18\xe6AI4\xc8\xbeJ\xb8h_\x91\xb0\x99!\x13\xbb\xd42\x95"
     hacker_fingerprint = b"\xd0ml\xcb\xda}\xe5j\x16'\xc2\xa7\x89\x9c5\xa2\xa3\x16\xc8Q\xb3j\xd8\xed~\xd7\x84y\xbbx~\xf7"
+    udp_fingerprint = b'\x05\x92\xe1\xb2\xba\x8ea\rb\x9a\x9b\xc0\x15\x19~J\xda\xdc16\xe0\xa0\xa1v\xd9\xb5}\x17\xa6\xb8\x0b8'
 
     if cert.fingerprint(hashes.SHA256()) == solo_fingerprint:
-        print("Valid SOLO firmware from SoloKeys")
+        print("Valid Solo Secure firmware from SoloKeys")
     elif cert.fingerprint(hashes.SHA256()) == hacker_fingerprint:
-        print("Valid HACKER firmware")
+        print("Valid Solo Hacker firmware")
+    elif cert.fingerprint(hashes.SHA256()) == udp_fingerprint:
+        print("Local software key")
     else:
         print("Unknown fingerprint! ", cert.fingerprint(hashes.SHA256()))
 
@@ -106,7 +109,7 @@ def version(serial, udp):
     """Version of firmware on key."""
 
     if udp:
-        solo.fido2.forceUDPBackend()
+        solo.fido2.force_udp_backend()
 
     try:
         major, minor, patch = solo.client.find(serial).solo_version()
@@ -127,7 +130,7 @@ def version(serial, udp):
 def wink(serial, udp):
     """Send wink command to key (blinks LED a few times)."""
     if udp:
-        solo.fido2.forceUDPBackend()
+        solo.fido2.force_udp_backend()
 
     print(locals())
     solo.client.find(serial).wink()

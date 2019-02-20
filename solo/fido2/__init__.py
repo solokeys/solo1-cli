@@ -3,7 +3,7 @@ import fido2._pyu2f.base
 import fido2._pyu2f
 
 
-def forceUDPBackend():
+def force_udp_backend():
     fido2._pyu2f.InternalPlatformSwitch = _UDP_InternalPlatformSwitch
 
 
