@@ -282,7 +282,11 @@ aux.add_command(reboot)
 def bootloader_version(serial):
     """Version of bootloader."""
     p = solo.client.find(serial)
-    print(".".join(map(str, p.bootloader_version())))
+    version = p.bootloader_version()
+    if type(version) == list:
+        print(".".join(map(str, version)))
+    else:
+        print(version)
 
 
 aux.add_command(bootloader_version)
