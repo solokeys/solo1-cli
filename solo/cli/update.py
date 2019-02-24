@@ -24,6 +24,9 @@ from solo import helpers
 @click.command()
 @click.option("-s", "--serial", help="Serial number of Solo key to target")
 @click.option(
+    "-y", "--yes", is_flag=True, help="Don't ask for confirmation before flashing"
+)
+@click.option(
     "--hacker", is_flag=True, default=False, help="Use this flag to flash hacker build"
 )
 @click.option(
@@ -37,7 +40,7 @@ from solo import helpers
     hidden=True,
     help="Development option: pull firmware from http://localhost:8000",
 )
-def update(serial, hacker, secure, local_firmware_server):
+def update(serial, yes, hacker, secure, local_firmware_server):
     """Update Solo key to latest firmware version."""
 
     # Check exactly one of --hacker/--secure is selected
@@ -57,9 +60,7 @@ def update(serial, hacker, secure, local_firmware_server):
         print()
         print("If you are on Linux, are your udev rules up to date?")
         print("Try adding a rule line such as the following:")
-        print(
-            'ATTRS{idVendor}=="0483", ATTRS{idProduct}=="a2ca", TAG+="uaccess", GROUP="plugdev"'
-        )
+        print('ATTRS{idVendor}=="0483", ATTRS{idProduct}=="a2ca", TAG+="uaccess"')
         print("For more, see https://docs.solokeys.io/solo/udev/")
         print()
         sys.exit(1)
@@ -91,10 +92,11 @@ def update(serial, hacker, secure, local_firmware_server):
     # Have user confirm the targetted key is secure vs hacker
     # TODO: check out automatically (currently interface is too unstable to do this.
     variant = "Solo Hacker" if hacker else "Solo Secure"
-    print(f"We are about to update with the latest {variant} firmware.")
-    click.confirm(
-        f"Please confirm that the connected Solo key is a {variant}", abort=True
-    )
+    if not yes:
+        print(f"We are about to update with the latest {variant} firmware.")
+        click.confirm(
+            f"Please confirm that the connected Solo key is a {variant}", abort=True
+        )
 
     # Get firmware version to use
     try:
