@@ -3,9 +3,11 @@
 # Python tool and library for SoloKeys
 
 ## Getting Started
-We require Python >= 3.6, and intend to support Linux, Windows and macOS.
+We require Python >= 3.6 and corresponding `pip3` command.
 
-To get started, run `pip install solo-python`, this installs both the `solo` library and the `solo` interface.
+We intend to support Linux, Windows and macOS. Other platforms aren't supported by the [FIDO2 library](https://github.com/Yubico/python-fido2) we rely on.
+
+To get started, run `pip3 install solo-python`, this installs both the `solo` library and the `solo` interface.
 
 Possible issues:
 
@@ -40,7 +42,7 @@ solo key version  # outputs the version of the firmware on your key
 Upon release of signed firmware updates in [solokeys/solo](https://github.com/solokeys/solo),
 to update the firmware on your Solo Secure ("regular" version) to the latest version:
 
-- update your `solo` tool if necessary via `pip install --upgrade solo-python`
+- update your `solo` tool if necessary via `pip3 install --upgrade solo-python`
 - plug in your key, keeping the button pressed until the LED flashes yellow
 - run `solo key update --secure`
 
