@@ -192,6 +192,10 @@ class SoloClient:
         ret = self.send_data_hid(SoloBootloader.HIDCommandRNG, struct.pack("B", num))
         return ret
 
+    def calculate_sha512(self, data=b''):
+        result = self.send_data_hid(SoloBootloader.HIDCommandCalculateSHA512, data)
+        return result
+
     def verify_flash(self, sig):
         """
         Tells device to check signature against application.  If it passes,

@@ -190,6 +190,16 @@ def aux():
 program.add_command(aux)
 
 
+def _enter_bootloader(serial):
+    p = solo.client.find(serial)
+
+    enter_bootloader_or_die(p)
+
+    print("Solo rebooted.  Reconnecting...")
+    time.sleep(0.5)
+    if solo.client.find(serial) is None:
+        raise RuntimeError("Failed to reconnect!")
+
 @click.command()
 @click.option("-s", "--serial", help="Serial number of Solo to wink")
 def enter_bootloader(serial):
@@ -199,14 +209,7 @@ def enter_bootloader(serial):
     assuming it is valid.
     """
 
-    p = solo.client.find(serial)
-
-    p.enter_bootloader_or_die()
-
-    print("Solo rebooted.  Reconnecting...")
-    time.sleep(0.5)
-    if solo.client.find(serial) is None:
-        raise RuntimeError("Failed to reconnect!")
+    return _enter_bootloader(serial)
 
 
 aux.add_command(enter_bootloader)

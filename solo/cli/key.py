@@ -56,6 +56,20 @@ def raw(serial):
 
 @click.command()
 @click.option("-s", "--serial", help="Serial number of Solo use")
+@click.argument("filename")
+def sha512sum(serial, filename):
+    """Calculate SHA512 hash of FILENAME."""
+
+    data = open(filename, 'rb').read()
+    # CTAPHID_BUFFER_SIZE
+    # https://fidoalliance.org/specs/fido-v2.0-id-20180227/fido-client-to-authenticator-protocol-v2.0-id-20180227.html#usb-message-and-packet-structure
+    assert len(data) <= 7609
+    p = solo.client.find(serial)
+    sha512sum = p.calculate_sha512(data)
+    print(sha512sum.hex().lower())
+
+@click.command()
+@click.option("-s", "--serial", help="Serial number of Solo use")
 def reset(serial):
     """Reset key - wipes all credentials!!!"""
     if click.confirm(
@@ -140,6 +154,7 @@ rng.add_command(hexbytes)
 rng.add_command(raw)
 key.add_command(reset)
 key.add_command(update)
+key.add_command(sha512sum)
 key.add_command(version)
 key.add_command(verify)
 key.add_command(wink)
