@@ -139,10 +139,7 @@ class SoloClient:
 
         ret = data[0]
         if ret != CtapError.ERR.SUCCESS:
-            str = ""
-            if ret == CtapError.ERR.NOT_ALLOWED:
-                str = "Out of bounds write"
-            raise RuntimeError("Device returned non-success code %02x: %s" % (ret, str))
+            raise CtapError(ret)
 
         return data[1:]
 
@@ -156,10 +153,7 @@ class SoloClient:
 
         ret = res.signature[0]
         if ret != CtapError.ERR.SUCCESS:
-            str = ""
-            if ret == CtapError.ERR.NOT_ALLOWED:
-                str = "Out of bounds write"
-            raise RuntimeError("Device returned non-success code %02x: %s" % (ret, str))
+            raise CtapError(ret)
 
         return res.signature[1:]
 
