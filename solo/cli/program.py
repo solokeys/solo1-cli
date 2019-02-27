@@ -174,7 +174,7 @@ def bootloader(serial, firmware):
         p = solo.client.find(serial)
         if p is None:
             print("Cannot find Solo device.")
-            return -1
+            sys.exit(1)
         p.use_hid()
         p.program_file(firmware)
 
