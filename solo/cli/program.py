@@ -159,6 +159,7 @@ def bootloader(serial, firmware):
 
     p = solo.client.find(serial)
     try:
+        p.use_hid()
         p.program_file(firmware)
     except CtapError as e:
         if e.code == CtapError.ERR.INVALID_COMMAND:
@@ -174,6 +175,7 @@ def bootloader(serial, firmware):
         if p is None:
             print("Cannot find Solo device.")
             return -1
+        p.use_hid()
         p.program_file(firmware)
 
 
