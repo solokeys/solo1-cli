@@ -179,7 +179,7 @@ class SoloClient:
         data = self.exchange(SoloBootloader.version)
         if len(data) > 2:
             return (data[0], data[1], data[2])
-        return data[0]
+        return (data[0], 0, 0)
 
     def solo_version(self,):
         data = self.exchange(SoloExtension.version)
