@@ -14,6 +14,7 @@ import click
 from fido2.ctap import CtapError
 
 import solo
+from solo.helpers import enter_bootloader_or_die
 
 
 @click.group()
@@ -157,7 +158,25 @@ def bootloader(serial, firmware):
     """
 
     p = solo.client.find(serial)
-    p.program_file(firmware)
+    try:
+        p.use_hid()
+        p.program_file(firmware)
+    except CtapError as e:
+        if e.code == CtapError.ERR.INVALID_COMMAND:
+            print("Not in bootloader mode.  Attempting to switch...")
+        else:
+            raise e
+
+        enter_bootloader_or_die(p)
+
+        print("Solo rebooted.  Reconnecting...")
+        time.sleep(0.5)
+        p = solo.client.find(serial)
+        if p is None:
+            print("Cannot find Solo device.")
+            return -1
+        p.use_hid()
+        p.program_file(firmware)
 
 
 program.add_command(bootloader)
@@ -183,18 +202,8 @@ def enter_bootloader(serial):
 
     p = solo.client.find(serial)
 
-    try:
-        p.enter_solo_bootloader()
-    # except OSError:
-    #     pass
-    except CtapError as e:
-        if e.code == CtapError.ERR.INVALID_COMMAND:
-            print(
-                "Solo appears to not be a solo hacker.  Try holding down the button for 2 while you plug token in."
-            )
-            sys.exit(1)
-        else:
-            raise (e)
+    enter_bootloader_or_die(p)
+
     print("Solo rebooted.  Reconnecting...")
     time.sleep(0.5)
     if solo.client.find(serial) is None:
