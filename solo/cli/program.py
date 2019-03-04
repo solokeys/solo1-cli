@@ -9,6 +9,7 @@
 
 import sys
 import time
+import struct
 
 import click
 from fido2.ctap import CtapError
@@ -261,8 +262,31 @@ def leave_dfu(serial):
 
     """
 
-    dfu = solo.dfu.find(serial)
+    dfu = solo.dfu.find(serial, altsetting=1)  # select option bytes
     dfu.init()
+
+    while dfu.state() == DFU.state.DOWNLOAD_BUSY:
+        pass
+    m = dfu.read_mem(0, 16)
+
+    op = struct.unpack("<L", m[:4])[0]
+    oldop = op
+
+    op |= 1 << 27  #  nBOOT0 = 1  (boot from main mem)
+    op &= ~(1 << 26)  # nSWBOOT0 = 0  (boot from nBoot0)
+
+    if oldop != op:
+        print("Rewriting option bytes...")
+        m = struct.pack("<L", op) + m[4:]
+
+        while dfu.state() == DFU.state.DOWNLOAD_BUSY:
+            print(dfu.state())
+
+        m = dfu.write_page(0, m)
+
+        while dfu.state() == DFU.state.DOWNLOAD_BUSY:
+            pass
+
     dfu.detach()
 
     print("Please powercycle the device (pull out, plug in again)")
