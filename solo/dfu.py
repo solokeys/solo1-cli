@@ -30,7 +30,7 @@ def newdel(self):
 usb._objfinalizer._AutoFinalizedObjectBase.__del__ = newdel
 
 
-def find(dfu_serial=None, attempts=8, raw_device=None):
+def find(dfu_serial=None, attempts=8, raw_device=None, altsetting=1):
     """dfu_serial is the ST bootloader serial number.
 
     It is not directly the ST chip identifier, but related via
@@ -39,7 +39,7 @@ def find(dfu_serial=None, attempts=8, raw_device=None):
     for i in range(attempts):
         dfu = DFUDevice()
         try:
-            dfu.find(ser=dfu_serial, dev=raw_device)
+            dfu.find(ser=dfu_serial, dev=raw_device, altsetting=altsetting)
             return dfu
         except RuntimeError:
             time.sleep(0.25)
@@ -115,6 +115,18 @@ class DFUDevice:
                     return self.dev
 
         raise RuntimeError("No ST DFU alternate-%d found." % altsetting)
+
+    # Main memory == 0
+    # option bytes == 1
+    def set_alt(self, alt):
+        for cfg in self.dev:
+            for intf in cfg:
+                # print(intf, intf.bAlternateSetting)
+                if intf.bAlternateSetting == alt:
+                    intf.set_altsetting()
+                    self.intf = intf
+                    self.intNum = intf.bInterfaceNumber
+                    # return self.dev
 
     def init(self,):
         if self.state() == DFU.state.ERROR:
