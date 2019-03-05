@@ -265,6 +265,9 @@ def leave_dfu(serial):
     dfu = solo.dfu.find(serial, altsetting=1)  # select option bytes
     dfu.init()
 
+    ptr = 0x1FFF7800  # option byte address for STM32l432
+    dfu.set_addr(ptr)
+
     while dfu.state() == DFU.state.DOWNLOAD_BUSY:
         pass
     m = dfu.read_mem(0, 16)
