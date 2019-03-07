@@ -8,6 +8,12 @@
 # copied, modified, or distributed except according to those terms.
 
 
+class STM32L4:
+    class options:
+        nBOOT0 = 1 << 27
+        nSWBOOT0 = 1 << 26
+
+
 class SoloExtension:
     version = 0x14
     rng = 0x15
