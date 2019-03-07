@@ -7,13 +7,13 @@
 # http://opensource.org/licenses/MIT>, at your option. This file may not be
 # copied, modified, or distributed except according to those terms.
 
-import time
+import time, struct
 
 import usb.core
 import usb.util
 import usb._objfinalizer
 
-from solo.commands import DFU
+from solo.commands import DFU, STM32L4
 import solo.exceptions
 
 # hot patch for windows libusb backend
@@ -212,6 +212,31 @@ class DFUDevice:
         while s.state == state:
             time.sleep(s.timeout / 1000.0)
             s = self.get_status()
+
+    def read_option_bytes(self,):
+        ptr = 0x1FFF7800  # option byte address for STM32l432
+        self.set_addr(ptr)
+        self.block_on_state(DFU.state.DOWNLOAD_BUSY)
+        m = self.read_mem(0, 16)
+        return m
+
+    def write_option_bytes(self, m):
+        self.block_on_state(DFU.state.DOWNLOAD_BUSY)
+        m = self.write_page(0, m)
+        self.block_on_state(DFU.state.DOWNLOAD_BUSY)
+
+    def prepare_options_bytes_detach(self,):
+        m = self.read_option_bytes()
+        op = struct.unpack("<L", m[:4])[0]
+        oldop = op
+
+        op |= STM32L4.options.nBOOT0
+        op &= ~STM32L4.options.nSWBOOT0
+
+        if oldop != op:
+            print("Rewriting option bytes...")
+            m = struct.pack("<L", op) + m[4:]
+            self.write_option_bytes(m)
 
     def detach(self,):
         if self.state() not in (DFU.state.IDLE, DFU.state.DOWNLOAD_IDLE):
