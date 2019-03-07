@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Changed
 - Exit properly on boot to bootloader failure
+- `--alpha` flag for `update`
 
 ## [0.0.6] - 2019-02-27
 ### Changed
