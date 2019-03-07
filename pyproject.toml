@@ -10,7 +10,7 @@ author-email = "hello@solokeys.com"
 home-page = "https://github.com/solokeys/solo-python"
 requires-python = ">=3.6"
 requires = [
-  "click",
+  "click >= 7.0",
   "cryptography",
   "ecdsa",
   "fido2",
