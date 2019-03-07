@@ -40,7 +40,14 @@ from solo import helpers
     hidden=True,
     help="Development option: pull firmware from http://localhost:8000",
 )
-def update(serial, yes, hacker, secure, local_firmware_server):
+@click.option(
+    "--alpha",
+    is_flag=True,
+    default=False,
+    hidden=True,
+    help="Development option: use release refered to by ALPHA_VERSION",
+)
+def update(serial, yes, hacker, secure, local_firmware_server, alpha):
     """Update Solo key to latest firmware version."""
 
     # Check exactly one of --hacker/--secure is selected
@@ -100,26 +107,38 @@ def update(serial, yes, hacker, secure, local_firmware_server):
 
     # Get firmware version to use
     try:
-        r = requests.get(
-            "https://raw.githubusercontent.com/solokeys/solo/master/STABLE_VERSION"
-        )
+        if alpha:
+            version_file = "ALPHA_VERSION"
+        else:
+            version_file = "STABLE_VERSION"
+        fetch_url = f"https://raw.githubusercontent.com/solokeys/solo/master/{version_file}"
+
+        r = requests.get(fetch_url)
         if r.status_code != 200:
-            print("Could not fetch stable version name from solokeys/solo repository!")
+            print(f"Could not fetch version name from {version_file} in solokeys/solo repository!")
             sys.exit(1)
+
         version = r.text.split()[0].strip()
         # Windows BOM haha
         # if version.encode() == b'\xef\xbf\xbd\xef\xbf\xbd1\x00.\x001\x00.\x000\x00':
         #     version = '1.1.0'
         try:
             assert version.count(".") == 2
-            major, minor, patch = map(int, version.split("."))
+            major, minor, patch_and_more = version.split(".")
+            if '-' in patch_and_more:
+                patch, pre = patch_and_more.split('-')
+            else:
+                patch, pre = patch_and_more, None
+            major, minor, patch = map(int, (major, minor, patch))
         except Exception:
             print(f"Abnormal version format '{version}'")
             sys.exit(1)
     except Exception:
-        print("Error fetching stable version name from solokeys/solo repository!")
+        print("Error fetching version name from solokeys/solo repository!")
         sys.exit(1)
 
+    import IPython
+    IPython.embed()
     # Get firmware to use
     if local_firmware_server:
         base_url = "http://localhost:8000"
@@ -127,9 +146,10 @@ def update(serial, yes, hacker, secure, local_firmware_server):
         base_url = f"https://github.com/solokeys/solo/releases/download/{version}"
 
     if hacker:
-        firmware_url = f"{base_url}/firmware-hacker-{version}.hex"
+        firmware_file_github = f"firmware-hacker-{version}.hex"
     else:
-        firmware_url = f"{base_url}/firmware-secure-{version}.json"
+        firmware_file_github = f"firmware-secure-{version}.json"
+    firmware_url = f"{base_url}/{firmware_file_github}"
 
     extension = firmware_url.rsplit(".")[-1]
 
@@ -137,7 +157,7 @@ def update(serial, yes, hacker, secure, local_firmware_server):
         r = requests.get(firmware_url)
         if r.status_code != 200:
             print(
-                "Could not official firmware build from solokeys/solo repository releases!"
+                "Could not fetch official firmware build from solokeys/solo repository releases!"
             )
             print(f"URL attempted: {firmware_url}")
             sys.exit(1)
@@ -156,7 +176,7 @@ def update(serial, yes, hacker, secure, local_firmware_server):
         with tempfile.NamedTemporaryFile(suffix="." + extension, delete=False) as fh:
             fh.write(r.content)
             firmware_file = fh.name
-            print(f"Wrote temporary copy to {firmware_file}")
+            print(f"Wrote temporary copy of {firmware_file_github} to {firmware_file}")
     except Exception:
         print("Problem fetching {firmware_url}!")
         sys.exit(1)
