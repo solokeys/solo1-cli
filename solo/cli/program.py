@@ -200,6 +200,7 @@ def _enter_bootloader(serial):
     if solo.client.find(serial) is None:
         raise RuntimeError("Failed to reconnect!")
 
+
 @click.command()
 @click.option("-s", "--serial", help="Serial number of Solo to wink")
 def enter_bootloader(serial):

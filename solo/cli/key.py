@@ -64,20 +64,23 @@ def probe(serial, hash_type, filename):
     hash_type = hash_type.upper()
     assert hash_type in ("SHA256", "SHA512")
 
-    data = open(filename, 'rb').read()
+    data = open(filename, "rb").read()
     # < CTAPHID_BUFFER_SIZE
     # https://fidoalliance.org/specs/fido-v2.0-id-20180227/fido-client-to-authenticator-protocol-v2.0-id-20180227.html#usb-message-and-packet-structure
     # also account for padding (see data below....)
     # so 6kb is conservative
-    assert len(data) <= 6*1024
+    assert len(data) <= 6 * 1024
 
     p = solo.client.find(serial)
     import fido2
+
     serialized_command = fido2.cbor.dumps({"subcommand": hash_type, "data": data})
     from solo.commands import SoloBootloader
+
     result = p.send_data_hid(SoloBootloader.HIDCommandProbe, serialized_command)
     print(result.hex())
     # print(fido2.cbor.loads(result))
+
 
 # @click.command()
 # @click.option("-s", "--serial", help="Serial number of Solo use")
@@ -106,6 +109,7 @@ def probe(serial, hash_type, filename):
 #     p = solo.client.find(serial)
 #     sha512sum = p.calculate_sha512(data)
 #     print(sha512sum.hex().lower())
+
 
 @click.command()
 @click.option("-s", "--serial", help="Serial number of Solo use")
