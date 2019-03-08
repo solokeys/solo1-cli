@@ -27,6 +27,7 @@ class SoloBootloader:
     HIDCommandEnterBoot = 0x51
     HIDCommandEnterSTBoot = 0x52
     HIDCommandRNG = 0x60
+    HIDCommandProbe = 0x70
 
     TAG = b"\x8C\x27\x90\xf6"
 
