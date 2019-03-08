@@ -193,7 +193,7 @@ program.add_command(aux)
 def _enter_bootloader(serial):
     p = solo.client.find(serial)
 
-    enter_bootloader_or_die(p)
+    p.enter_bootloader_or_die()
 
     print("Solo rebooted.  Reconnecting...")
     time.sleep(0.5)
