@@ -111,11 +111,15 @@ def update(serial, yes, hacker, secure, local_firmware_server, alpha):
             version_file = "ALPHA_VERSION"
         else:
             version_file = "STABLE_VERSION"
-        fetch_url = f"https://raw.githubusercontent.com/solokeys/solo/master/{version_file}"
+        fetch_url = (
+            f"https://raw.githubusercontent.com/solokeys/solo/master/{version_file}"
+        )
 
         r = requests.get(fetch_url)
         if r.status_code != 200:
-            print(f"Could not fetch version name from {version_file} in solokeys/solo repository!")
+            print(
+                f"Could not fetch version name from {version_file} in solokeys/solo repository!"
+            )
             sys.exit(1)
 
         version = r.text.split()[0].strip()
@@ -125,10 +129,10 @@ def update(serial, yes, hacker, secure, local_firmware_server, alpha):
         try:
             assert version.count(".") == 2
             major, minor, patch_and_more = version.split(".")
-            if '-' in patch_and_more:
-                patch, pre = patch_and_more.split('-')
+            if "-" in patch_and_more:
+                patch, pre = patch_and_more.split("-")  # noqa: F841
             else:
-                patch, pre = patch_and_more, None
+                patch, pre = patch_and_more, None  # noqa: F841
             major, minor, patch = map(int, (major, minor, patch))
         except Exception:
             print(f"Abnormal version format '{version}'")
@@ -137,8 +141,6 @@ def update(serial, yes, hacker, secure, local_firmware_server, alpha):
         print("Error fetching version name from solokeys/solo repository!")
         sys.exit(1)
 
-    import IPython
-    IPython.embed()
     # Get firmware to use
     if local_firmware_server:
         base_url = "http://localhost:8000"
@@ -168,9 +170,6 @@ def update(serial, yes, hacker, secure, local_firmware_server, alpha):
                 json_content = json.loads(content.decode())
             except Exception:
                 print(f"Invalid JSON content fetched from {firmware_url}!")
-                import IPython
-
-                IPython.embed()
                 sys.exit(1)
 
         with tempfile.NamedTemporaryFile(suffix="." + extension, delete=False) as fh:
@@ -190,8 +189,6 @@ def update(serial, yes, hacker, secure, local_firmware_server, alpha):
             helpers.from_websafe(json_content["firmware"]).encode()
         )
         crlf_firmware_content = b"\r\n".join(firmware_content.split(b"\n"))
-        # import IPython
-        # IPython.embed()
         m.update(crlf_firmware_content)
 
     our_digest = m.hexdigest()

@@ -19,18 +19,3 @@ def from_websafe(data):
     data = data.replace("-", "+")
     data = data.replace("_", "/")
     return data + "=="[: (3 * len(data)) % 4]
-
-
-def enter_bootloader_or_die(p):
-    try:
-        p.enter_solo_bootloader()
-    # except OSError:
-    #     pass
-    except CtapError as e:
-        if e.code == CtapError.ERR.INVALID_COMMAND:
-            print(
-                "Solo appears to not be a solo hacker.  Try holding down the button for 2 while you plug token in."
-            )
-            sys.exit(1)
-        else:
-            raise (e)

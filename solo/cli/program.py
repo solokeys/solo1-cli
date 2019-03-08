@@ -14,7 +14,6 @@ import click
 from fido2.ctap import CtapError
 
 import solo
-from solo.helpers import enter_bootloader_or_die
 
 
 @click.group()
@@ -167,7 +166,7 @@ def bootloader(serial, firmware):
         else:
             raise e
 
-        enter_bootloader_or_die(p)
+        p.enter_bootloader_or_die()
 
         print("Solo rebooted.  Reconnecting...")
         time.sleep(0.5)
@@ -202,7 +201,7 @@ def enter_bootloader(serial):
 
     p = solo.client.find(serial)
 
-    enter_bootloader_or_die(p)
+    p.enter_bootloader_or_die()
 
     print("Solo rebooted.  Reconnecting...")
     time.sleep(0.5)
