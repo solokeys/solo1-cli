@@ -16,6 +16,7 @@ from fido2.ctap import CtapError
 
 import solo
 from solo.commands import DFU
+from solo.dfu import hot_patch_windows_libusb
 from solo.helpers import enter_bootloader_or_die
 
 
@@ -133,6 +134,8 @@ def dfu(serial, connect_attempts, detach, dry_run, firmware):
 
     if detach:
         dfu.detach()
+
+    hot_patch_windows_libusb()
 
 
 program.add_command(dfu)
@@ -262,9 +265,10 @@ def leave_dfu(serial):
 
     dfu = solo.dfu.find(serial)  # select option bytes
     dfu.init()
-
     dfu.prepare_options_bytes_detach()
+    dfu.detach()
 
+    hot_patch_windows_libusb()
     print("Please powercycle the device (pull out, plug in again)")
 
 
