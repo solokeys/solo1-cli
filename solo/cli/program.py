@@ -11,6 +11,8 @@ import sys
 import time
 import struct
 
+import usb
+
 import click
 from fido2.ctap import CtapError
 
@@ -266,7 +268,10 @@ def leave_dfu(serial):
     dfu = solo.dfu.find(serial)  # select option bytes
     dfu.init()
     dfu.prepare_options_bytes_detach()
-    dfu.detach()
+    try:
+        dfu.detach()
+    except usb.core.USBError:
+        pass
 
     hot_patch_windows_libusb()
     print("Please powercycle the device (pull out, plug in again)")

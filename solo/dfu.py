@@ -215,17 +215,26 @@ class DFUDevice:
 
     def read_option_bytes(self,):
         ptr = 0x1FFF7800  # option byte address for STM32l432
-        # self.set_addr(ptr)
+        self.set_addr(ptr)
         self.block_on_state(DFU.state.DOWNLOAD_BUSY)
         m = self.read_mem(0, 16)
         return m
 
     def write_option_bytes(self, m):
         self.block_on_state(DFU.state.DOWNLOAD_BUSY)
-        m = self.write_page(0, m)
-        self.block_on_state(DFU.state.DOWNLOAD_BUSY)
+        try:
+            m = self.write_page(0, m)
+            self.block_on_state(DFU.state.DOWNLOAD_BUSY)
+        except OSError as e:
+            print("Warning: OSError with write_page")
 
     def prepare_options_bytes_detach(self,):
+
+        # Necessary to prevent future errors...
+        m = self.read_mem(0, 16)
+        self.write_option_bytes(m)
+        #
+
         m = self.read_option_bytes()
         op = struct.unpack("<L", m[:4])[0]
         oldop = op
