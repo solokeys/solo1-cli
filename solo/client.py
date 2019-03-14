@@ -232,6 +232,20 @@ class SoloClient:
             self.send_data_hid(CTAPHID.INIT, "\x11\x11\x11\x11\x11\x11\x11\x11")
         self.send_data_hid(SoloBootloader.HIDCommandEnterBoot, "")
 
+    def enter_bootloader_or_die(self):
+        try:
+            self.enter_solo_bootloader()
+        # except OSError:
+        #     pass
+        except CtapError as e:
+            if e.code == CtapError.ERR.INVALID_COMMAND:
+                print(
+                    "Solo appears to not be a solo hacker.  Try holding down the button for 2 while you plug token in."
+                )
+                sys.exit(1)
+            else:
+                raise (e)
+
     def is_solo_bootloader(self,):
         try:
             self.bootloader_version()

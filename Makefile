@@ -26,11 +26,16 @@ clean: semi-clean
 
 # Package management
 
+VERSION_FILE := "solo/VERSION"
+VERSION := $(shell cat $(VERSION_FILE))
+tag:
+	git tag -a $(VERSION) -m"v$(VERSION)"
+
 build: check
 	flit build
 
 publish: check
-	flit publish
+	flit --repository pypi publish
 
 venv:
 	python3 -m venv venv
