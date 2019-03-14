@@ -16,19 +16,6 @@ import usb._objfinalizer
 from solo.commands import DFU, STM32L4
 import solo.exceptions
 
-# hot patch for windows libusb backend
-olddel = usb._objfinalizer._AutoFinalizedObjectBase.__del__
-
-
-def newdel(self):
-    try:
-        olddel(self)
-    except OSError:
-        pass
-
-
-usb._objfinalizer._AutoFinalizedObjectBase.__del__ = newdel
-
 
 def find(dfu_serial=None, attempts=8, raw_device=None, altsetting=1):
     """dfu_serial is the ST bootloader serial number.
@@ -51,6 +38,19 @@ def find(dfu_serial=None, attempts=8, raw_device=None, altsetting=1):
 def find_all():
     st_dfus = usb.core.find(idVendor=0x0483, idProduct=0xDF11, find_all=True)
     return [find(raw_device=st_dfu) for st_dfu in st_dfus]
+
+
+def hot_patch_windows_libusb():
+    # hot patch for windows libusb backend
+    olddel = usb._objfinalizer._AutoFinalizedObjectBase.__del__
+
+    def newdel(self):
+        try:
+            olddel(self)
+        except OSError:
+            pass
+
+    usb._objfinalizer._AutoFinalizedObjectBase.__del__ = newdel
 
 
 class DFUDevice:
@@ -215,7 +215,7 @@ class DFUDevice:
 
     def read_option_bytes(self,):
         ptr = 0x1FFF7800  # option byte address for STM32l432
-        self.set_addr(ptr)
+        # self.set_addr(ptr)
         self.block_on_state(DFU.state.DOWNLOAD_BUSY)
         m = self.read_mem(0, 16)
         return m
@@ -229,7 +229,6 @@ class DFUDevice:
         m = self.read_option_bytes()
         op = struct.unpack("<L", m[:4])[0]
         oldop = op
-
         op |= STM32L4.options.nBOOT0
         op &= ~STM32L4.options.nSWBOOT0
 
