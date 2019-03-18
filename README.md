@@ -1,4 +1,4 @@
-![](https://img.shields.io/pypi/l/solo-python.svg?style=flat) ![](https://img.shields.io/pypi/pyversions/solo-python.svg?style=flat) ![](https://img.shields.io/pypi/wheel/solo-python.svg?style=flat)
+![](https://img.shields.io/pypi/l/solo-python.svg?style=flat) ![](https://img.shields.io/pypi/pyversions/solo-python.svg?style=flat) ![](https://img.shields.io/pypi/v/solo-python.svg) ![](https://img.shields.io/pypi/wheel/solo-python.svg?style=flat)
 
 # Python tool and library for SoloKeys
 
