@@ -132,7 +132,9 @@ def dfu(serial, connect_attempts, detach, dry_run, firmware):
         print("firmware readback verified.")
 
     if detach:
+        dfu.prepare_options_bytes_detach()
         dfu.detach()
+        print("Please powercycle the device (pull out, plug in again)")
 
     hot_patch_windows_libusb()
 
