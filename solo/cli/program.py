@@ -10,10 +10,13 @@
 import sys
 import time
 
+import usb
+
 import click
 from fido2.ctap import CtapError
 
 import solo
+from solo.dfu import hot_patch_windows_libusb
 
 
 @click.group()
@@ -129,7 +132,11 @@ def dfu(serial, connect_attempts, detach, dry_run, firmware):
         print("firmware readback verified.")
 
     if detach:
+        dfu.prepare_options_bytes_detach()
         dfu.detach()
+        print("Please powercycle the device (pull out, plug in again)")
+
+    hot_patch_windows_libusb()
 
 
 program.add_command(dfu)
@@ -261,10 +268,15 @@ def leave_dfu(serial):
 
     """
 
-    dfu = solo.dfu.find(serial)
+    dfu = solo.dfu.find(serial)  # select option bytes
     dfu.init()
-    dfu.detach()
+    dfu.prepare_options_bytes_detach()
+    try:
+        dfu.detach()
+    except usb.core.USBError:
+        pass
 
+    hot_patch_windows_libusb()
     print("Please powercycle the device (pull out, plug in again)")
 
 

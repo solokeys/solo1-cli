@@ -7,30 +7,18 @@
 # http://opensource.org/licenses/MIT>, at your option. This file may not be
 # copied, modified, or distributed except according to those terms.
 
+import struct
 import time
 
 import usb.core
 import usb.util
 import usb._objfinalizer
 
-from solo.commands import DFU
+from solo.commands import DFU, STM32L4
 import solo.exceptions
 
-# hot patch for windows libusb backend
-olddel = usb._objfinalizer._AutoFinalizedObjectBase.__del__
 
-
-def newdel(self):
-    try:
-        olddel(self)
-    except OSError:
-        pass
-
-
-usb._objfinalizer._AutoFinalizedObjectBase.__del__ = newdel
-
-
-def find(dfu_serial=None, attempts=8, raw_device=None):
+def find(dfu_serial=None, attempts=8, raw_device=None, altsetting=1):
     """dfu_serial is the ST bootloader serial number.
 
     It is not directly the ST chip identifier, but related via
@@ -39,7 +27,7 @@ def find(dfu_serial=None, attempts=8, raw_device=None):
     for i in range(attempts):
         dfu = DFUDevice()
         try:
-            dfu.find(ser=dfu_serial, dev=raw_device)
+            dfu.find(ser=dfu_serial, dev=raw_device, altsetting=altsetting)
             return dfu
         except RuntimeError:
             time.sleep(0.25)
@@ -51,6 +39,19 @@ def find(dfu_serial=None, attempts=8, raw_device=None):
 def find_all():
     st_dfus = usb.core.find(idVendor=0x0483, idProduct=0xDF11, find_all=True)
     return [find(raw_device=st_dfu) for st_dfu in st_dfus]
+
+
+def hot_patch_windows_libusb():
+    # hot patch for windows libusb backend
+    olddel = usb._objfinalizer._AutoFinalizedObjectBase.__del__
+
+    def newdel(self):
+        try:
+            olddel(self)
+        except OSError:
+            pass
+
+    usb._objfinalizer._AutoFinalizedObjectBase.__del__ = newdel
 
 
 class DFUDevice:
@@ -115,6 +116,18 @@ class DFUDevice:
                     return self.dev
 
         raise RuntimeError("No ST DFU alternate-%d found." % altsetting)
+
+    # Main memory == 0
+    # option bytes == 1
+    def set_alt(self, alt):
+        for cfg in self.dev:
+            for intf in cfg:
+                # print(intf, intf.bAlternateSetting)
+                if intf.bAlternateSetting == alt:
+                    intf.set_altsetting()
+                    self.intf = intf
+                    self.intNum = intf.bInterfaceNumber
+                    # return self.dev
 
     def init(self,):
         if self.state() == DFU.state.ERROR:
@@ -200,6 +213,39 @@ class DFUDevice:
         while s.state == state:
             time.sleep(s.timeout / 1000.0)
             s = self.get_status()
+
+    def read_option_bytes(self,):
+        ptr = 0x1FFF7800  # option byte address for STM32l432
+        self.set_addr(ptr)
+        self.block_on_state(DFU.state.DOWNLOAD_BUSY)
+        m = self.read_mem(0, 16)
+        return m
+
+    def write_option_bytes(self, m):
+        self.block_on_state(DFU.state.DOWNLOAD_BUSY)
+        try:
+            m = self.write_page(0, m)
+            self.block_on_state(DFU.state.DOWNLOAD_BUSY)
+        except OSError:
+            print("Warning: OSError with write_page")
+
+    def prepare_options_bytes_detach(self,):
+
+        # Necessary to prevent future errors...
+        m = self.read_mem(0, 16)
+        self.write_option_bytes(m)
+        #
+
+        m = self.read_option_bytes()
+        op = struct.unpack("<L", m[:4])[0]
+        oldop = op
+        op |= STM32L4.options.nBOOT0
+        op &= ~STM32L4.options.nSWBOOT0
+
+        if oldop != op:
+            print("Rewriting option bytes...")
+            m = struct.pack("<L", op) + m[4:]
+            self.write_option_bytes(m)
 
     def detach(self,):
         if self.state() not in (DFU.state.IDLE, DFU.state.DOWNLOAD_IDLE):
