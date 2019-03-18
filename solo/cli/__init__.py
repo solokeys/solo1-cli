@@ -9,6 +9,8 @@
 
 import click
 import json
+import os
+import sys
 
 import usb.core
 
@@ -18,6 +20,16 @@ from solo.cli.key import key
 from solo.cli.monitor import monitor
 from solo.cli.program import program
 from . import _patches  # noqa  (since otherwise "unused")
+
+
+if all((os.name == "posix", os.geteuid() == 0)):
+    print("THIS COMMAND SHOULD NOT BE RUN AS ROOT!")
+    print()
+    print("Please install udev rules and run `solo` as regular user (without sudo).")
+    print("We suggest using: https://github.com/solokeys/solo/blob/master/udev/70-solokeys-access.rules")
+    print()
+    print("For more information, see: https://docs.solokeys.io/solo/udev/")
+    sys.exit(1)
 
 
 @click.group()
