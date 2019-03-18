@@ -7,7 +7,8 @@
 # http://opensource.org/licenses/MIT>, at your option. This file may not be
 # copied, modified, or distributed except according to those terms.
 
-import time, struct
+import struct
+import time
 
 import usb.core
 import usb.util
@@ -225,7 +226,7 @@ class DFUDevice:
         try:
             m = self.write_page(0, m)
             self.block_on_state(DFU.state.DOWNLOAD_BUSY)
-        except OSError as e:
+        except OSError:
             print("Warning: OSError with write_page")
 
     def prepare_options_bytes_detach(self,):

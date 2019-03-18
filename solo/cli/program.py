@@ -9,7 +9,6 @@
 
 import sys
 import time
-import struct
 
 import usb
 
@@ -17,9 +16,7 @@ import click
 from fido2.ctap import CtapError
 
 import solo
-from solo.commands import DFU
 from solo.dfu import hot_patch_windows_libusb
-from solo.helpers import enter_bootloader_or_die
 
 
 @click.group()
