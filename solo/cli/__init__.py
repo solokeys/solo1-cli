@@ -55,7 +55,7 @@ solo_cli.add_command(version)
 @click.option("--input-seed-file")
 @click.argument("output_pem_file")
 def genkey(input_seed_file, output_pem_file):
-    """Generates key par that can be used for Solo signed firmware updates.
+    """Generates key pair that can be used for Solo signed firmware updates.
 
     \b
     * Generates NIST P256 keypair.
