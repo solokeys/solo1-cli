@@ -22,7 +22,7 @@ from solo.cli.program import program
 from . import _patches  # noqa  (since otherwise "unused")
 
 
-if all((os.name == "posix", os.geteuid() == 0)):
+if (os.name == "posix" and os.geteuid() == 0):
     print("THIS COMMAND SHOULD NOT BE RUN AS ROOT!")
     print()
     print("Please install udev rules and run `solo` as regular user (without sudo).")
