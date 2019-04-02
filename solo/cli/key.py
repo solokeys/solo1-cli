@@ -55,12 +55,17 @@ def raw(serial):
         sys.stdout.buffer.write(r)
 
 @click.command()
+@click.option("--count", default=64, help="How many bytes to generate (defaults to 8)")
 @click.option("-s", "--serial", help="Serial number of Solo to use")
-def feedkernel(serial):
+def feedkernel(count, serial):
     """Feed random bytes to /dev/random."""
 
     if os.name != "posix":
         print("This is a Linux-specific command!")
+        sys.exit(1)
+
+    if not 0 <= count <= 255:
+        print(f"Number of bytes must be between 0 and 255, you passed {count}")
         sys.exit(1)
 
     p = solo.client.find(serial)
@@ -72,15 +77,33 @@ def feedkernel(serial):
     entropy_info_file = "/proc/sys/kernel/random/entropy_avail"
     print(f"Entropy before: 0x{open(entropy_info_file).read().strip()}")
 
-    r = p.get_rng(32)
+    r = p.get_rng(count)
 
-    # double-check:
-    # typedef struct {
-    #     int bit_count;               /* number of bits of entropy in data */
-    #     int byte_count;              /* number of bytes of data in array */
-    #     unsigned char buf[BUFSIZ];
-    # } entropy_t;
-    t = struct.pack("ii32s", 8*16, 32, r)
+    # man 4 random
+
+    # RNDADDENTROPY
+    #       Add some additional entropy to the input pool, incrementing the
+    #       entropy count. This differs from writing to /dev/random or
+    #       /dev/urandom, which only adds some data but does not increment the
+    #       entropy count. The following structure is used:
+
+    #           struct rand_pool_info {
+    #               int    entropy_count;
+    #               int    buf_size;
+    #               __u32  buf[0];
+    #           };
+
+    #       Here entropy_count is the value added to (or subtracted from) the
+    #       entropy count, and buf is the buffer of size buf_size which gets
+    #       added to the entropy pool.
+
+    entropy_bits_per_byte = 2  # maximum 8, tend to be pessimistic
+    t = struct.pack(
+        f"ii{count}s",
+        count * entropy_bits_per_byte,
+        count,
+        r,
+    )
 
     with open("/dev/random", mode='wb') as fh:
         res = fcntl.ioctl(fh, RNDADDENTROPY, t)
