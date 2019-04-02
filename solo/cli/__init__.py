@@ -22,14 +22,15 @@ from solo.cli.program import program
 from . import _patches  # noqa  (since otherwise "unused")
 
 
-if (os.name == "posix" and os.geteuid() == 0):
-    print("THIS COMMAND SHOULD NOT BE RUN AS ROOT!")
-    print()
-    print("Please install udev rules and run `solo` as regular user (without sudo).")
-    print("We suggest using: https://github.com/solokeys/solo/blob/master/udev/70-solokeys-access.rules")
-    print()
-    print("For more information, see: https://docs.solokeys.io/solo/udev/")
-    sys.exit(1)
+if (os.name == "posix") and os.environ.get("ALLOW_ROOT") is None:
+    if os.geteuid() == 0:
+        print("THIS COMMAND SHOULD NOT BE RUN AS ROOT!")
+        print()
+        print("Please install udev rules and run `solo` as regular user (without sudo).")
+        print("We suggest using: https://github.com/solokeys/solo/blob/master/udev/70-solokeys-access.rules")
+        print()
+        print("For more information, see: https://docs.solokeys.io/solo/udev/")
+        sys.exit(1)
 
 
 @click.group()
