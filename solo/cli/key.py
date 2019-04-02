@@ -54,6 +54,7 @@ def raw(serial):
         r = p.get_rng(255)
         sys.stdout.buffer.write(r)
 
+
 @click.command()
 @click.option("--count", default=64, help="How many bytes to generate (defaults to 8)")
 @click.option("-s", "--serial", help="Serial number of Solo to use")
@@ -72,6 +73,7 @@ def feedkernel(count, serial):
 
     import struct
     import fcntl
+
     RNDADDENTROPY = 0x40085203
 
     entropy_info_file = "/proc/sys/kernel/random/entropy_avail"
@@ -98,15 +100,10 @@ def feedkernel(count, serial):
     #       added to the entropy pool.
 
     entropy_bits_per_byte = 2  # maximum 8, tend to be pessimistic
-    t = struct.pack(
-        f"ii{count}s",
-        count * entropy_bits_per_byte,
-        count,
-        r,
-    )
+    t = struct.pack(f"ii{count}s", count * entropy_bits_per_byte, count, r)
 
-    with open("/dev/random", mode='wb') as fh:
-        res = fcntl.ioctl(fh, RNDADDENTROPY, t)
+    with open("/dev/random", mode="wb") as fh:
+        _ = fcntl.ioctl(fh, RNDADDENTROPY, t)
     print(f"Entropy after:  0x{open(entropy_info_file).read().strip()}")
 
 
@@ -148,13 +145,18 @@ def probe(serial, udp, hash_type, filename):
         print(f"content from hex: {bytes.fromhex(result_hex[128:])}")
         print(f"signature: {result[:128]}")
         import nacl.signing
+
         # verify_key = nacl.signing.VerifyKey(bytes.fromhex("c69995185efa20bf7a88139f5920335aa3d3e7f20464345a2c095c766dfa157a"))
-        verify_key = nacl.signing.VerifyKey(bytes.fromhex("c69995185efa20bf7a88139f5920335aa3d3e7f20464345a2c095c766dfa157a"))
+        verify_key = nacl.signing.VerifyKey(
+            bytes.fromhex(
+                "c69995185efa20bf7a88139f5920335aa3d3e7f20464345a2c095c766dfa157a"
+            )
+        )
         try:
-           message = verify_key.verify(result)
-           verified = True
+            _ = verify_key.verify(result)
+            verified = True
         except nacl.exceptions.BadSignatureError:
-           verified = False
+            verified = False
         print(f"verified? {verified}")
     # print(fido2.cbor.loads(result))
 
