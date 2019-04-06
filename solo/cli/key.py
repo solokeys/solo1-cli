@@ -55,7 +55,7 @@ def raw(serial):
 
 
 @click.command()
-@click.option("-s", "--serial", help="Serial number of Solo use")
+@click.option("-s", "--serial", help="Serial number of Solo to use")
 @click.argument("hash-type")
 @click.argument("filename")
 def probe(serial, hash_type, filename):
@@ -83,7 +83,7 @@ def probe(serial, hash_type, filename):
 
 
 # @click.command()
-# @click.option("-s", "--serial", help="Serial number of Solo use")
+# @click.option("-s", "--serial", help="Serial number of Solo to use")
 # @click.argument("filename")
 # def sha256sum(serial, filename):
 #     """Calculate SHA256 hash of FILENAME."""
@@ -97,7 +97,7 @@ def probe(serial, hash_type, filename):
 #     print(sha256sum.hex().lower())
 
 # @click.command()
-# @click.option("-s", "--serial", help="Serial number of Solo use")
+# @click.option("-s", "--serial", help="Serial number of Solo to use")
 # @click.argument("filename")
 # def sha512sum(serial, filename):
 #     """Calculate SHA512 hash of FILENAME."""
@@ -112,7 +112,7 @@ def probe(serial, hash_type, filename):
 
 
 @click.command()
-@click.option("-s", "--serial", help="Serial number of Solo use")
+@click.option("-s", "--serial", help="Serial number of Solo to use")
 def reset(serial):
     """Reset key - wipes all credentials!!!"""
     if click.confirm(
@@ -124,7 +124,7 @@ def reset(serial):
 
 
 @click.command()
-@click.option("-s", "--serial", help="Serial number of Solo use")
+@click.option("-s", "--serial", help="Serial number of Solo to use")
 @click.option(
     "--udp", is_flag=True, default=False, help="Communicate over UDP with software key"
 )
@@ -158,7 +158,7 @@ def verify(serial, udp):
 
 
 @click.command()
-@click.option("-s", "--serial", help="Serial number of Solo use")
+@click.option("-s", "--serial", help="Serial number of Solo to use")
 @click.option(
     "--udp", is_flag=True, default=False, help="Communicate over UDP with software key"
 )
@@ -180,7 +180,7 @@ def version(serial, udp):
 
 
 @click.command()
-@click.option("-s", "--serial", help="Serial number of Solo use")
+@click.option("-s", "--serial", help="Serial number of Solo to use")
 @click.option(
     "--udp", is_flag=True, default=False, help="Communicate over UDP with software key"
 )

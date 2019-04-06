@@ -143,7 +143,7 @@ program.add_command(dfu)
 
 
 @click.command()
-@click.option("-s", "--serial", help="Serial number of Solo to wink")
+@click.option("-s", "--serial", help="Serial number of Solo to use")
 @click.argument("firmware")  # , help="firmware (bundle) to program")
 def bootloader(serial, firmware):
     """Program via Solo bootloader interface.
@@ -209,7 +209,7 @@ def _enter_bootloader(serial):
 
 
 @click.command()
-@click.option("-s", "--serial", help="Serial number of Solo to wink")
+@click.option("-s", "--serial", help="Serial number of Solo to use")
 def enter_bootloader(serial):
     """Switch from Solo firmware to Solo bootloader.
 
@@ -224,7 +224,7 @@ aux.add_command(enter_bootloader)
 
 
 @click.command()
-@click.option("-s", "--serial", help="Serial number of Solo to wink")
+@click.option("-s", "--serial", help="Serial number of Solo to use")
 def leave_bootloader(serial):
     """Switch from Solo bootloader to Solo firmware."""
     p = solo.client.find(serial)
@@ -237,7 +237,7 @@ aux.add_command(leave_bootloader)
 
 
 @click.command()
-@click.option("-s", "--serial", help="Serial number of Solo to wink")
+@click.option("-s", "--serial", help="Serial number of Solo to use")
 def enter_dfu(serial):
     """Switch from Solo bootloader to ST DFU bootloader.
 
@@ -257,7 +257,7 @@ aux.add_command(enter_dfu)
 
 
 @click.command()
-@click.option("-s", "--serial", help="Serial number of Solo to wink")
+@click.option("-s", "--serial", help="Serial number of Solo to use")
 def leave_dfu(serial):
     """Leave ST DFU bootloader.
 
@@ -284,7 +284,7 @@ aux.add_command(leave_dfu)
 
 
 @click.command()
-@click.option("-s", "--serial", help="Serial number of Solo to wink")
+@click.option("-s", "--serial", help="Serial number of Solo to use")
 def reboot(serial):
     """Reboot.
 
@@ -302,7 +302,7 @@ aux.add_command(reboot)
 
 
 @click.command()
-@click.option("-s", "--serial", help="Serial number of Solo to wink")
+@click.option("-s", "--serial", help="Serial number of Solo to use")
 def bootloader_version(serial):
     """Version of bootloader."""
     p = solo.client.find(serial)
