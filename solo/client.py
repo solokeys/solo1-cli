@@ -158,17 +158,15 @@ class SoloClient:
         return res.signature[1:]
 
     def exchange_fido2(self, cmd, addr=0, data=b"A" * 16):
-        chal = "B" * 32
+        chal = b"B" * 32
 
         req = SoloClient.format_request(cmd, addr, data)
 
-        assertions, client_data = self.client.get_assertion(
+        assertion = self.ctap2.get_assertion(
             self.host, chal, [{"id": req, "type": "public-key"}]
         )
-        if len(assertions) < 1:
-            raise RuntimeError("Device didn't respond to FIDO2 extended assertion")
 
-        res = assertions[0]
+        res = assertion
         ret = res.signature[0]
         if ret != CtapError.ERR.SUCCESS:
             raise RuntimeError("Device returned non-success code %02x" % (ret,))
