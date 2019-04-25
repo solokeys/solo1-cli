@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.10] - 2019-03-18
+### Added
+- solo client improvements
+- experimental interface to feed kernel entropy from key:
+`sudo ALLOW_ROOT= /path/to/solo key rng feedkernel`
+
 ## [0.0.9] - 2019-03-18
 ### Added
 - enforce `solo` command does not run as root
