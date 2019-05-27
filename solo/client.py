@@ -104,7 +104,11 @@ class SoloClient:
 
         self.ctap1 = CTAP1(dev)
         self.ctap2 = CTAP2(dev)
-        self.client = Fido2Client(dev, self.origin)
+        try:
+            self.client = Fido2Client(dev, self.origin)
+        except CtapError:
+            print("Not using FIDO2 interface.")
+            self.client = None
 
         if self.exchange == self.exchange_hid:
             self.send_data_hid(CTAPHID.INIT, "\x11\x11\x11\x11\x11\x11\x11\x11")
