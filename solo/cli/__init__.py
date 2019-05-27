@@ -10,7 +10,6 @@
 import click
 import json
 import os
-import sys
 
 import usb.core
 
@@ -34,7 +33,6 @@ if (os.name == "posix") and os.environ.get("ALLOW_ROOT") is None:
         )
         print()
         print("For more information, see: https://docs.solokeys.io/solo/udev/")
-        sys.exit(1)
 
 
 @click.group()
