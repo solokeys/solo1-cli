@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.12] - 2019-08-08
+### Changed
+- update fido2 to 0.7.0
+
 ## [0.0.11] - 2019-05-27
 ### Changed
 - adjust to and pin fido2 0.6.0 dependency (@conorpp)
