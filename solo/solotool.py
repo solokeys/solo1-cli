@@ -9,31 +9,35 @@
 
 # Programs solo using the Solo bootloader
 
-import sys, os, time, struct, argparse
-import array, struct, socket, json, base64, binascii
+import argparse
+import array
+import base64
+import binascii
+import json
+import os
+import socket
+import struct
+import sys
 import tempfile
+import time
 from binascii import hexlify, unhexlify
 from hashlib import sha256
 
 import click
-
+import serial
+import usb._objfinalizer
+import usb.core
 from cryptography import x509
-from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.backends import default_backend
-
-from fido2.hid import CtapHidDevice, CTAPHID
-from fido2.client import Fido2Client, ClientError
+from cryptography.hazmat.primitives import hashes
+from fido2.attestation import Attestation
+from fido2.client import ClientError, Fido2Client
 from fido2.ctap import CtapError
 from fido2.ctap1 import CTAP1, ApduError
 from fido2.ctap2 import CTAP2
+from fido2.hid import CTAPHID, CtapHidDevice
 from fido2.utils import Timeout
-from fido2.attestation import Attestation
-
-import usb.core
-import usb._objfinalizer
-
 from intelhex import IntelHex
-import serial
 
 import solo
 from solo import helpers

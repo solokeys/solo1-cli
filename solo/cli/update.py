@@ -14,8 +14,8 @@ import sys
 import tempfile
 
 import click
-from fido2.ctap1 import ApduError
 import requests
+from fido2.ctap1 import ApduError
 
 import solo
 from solo import helpers

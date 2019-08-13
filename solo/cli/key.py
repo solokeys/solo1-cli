@@ -16,8 +16,8 @@ from fido2.client import ClientError as Fido2ClientError
 from fido2.ctap1 import ApduError
 
 import solo
-from solo.cli.update import update
 import solo.fido2
+from solo.cli.update import update
 
 
 # https://pocoo-click.readthedocs.io/en/latest/commands/#nested-handling-and-contexts

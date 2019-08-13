@@ -10,12 +10,12 @@
 import struct
 import time
 
+import usb._objfinalizer
 import usb.core
 import usb.util
-import usb._objfinalizer
 
-from solo.commands import DFU, STM32L4
 import solo.exceptions
+from solo.commands import DFU, STM32L4
 
 
 def find(dfu_serial=None, attempts=8, raw_device=None, altsetting=1):

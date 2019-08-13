@@ -1,6 +1,7 @@
 import socket
-import fido2._pyu2f.base
+
 import fido2._pyu2f
+import fido2._pyu2f.base
 
 
 def force_udp_backend():

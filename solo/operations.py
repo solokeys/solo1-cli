@@ -8,6 +8,7 @@
 # copied, modified, or distributed except according to those terms.
 
 import binascii
+
 from intelhex import IntelHex
 
 from solo import helpers

@@ -10,9 +10,8 @@
 import sys
 import time
 
-import usb
-
 import click
+import usb
 from fido2.ctap import CtapError
 
 import solo

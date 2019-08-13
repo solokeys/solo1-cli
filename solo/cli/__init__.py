@@ -7,10 +7,10 @@
 # http://opensource.org/licenses/MIT>, at your option. This file may not be
 # copied, modified, or distributed except according to those terms.
 
-import click
 import json
 import os
 
+import click
 import usb.core
 
 import solo
@@ -18,8 +18,8 @@ import solo.operations
 from solo.cli.key import key
 from solo.cli.monitor import monitor
 from solo.cli.program import program
-from . import _patches  # noqa  (since otherwise "unused")
 
+from . import _patches  # noqa  (since otherwise "unused")
 
 if (os.name == "posix") and os.environ.get("ALLOW_ROOT") is None:
     if os.geteuid() == 0:

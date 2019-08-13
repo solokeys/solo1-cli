@@ -21,13 +21,13 @@ from fido2.client import Fido2Client
 from fido2.ctap import CtapError
 from fido2.ctap1 import CTAP1
 from fido2.ctap2 import CTAP2
-from fido2.hid import CtapHidDevice, CTAPHID
+from fido2.hid import CTAPHID, CtapHidDevice
 from fido2.utils import Timeout
 from intelhex import IntelHex
 
-from solo.commands import SoloBootloader, SoloExtension
 import solo.exceptions
 from solo import helpers
+from solo.commands import SoloBootloader, SoloExtension
 
 
 def find(solo_serial=None, retries=5, raw_device=None):

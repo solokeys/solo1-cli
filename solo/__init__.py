@@ -12,11 +12,7 @@
 
 import pathlib
 
-from . import client
-from . import commands
-from . import dfu
-from . import helpers
-from . import operations
+from . import client, commands, dfu, helpers, operations
 
 __version__ = open(pathlib.Path(__file__).parent / "VERSION").read().strip()
 
