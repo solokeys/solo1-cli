@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.13] - 2019-08-19
+### Changed
+- implement passing PIN to `solo key verify`
+
 ## [0.0.12] - 2019-08-08
 ### Changed
 - update fido2 to 0.7.0

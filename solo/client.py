@@ -208,11 +208,13 @@ class SoloClient:
     def reset(self,):
         self.ctap2.reset()
 
-    def make_credential(self,):
+    def make_credential(self, pin=None):
         rp = {"id": self.host, "name": "example site"}
         user = {"id": b"abcdef", "name": "example user"}
         challenge = "Y2hhbGxlbmdl"
-        attest, data = self.client.make_credential(rp, user, challenge, exclude_list=[])
+        attest, data = self.client.make_credential(
+            rp, user, challenge, exclude_list=[], pin=pin
+        )
         try:
             attest.verify(data.hash)
         except AttributeError:

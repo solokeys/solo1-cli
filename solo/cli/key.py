@@ -203,11 +203,12 @@ def reset(serial):
 
 
 @click.command()
+@click.option("--pin", help="PIN for to access key")
 @click.option("-s", "--serial", help="Serial number of Solo to use")
 @click.option(
     "--udp", is_flag=True, default=False, help="Communicate over UDP with software key"
 )
-def verify(serial, udp):
+def verify(pin, serial, udp):
     """Verify key is valid Solo Secure or Solo Hacker."""
 
     if udp:
@@ -216,8 +217,38 @@ def verify(serial, udp):
     # Any longer and this needs to go in a submodule
     print("Please press the button on your Solo key")
     try:
-        cert = solo.client.find(serial).make_credential()
-    except Fido2ClientError:
+        cert = solo.client.find(serial).make_credential(pin=pin)
+    except ValueError as e:
+        # python-fido2 library pre-emptively returns `ValueError('PIN required!')`
+        # instead of trying, and returning  `CTAP error: 0x36 - PIN_REQUIRED`
+        if "PIN required" in str(e):
+            print("Your key has a PIN set. Please pass it using `--pin <your PIN>`")
+            sys.exit(1)
+
+    except Fido2ClientError as e:
+        cause = str(e.cause)
+        # error 0x31
+        if "PIN_INVALID" in cause:
+            print("Your key has a different PIN. Please try to remember it :)")
+            sys.exit(1)
+        # error 0x34 (power cycle helps)
+        if "PIN_AUTH_BLOCKED" in cause:
+            print(
+                "Your key's PIN authentication is blocked due to too many incorrect attempts."
+            )
+            print("Please plug it out and in again, then again!")
+            print(
+                "Please be careful, after too many incorrect attempts, the key will fully block."
+            )
+            sys.exit(1)
+        # error 0x32 (only reset helps)
+        if "PIN_BLOCKED" in cause:
+            print(
+                "Your key's PIN is blocked. To use it again, you need to fully reset it."
+            )
+            print("You can do this using: `solo key reset`")
+            sys.exit(1)
+
         print("Error getting credential, is your key in bootloader mode?")
         print("Try: `solo program aux leave-bootloader`")
         sys.exit(1)
