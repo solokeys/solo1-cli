@@ -224,6 +224,7 @@ def verify(pin, serial, udp):
         if "PIN required" in str(e):
             print("Your key has a PIN set. Please pass it using `--pin <your PIN>`")
             sys.exit(1)
+        raise
 
     except Fido2ClientError as e:
         cause = str(e.cause)
@@ -248,10 +249,12 @@ def verify(pin, serial, udp):
             )
             print("You can do this using: `solo key reset`")
             sys.exit(1)
-
-        print("Error getting credential, is your key in bootloader mode?")
-        print("Try: `solo program aux leave-bootloader`")
-        sys.exit(1)
+        # error 0x01
+        if "INVALID_COMMAND" in cause:
+            print("Error getting credential, is your key in bootloader mode?")
+            print("Try: `solo program aux leave-bootloader`")
+            sys.exit(1)
+        raise
 
     solo_fingerprint = b"r\xd5\x831&\xac\xfc\xe9\xa8\xe8&`\x18\xe6AI4\xc8\xbeJ\xb8h_\x91\xb0\x99!\x13\xbb\xd42\x95"
     hacker_fingerprint = b"\xd0ml\xcb\xda}\xe5j\x16'\xc2\xa7\x89\x9c5\xa2\xa3\x16\xc8Q\xb3j\xd8\xed~\xd7\x84y\xbbx~\xf7"
