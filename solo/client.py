@@ -68,6 +68,7 @@ class SoloClient:
     def __init__(self,):
         self.origin = "https://example.org"
         self.host = "example.org"
+        self.user_id = b"they"
         self.exchange = self.exchange_hid
         self.do_reboot = True
 
@@ -210,7 +211,7 @@ class SoloClient:
 
     def make_credential(self, pin=None):
         rp = {"id": self.host, "name": "example site"}
-        user = {"id": b"abcdef", "name": "example user"}
+        user = {"id": self.user_id, "name": "example user"}
         challenge = "Y2hhbGxlbmdl"
         attest, data = self.client.make_credential(
             rp, user, challenge, exclude_list=[], pin=pin
