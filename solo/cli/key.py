@@ -109,6 +109,41 @@ def feedkernel(count, serial):
 
 @click.command()
 @click.option("-s", "--serial", help="Serial number of Solo use")
+@click.option("--credential-id", help="Pre-registered credential ID (hex)")
+@click.option("--relying-party", help="Relying party", default="example.org")
+@click.option("--user-id", help="User ID", default="userid")
+@click.argument("challenge")
+def challenge_response(serial, credential_id, relying_party, user_id, challenge):
+    """Uses `hmac-secret` to implement a challenge-response mechanism.
+
+    We abuse hmac-secret, which gives us `HMAC(K, hash(challenge))`, where `K`
+    is a secret tied to the `credential_id`. We hash the challenge first, since
+    a 32 byte value is expected (in original usage, it's a salt).
+
+    This means that we first need to setup a credential_id (this depends on the
+    specific authenticator used). Once this is done, we can directly get the
+    challenge response via
+
+    ```
+    solo key challenge-response --credential-id <credential-id> <challenge>
+    ```
+
+    If so desired, user and relying party can be changed from the defaults.
+    """
+
+    import solo.hmac_secret
+
+    solo.hmac_secret.response = solo.hmac_secret.simple_secret(
+        challenge,
+        credential_id=credential_id,
+        relying_party=relying_party,
+        user_id=user_id,
+        serial=serial,
+    )
+
+
+@click.command()
+@click.option("-s", "--serial", help="Serial number of Solo use")
 @click.option(
     "--udp", is_flag=True, default=False, help="Communicate over UDP with software key"
 )
@@ -309,6 +344,7 @@ key.add_command(rng)
 rng.add_command(hexbytes)
 rng.add_command(raw)
 rng.add_command(feedkernel)
+key.add_command(challenge_response)
 key.add_command(reset)
 key.add_command(update)
 key.add_command(probe)

@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.14] - 2019-08-30
+### Added
+- challenge-response via `hmac-secret`
+
 ## [0.0.13] - 2019-08-19
 ### Changed
 - implement passing PIN to `solo key verify`
