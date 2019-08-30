@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.15] - 2019-08-30
+### Added
+- `solo.hmac_secret.make_credential` method
+- separate `solo key make-credential` CLI target
+### Changed
+- remove credential generation from `solo.hmac_secret.simple_secret`
+- demand `credential_id` in `solo key challenge-response`
+
 ## [0.0.14] - 2019-08-30
 ### Added
 - challenge-response via `hmac-secret`

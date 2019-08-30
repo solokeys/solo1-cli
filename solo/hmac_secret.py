@@ -10,69 +10,87 @@
 
 import binascii
 import hashlib
+import secrets
 
 from fido2.extensions import HmacSecretExtension
 
 import solo.client
 
 
-def simple_secret(
-    secret_input,
-    credential_id=None,
-    relying_party="example.org",
+def make_credential(
+    host="solokeys.dev",
     user_id="they",
     serial=None,
     pin=None,
+    prompt="Touch your authenticator to generate a credential...",
+    output=True,
+):
+    user_id = user_id.encode()
+    client = solo.client.find(solo_serial=serial).client
+
+    rp = {"id": host, "name": "Example RP"}
+    client.host = host
+    client.origin = f"https://{client.host}"
+    client.user_id = user_id
+    user = {"id": user_id, "name": "A. User"}
+    challenge = secrets.token_hex(32)
+
+    if prompt:
+        print(prompt)
+
+    hmac_ext = HmacSecretExtension(client.ctap2)
+    attestation_object, client_data = client.make_credential(
+        rp, user, challenge, extensions=hmac_ext.create_dict(), pin=pin
+    )
+
+    credential = attestation_object.auth_data.credential_data
+    credential_id = credential.credential_id
+    if output:
+        print(credential_id.hex())
+
+    return credential_id
+
+
+def simple_secret(
+    credential_id,
+    secret_input,
+    host="solokeys.dev",
+    user_id="they",
+    serial=None,
+    pin=None,
+    prompt="Touch your authenticator to generate a reponse...",
+    output=True,
 ):
     user_id = user_id.encode()
 
     client = solo.client.find(solo_serial=serial).client
     hmac_ext = HmacSecretExtension(client.ctap2)
 
-    if credential_id is None:
-        rp = {"id": relying_party, "name": "Example RP"}
-        client.rp = relying_party
-        client.origin = f"https://{client.rp}"
-        client.user_id = user_id
-        user = {"id": user_id, "name": "A. User"}
-        # challenge = "Y2hhbGxlbmdl"
-        challenge = "123"
-
-        print("Touch your authenticator to generate a credential...")
-        attestation_object, client_data = client.make_credential(
-            rp, user, challenge, extensions=hmac_ext.create_dict(), pin=pin
-        )
-        credential = attestation_object.auth_data.credential_data
-        credential_id = credential.credential_id
-
-        # Show credential_id for convenience
-        print(f"credential ID (hex-encoded):")
-        print(credential_id.hex())
-    else:
-        credential_id = binascii.a2b_hex(credential_id)
+    # rp = {"id": host, "name": "Example RP"}
+    client.host = host
+    client.origin = f"https://{client.host}"
+    client.user_id = user_id
+    # user = {"id": user_id, "name": "A. User"}
+    credential_id = binascii.a2b_hex(credential_id)
 
     allow_list = [{"type": "public-key", "id": credential_id}]
 
-    # challenge = 'Q0hBTExFTkdF'  # Use a new challenge for each call.
-    challenge = "abc"
-
-    # Generate a salt for HmacSecret:
+    challenge = secrets.token_hex(32)
 
     h = hashlib.sha256()
     h.update(secret_input.encode())
     salt = h.digest()
-    # print(f"salt =   {salt.hex()}")
 
-    print("Touch your authenticator to generate the response...")
+    if prompt:
+        print(prompt)
+
     assertions, client_data = client.get_assertion(
-        relying_party,
-        challenge,
-        allow_list,
-        extensions=hmac_ext.get_dict(salt),
-        pin=pin,
+        host, challenge, allow_list, extensions=hmac_ext.get_dict(salt), pin=pin
     )
 
     assertion = assertions[0]  # Only one cred in allowList, only one response.
-    secret = hmac_ext.results_for(assertion.auth_data)[0]
-    print("hmac-secret (hex-encoded):")
-    print(secret.hex())
+    response = hmac_ext.results_for(assertion.auth_data)[0]
+    if output:
+        print(response.hex())
+
+    return response

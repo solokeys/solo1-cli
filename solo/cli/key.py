@@ -109,36 +109,66 @@ def feedkernel(count, serial):
 
 @click.command()
 @click.option("-s", "--serial", help="Serial number of Solo use")
-@click.option("--credential-id", help="Pre-registered credential ID (hex)")
-@click.option("--relying-party", help="Relying party", default="example.org")
-@click.option("--user-id", help="User ID", default="userid")
+@click.option(
+    "--host", help="Relying party's host", default="solokeys.dev", show_default=True
+)
+@click.option("--user", help="User ID", default="they", show_default=True)
+@click.option(
+    "--prompt",
+    help="Prompt for user",
+    default="Touch your authenticator to generate a credential...",
+    show_default=True,
+)
+def make_credential(serial, host, user, prompt):
+    """Generate a credential.
+
+    Pass `--prompt ""` to output only the `credential_id` as hex.
+    """
+
+    import solo.hmac_secret
+
+    solo.hmac_secret.make_credential(
+        host=host, user_id=user, serial=serial, output=True, prompt=prompt
+    )
+
+
+@click.command()
+@click.option("-s", "--serial", help="Serial number of Solo use")
+@click.option("--host", help="Relying party's host", default="solokeys.dev")
+@click.option("--user", help="User ID", default="they")
+@click.option(
+    "--prompt",
+    help="Prompt for user",
+    default="Touch your authenticator to generate a reponse...",
+    show_default=True,
+)
+@click.argument("credential-id")
 @click.argument("challenge")
-def challenge_response(serial, credential_id, relying_party, user_id, challenge):
+def challenge_response(serial, host, user, prompt, credential_id, challenge):
     """Uses `hmac-secret` to implement a challenge-response mechanism.
 
     We abuse hmac-secret, which gives us `HMAC(K, hash(challenge))`, where `K`
     is a secret tied to the `credential_id`. We hash the challenge first, since
     a 32 byte value is expected (in original usage, it's a salt).
 
-    This means that we first need to setup a credential_id (this depends on the
-    specific authenticator used). Once this is done, we can directly get the
-    challenge response via
-
-    ```
-    solo key challenge-response --credential-id <credential-id> <challenge>
-    ```
+    This means that we first need to setup a credential_id; this depends on the
+    specific authenticator used. To do this, use `solo key make-credential`.
 
     If so desired, user and relying party can be changed from the defaults.
+
+    The prompt can be suppressed using `--prompt ""`.
     """
 
     import solo.hmac_secret
 
-    solo.hmac_secret.response = solo.hmac_secret.simple_secret(
+    solo.hmac_secret.simple_secret(
+        credential_id,
         challenge,
-        credential_id=credential_id,
-        relying_party=relying_party,
-        user_id=user_id,
+        host=host,
+        user_id=user,
         serial=serial,
+        prompt=prompt,
+        output=True,
     )
 
 
@@ -344,6 +374,7 @@ key.add_command(rng)
 rng.add_command(hexbytes)
 rng.add_command(raw)
 rng.add_command(feedkernel)
+key.add_command(make_credential)
 key.add_command(challenge_response)
 key.add_command(reset)
 key.add_command(update)
