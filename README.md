@@ -73,6 +73,29 @@ Comprehensive documentation coming, for now these are the main components
 - `solo.dfu`: connect to Solo Hacker in dfu mode (disabled on Solo Secure keys)
 - `solo.cli`: implementation of the `solo` command line interface
 
+## Challenge-Response
+
+By abuse of the `hmac-secret` extension, we can generate static challenge responses,
+which are scoped to a credential. A use case might be e.g. unlocking a LUKS-encrypted drive.
+
+**DANGER** The generated reponses depend on both the key and the credential.
+There is no way to extract or backup from the physical key, so if you intend to use the
+"response" as a static password, make sure to store it somewhere separately, e.g. on paper.
+
+**DANGER** Also, if you generate a new credential with the same `(host, user_id)` pair, it will likely
+overwrite the old credential, and you lose the capability to generate the original responses
+too.
+
+**DANGER** This functionality has not been sufficiently debugged, please generate GitHub issues
+if you detect anything.
+
+There are two steps:
+
+1. Generate a credential. This can be done with `solo key make-credential`, storing the
+   (hex-encoded) generated `credential_id` for the next step.
+2. Pick a challenge, and generate the associated response. This can be done with
+   `solo key challenge-response <credential_id> <challenge>`.
+
 ## License
 
 Licensed under either of
