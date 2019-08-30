@@ -11,7 +11,7 @@ To get started, run `pip3 install solo-python`, this installs both the `solo` li
 
 Possible issues:
 
-- on Linux, ensure you have suitable udev rules in place: <https://github.com/solokeys/solo/blob/master/99-solo.rules>
+- on Linux, ensure you have suitable udev rules in place: <https://docs.solokeys.dev/solo/udev/>
 - on Windows, optionally install a libusb backend: <https://github.com/libusb/libusb/wiki/Windows#driver-installation>
 
 For development, we suggest you run `make init` instead, which
