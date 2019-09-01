@@ -30,7 +30,11 @@ from solo import helpers
 from solo.commands import SoloBootloader, SoloExtension
 
 
-def find(solo_serial=None, retries=5, raw_device=None):
+def find(solo_serial=None, retries=5, raw_device=None, udp = False):
+
+    if udp:
+        solo.fido2.force_udp_backend()
+
     # TODO: change `p` (for programmer) throughout
     p = SoloClient()
 
