@@ -114,12 +114,15 @@ def feedkernel(count, serial):
 )
 @click.option("--user", help="User ID", default="they", show_default=True)
 @click.option(
+    "--udp", is_flag=True, default=False, help="Communicate over UDP with software key"
+)
+@click.option(
     "--prompt",
     help="Prompt for user",
     default="Touch your authenticator to generate a credential...",
     show_default=True,
 )
-def make_credential(serial, host, user, prompt):
+def make_credential(serial, host, user, udp, prompt):
     """Generate a credential.
 
     Pass `--prompt ""` to output only the `credential_id` as hex.
@@ -128,7 +131,7 @@ def make_credential(serial, host, user, prompt):
     import solo.hmac_secret
 
     solo.hmac_secret.make_credential(
-        host=host, user_id=user, serial=serial, output=True, prompt=prompt
+        host=host, user_id=user, serial=serial, output=True, prompt=prompt, udp=udp
     )
 
 
@@ -137,6 +140,9 @@ def make_credential(serial, host, user, prompt):
 @click.option("--host", help="Relying party's host", default="solokeys.dev")
 @click.option("--user", help="User ID", default="they")
 @click.option(
+    "--udp", is_flag=True, default=False, help="Communicate over UDP with software key"
+)
+@click.option(
     "--prompt",
     help="Prompt for user",
     default="Touch your authenticator to generate a reponse...",
@@ -144,7 +150,7 @@ def make_credential(serial, host, user, prompt):
 )
 @click.argument("credential-id")
 @click.argument("challenge")
-def challenge_response(serial, host, user, prompt, credential_id, challenge):
+def challenge_response(serial, host, user, prompt, credential_id, challenge, udp):
     """Uses `hmac-secret` to implement a challenge-response mechanism.
 
     We abuse hmac-secret, which gives us `HMAC(K, hash(challenge))`, where `K`
@@ -169,6 +175,7 @@ def challenge_response(serial, host, user, prompt, credential_id, challenge):
         serial=serial,
         prompt=prompt,
         output=True,
+        udp=udp,
     )
 
 
@@ -182,9 +189,6 @@ def challenge_response(serial, host, user, prompt, credential_id, challenge):
 def probe(serial, udp, hash_type, filename):
     """Calculate HASH."""
 
-    if udp:
-        solo.fido2.force_udp_backend()
-
     # hash_type = hash_type.upper()
     assert hash_type in ("SHA256", "SHA512", "RSA2048", "Ed25519")
 
@@ -195,7 +199,7 @@ def probe(serial, udp, hash_type, filename):
     # so 6kb is conservative
     assert len(data) <= 6 * 1024
 
-    p = solo.client.find(serial)
+    p = solo.client.find(serial, udp=udp)
     import fido2
 
     serialized_command = fido2.cbor.dumps({"subcommand": hash_type, "data": data})
@@ -276,13 +280,10 @@ def reset(serial):
 def verify(pin, serial, udp):
     """Verify key is valid Solo Secure or Solo Hacker."""
 
-    if udp:
-        solo.fido2.force_udp_backend()
-
     # Any longer and this needs to go in a submodule
     print("Please press the button on your Solo key")
     try:
-        cert = solo.client.find(serial).make_credential(pin=pin)
+        cert = solo.client.find(serial, udp=udp).make_credential(pin=pin)
     except ValueError as e:
         # python-fido2 library pre-emptively returns `ValueError('PIN required!')`
         # instead of trying, and returning  `CTAP error: 0x36 - PIN_REQUIRED`
@@ -343,11 +344,8 @@ def verify(pin, serial, udp):
 def version(serial, udp):
     """Version of firmware on key."""
 
-    if udp:
-        solo.fido2.force_udp_backend()
-
     try:
-        major, minor, patch = solo.client.find(serial).solo_version()
+        major, minor, patch = solo.client.find(serial, udp=udp).solo_version()
         print(f"{major}.{minor}.{patch}")
     except solo.exceptions.NoSoloFoundError:
         print("No Solo found.")
@@ -364,10 +362,8 @@ def version(serial, udp):
 )
 def wink(serial, udp):
     """Send wink command to key (blinks LED a few times)."""
-    if udp:
-        solo.fido2.force_udp_backend()
 
-    solo.client.find(serial).wink()
+    solo.client.find(serial, udp=udp).wink()
 
 
 key.add_command(rng)

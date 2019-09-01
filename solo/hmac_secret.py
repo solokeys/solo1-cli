@@ -24,9 +24,10 @@ def make_credential(
     pin=None,
     prompt="Touch your authenticator to generate a credential...",
     output=True,
+    udp=False,
 ):
     user_id = user_id.encode()
-    client = solo.client.find(solo_serial=serial).client
+    client = solo.client.find(solo_serial=serial, udp = udp).client
 
     rp = {"id": host, "name": "Example RP"}
     client.host = host
@@ -60,10 +61,11 @@ def simple_secret(
     pin=None,
     prompt="Touch your authenticator to generate a reponse...",
     output=True,
+    udp=False,
 ):
     user_id = user_id.encode()
 
-    client = solo.client.find(solo_serial=serial).client
+    client = solo.client.find(solo_serial=serial, udp = udp).client
     hmac_ext = HmacSecretExtension(client.ctap2)
 
     # rp = {"id": host, "name": "Example RP"}
