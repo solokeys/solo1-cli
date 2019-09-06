@@ -9,6 +9,7 @@
 
 import os
 import sys
+from time import sleep, time
 
 import click
 from cryptography.hazmat.primitives import hashes
@@ -53,6 +54,22 @@ def raw(serial):
     while True:
         r = p.get_rng(255)
         sys.stdout.buffer.write(r)
+
+@click.command()
+@click.option("-s", "--serial", help="Serial number of Solo to use")
+@click.option("-b", "--blink", is_flag=True, help="Blink in the meantime")
+def status(serial, blink: bool):
+    """Print device's status"""
+    p = solo.client.find(serial)
+    t0 = time()
+    while True:
+        if time() - t0 > 5 and blink:
+            p.wink()
+        r = p.get_status()
+        for b in r:
+            print('{:#02d} '.format(b), end='')
+        print('')
+        sleep(0.3)
 
 
 @click.command()
@@ -373,6 +390,7 @@ rng.add_command(feedkernel)
 key.add_command(make_credential)
 key.add_command(challenge_response)
 key.add_command(reset)
+key.add_command(status)
 key.add_command(update)
 key.add_command(probe)
 # key.add_command(sha256sum)

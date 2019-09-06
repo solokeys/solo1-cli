@@ -57,13 +57,11 @@ def find_all():
     solo_devices = [
         d
         for d in hid_devices
-        if all(
-            (
-                d.descriptor["vendor_id"] == 1155,
-                d.descriptor["product_id"] == 41674,
-                # "Solo" in d.descriptor["product_string"],
-            )
-        )
+        if (d.descriptor["vendor_id"], d.descriptor["product_id"]) in [
+                    (1155, 41674),
+                    (0x20A0, 0x42B3),
+                    (0x20A0, 0x42B1),   
+        ]
     ]
     return [find(raw_device=device) for device in solo_devices]
 
@@ -197,6 +195,11 @@ class SoloClient:
 
     def get_rng(self, num=0):
         ret = self.send_data_hid(SoloBootloader.HIDCommandRNG, struct.pack("B", num))
+        return ret
+
+    def get_status(self, num=0):
+        ret = self.send_data_hid(SoloBootloader.HIDCommandStatus, struct.pack("B", num))
+        # print(ret[:8])
         return ret
 
     def verify_flash(self, sig):
