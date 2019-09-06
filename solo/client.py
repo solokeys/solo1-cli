@@ -60,7 +60,7 @@ def find_all():
         if (d.descriptor["vendor_id"], d.descriptor["product_id"]) in [
                     (1155, 41674),
                     (0x20A0, 0x42B3),
-                    (0x20A0, 0x42B1),   
+                    (0x20A0, 0x42B1),
         ]
     ]
     return [find(raw_device=device) for device in solo_devices]
@@ -347,3 +347,29 @@ class SoloClient:
             self.verify_flash(sig)
 
         return sig
+
+    def check_only(self, name):
+        # FIXME refactor
+        # copy from program_file
+        if name.lower().endswith(".json"):
+            data = json.loads(open(name, "r").read())
+            fw = base64.b64decode(helpers.from_websafe(data["firmware"]).encode())
+            sig = base64.b64decode(helpers.from_websafe(data["signature"]).encode())
+            ih = IntelHex()
+            tmp = tempfile.NamedTemporaryFile(delete=False)
+            tmp.write(fw)
+            tmp.seek(0)
+            tmp.close()
+            ih.fromfile(tmp.name, format="hex")
+        else:
+            if not name.lower().endswith(".hex"):
+                print('Warning, assuming "%s" is an Intel Hex file.' % name)
+            sig = None
+            ih = IntelHex()
+            ih.fromfile(name, format="hex")
+
+        if sig is None:
+            sig = b"A" * 64
+
+        if self.do_reboot:
+            self.verify_flash(sig)

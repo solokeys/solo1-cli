@@ -144,6 +144,26 @@ program.add_command(dfu)
 @click.command()
 @click.option("-s", "--serial", help="Serial number of Solo to use")
 @click.argument("firmware")  # , help="firmware (bundle) to program")
+def check_only(serial, firmware):
+    """Validate currently flashed firmware, and run on success. Bootloader only."""
+    p = solo.client.find(serial)
+    try:
+        p.use_hid()
+        p.program_file(firmware)
+    except CtapError as e:
+        if e.code == CtapError.ERR.INVALID_COMMAND:
+            print("Not in bootloader mode.")
+        # else:
+        #     raise e
+        raise e
+
+
+program.add_command(check_only)
+
+
+@click.command()
+@click.option("-s", "--serial", help="Serial number of Solo to use")
+@click.argument("firmware")  # , help="firmware (bundle) to program")
 def bootloader(serial, firmware):
     """Program via Solo bootloader interface.
 
