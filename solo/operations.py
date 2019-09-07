@@ -92,7 +92,7 @@ def mergehex(input_hex_files, output_hex_file, attestation_key=None):
     first.tofile(output_hex_file, format="hex")
 
 
-def sign_firmware(sk_name, hex_file):
+def sign_firmware(sk_name, hex_file, APPLICATION_END_PAGE = 20):
     # Maybe this is not the optimal module...
 
     import base64
@@ -112,7 +112,6 @@ def sign_firmware(sk_name, hex_file):
     # TODO put this somewhere else.
     START = ih.segments()[0][0]
     # keep in sync with targets/stm32l432/src/memory_layout.h
-    APPLICATION_END_PAGE = 20
     PAGES = 128
     PAGE_SIZE = 2048
     END = (0x08000000 + ((PAGES - APPLICATION_END_PAGE) * PAGE_SIZE)) - 8
