@@ -86,10 +86,11 @@ solo_cli.add_command(genkey)
 @click.argument("verifying-key")
 @click.argument("app-hex")
 @click.argument("output-json")
-def sign(verifying_key, app_hex, output_json):
+@click.option("--end_page", help="Set APPLICATION_END_PAGE. Should be in sync with firmware settings.", default=20, type=int)
+def sign(verifying_key, app_hex, output_json, end_page):
     """Signs a firmware hex file, outputs a .json file that can be used for signed update."""
 
-    msg = solo.operations.sign_firmware(verifying_key, app_hex)
+    msg = solo.operations.sign_firmware(verifying_key, app_hex, APPLICATION_END_PAGE=end_page)
     print("Saving signed firmware to", output_json)
     with open(output_json, "wb+") as fh:
         fh.write(json.dumps(msg).encode())
