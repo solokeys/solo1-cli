@@ -23,7 +23,17 @@ def monitor(serial_port):
     Automatically reconnects. Baud rate is 115200.
     """
 
-    ser = serial.Serial(serial_port, 115200, timeout=0.05)
+    ser = None
+    while True:
+        try:
+            ser = serial.Serial(serial_port, 115200, timeout=0.05)
+            break
+        except KeyboardInterrupt:
+            exit(1)
+        except:
+            sys.stdout.buffer.write(b'.')
+        time.sleep(0.5)
+
 
     def reconnect():
         while True:
@@ -37,6 +47,10 @@ def monitor(serial_port):
     while True:
         try:
             data = ser.read(1)
+        except KeyboardInterrupt:
+            print('\nClosing')
+            ser.close()
+            return
         except serial.SerialException:
             print("reconnecting...")
             ser = reconnect()
