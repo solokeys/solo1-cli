@@ -111,7 +111,7 @@ def sign_firmware(sk_name, hex_file):
     # start of firmware and the size of the flash region allocated for it.
     # TODO put this somewhere else.
     START = ih.segments()[0][0]
-    END = (0x08000000 + ((128 - 19) * 2048)) - 8
+    END = (0x08000000 + ((128 - 20) * 2048)) - 8
 
     ih = IntelHex(hex_file)
     # segs = ih.segments()
