@@ -344,7 +344,14 @@ class SoloClient:
             sig = b"A" * 64
 
         if self.do_reboot:
-            self.verify_flash(sig)
+            try:
+                print("bootloader is verifying signature...")
+                self.verify_flash(sig)
+                print("...pass!")
+            except CtapError as e:
+                if e.code != 0x27:
+                    raise
+                print("...error!")
 
         return sig
 
