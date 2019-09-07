@@ -69,16 +69,13 @@ def mergehex(input_hex_files, output_hex_file, attestation_key=None, APPLICATION
     first[flash_addr(APPLICATION_END_PAGE - 1)] = 0x41
     first[flash_addr(APPLICATION_END_PAGE - 1) + 1] = 0x41
 
-    first[AUTH_WORD_ADDR - 4] = 0
-    first[AUTH_WORD_ADDR - 1] = 0
-    first[AUTH_WORD_ADDR - 2] = 0
-    first[AUTH_WORD_ADDR - 3] = 0
-
-    first[AUTH_WORD_ADDR] = 0
+    # authorize boot
+    first[AUTH_WORD_ADDR + 0] = 0
     first[AUTH_WORD_ADDR + 1] = 0
     first[AUTH_WORD_ADDR + 2] = 0
     first[AUTH_WORD_ADDR + 3] = 0
 
+    # make sure bootloader is enabled
     first[AUTH_WORD_ADDR + 4] = 0xFF
     first[AUTH_WORD_ADDR + 5] = 0xFF
     first[AUTH_WORD_ADDR + 6] = 0xFF
