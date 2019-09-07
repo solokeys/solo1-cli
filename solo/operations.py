@@ -111,7 +111,11 @@ def sign_firmware(sk_name, hex_file):
     # start of firmware and the size of the flash region allocated for it.
     # TODO put this somewhere else.
     START = ih.segments()[0][0]
-    END = (0x08000000 + ((128 - 20) * 2048)) - 8
+    # keep in sync with targets/stm32l432/src/memory_layout.h
+    APPLICATION_END_PAGE = 20
+    PAGES = 128
+    PAGE_SIZE = 2048
+    END = (0x08000000 + ((PAGES - APPLICATION_END_PAGE) * PAGE_SIZE)) - 8
 
     ih = IntelHex(hex_file)
     # segs = ih.segments()
