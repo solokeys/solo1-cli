@@ -37,7 +37,7 @@ def genkey(output_pem_file, input_seed_file=None):
     return vk
 
 
-def mergehex(input_hex_files, output_hex_file, attestation_key=None):
+def mergehex(input_hex_files, output_hex_file, attestation_key=None, APPLICATION_END_PAGE=20):
     """Merges hex files, and patches in the attestation key.
 
     If no attestation key is passed, uses default Solo Hacker one.
@@ -56,10 +56,11 @@ def mergehex(input_hex_files, output_hex_file, attestation_key=None):
         return 0x08000000 + num * 2048
 
     PAGES = 128
-    APPLICATION_END_PAGE = PAGES - 19
+    APPLICATION_END_PAGE = PAGES - APPLICATION_END_PAGE
     AUTH_WORD_ADDR = flash_addr(APPLICATION_END_PAGE) - 8
     ATTEST_ADDR = flash_addr(PAGES - 15)
 
+    print(f'app end page: {APPLICATION_END_PAGE}')
     first = IntelHex(input_hex_files[0])
     for input_hex_file in input_hex_files[1:]:
         print(f"merging {first} with {input_hex_file}")
@@ -68,16 +69,13 @@ def mergehex(input_hex_files, output_hex_file, attestation_key=None):
     first[flash_addr(APPLICATION_END_PAGE - 1)] = 0x41
     first[flash_addr(APPLICATION_END_PAGE - 1) + 1] = 0x41
 
-    first[AUTH_WORD_ADDR - 4] = 0
-    first[AUTH_WORD_ADDR - 1] = 0
-    first[AUTH_WORD_ADDR - 2] = 0
-    first[AUTH_WORD_ADDR - 3] = 0
-
-    first[AUTH_WORD_ADDR] = 0
+    # authorize boot
+    first[AUTH_WORD_ADDR + 0] = 0
     first[AUTH_WORD_ADDR + 1] = 0
     first[AUTH_WORD_ADDR + 2] = 0
     first[AUTH_WORD_ADDR + 3] = 0
 
+    # make sure bootloader is enabled
     first[AUTH_WORD_ADDR + 4] = 0xFF
     first[AUTH_WORD_ADDR + 5] = 0xFF
     first[AUTH_WORD_ADDR + 6] = 0xFF
