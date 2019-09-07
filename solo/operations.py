@@ -37,7 +37,7 @@ def genkey(output_pem_file, input_seed_file=None):
     return vk
 
 
-def mergehex(input_hex_files, output_hex_file, attestation_key=None):
+def mergehex(input_hex_files, output_hex_file, attestation_key=None, APPLICATION_END_PAGE=20):
     """Merges hex files, and patches in the attestation key.
 
     If no attestation key is passed, uses default Solo Hacker one.
@@ -56,10 +56,11 @@ def mergehex(input_hex_files, output_hex_file, attestation_key=None):
         return 0x08000000 + num * 2048
 
     PAGES = 128
-    APPLICATION_END_PAGE = PAGES - 19
+    APPLICATION_END_PAGE = PAGES - APPLICATION_END_PAGE
     AUTH_WORD_ADDR = flash_addr(APPLICATION_END_PAGE) - 8
     ATTEST_ADDR = flash_addr(PAGES - 15)
 
+    print(f'app end page: {APPLICATION_END_PAGE}')
     first = IntelHex(input_hex_files[0])
     for input_hex_file in input_hex_files[1:]:
         print(f"merging {first} with {input_hex_file}")
