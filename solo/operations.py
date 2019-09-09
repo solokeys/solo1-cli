@@ -47,6 +47,7 @@ def mergehex(input_hex_files, output_hex_file, attestation_key=None, APPLICATION
 
     if attestation_key is None:
         # generic / hacker attestation key
+        print('*** Using development attestation key')
         attestation_key = (
             "1b2626ecc8f69b0f69e34fb236d76466ba12ac16c3ab5750ba064e8b90e02448"
         )
@@ -66,6 +67,7 @@ def mergehex(input_hex_files, output_hex_file, attestation_key=None, APPLICATION
         print(f"merging {first} with {input_hex_file}")
         first.merge(IntelHex(input_hex_file), overlap="replace")
 
+    # mark start of the last application page
     first[flash_addr(APPLICATION_END_PAGE - 1)] = 0x41
     first[flash_addr(APPLICATION_END_PAGE - 1) + 1] = 0x41
 
