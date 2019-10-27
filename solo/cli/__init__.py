@@ -86,7 +86,7 @@ solo_cli.add_command(genkey)
 @click.argument("verifying-key")
 @click.argument("app-hex")
 @click.argument("output-json")
-def sign(verifying_key, app_hex, output_json, end_page):
+def sign(verifying_key, app_hex, output_json, ):
     """Signs a firmware hex file, outputs a .json file that can be used for signed update."""
 
     msg = solo.operations.sign_firmware(verifying_key, app_hex, )
