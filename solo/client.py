@@ -186,7 +186,7 @@ class SoloClient:
         data = self.exchange(SoloBootloader.version)
         if len(data) > 2:
             return (data[0], data[1], data[2])
-        return (data[0], 0, 0)
+        return (0, 0, data[0])
 
     def solo_version(self,):
         try:
@@ -301,10 +301,54 @@ class SoloClient:
 
     def program_file(self, name):
 
+        def parseField(f):
+            return base64.b64decode(helpers.from_websafe(f).encode())
+
+        def isCorrectVersion(current, target):
+            """ current is tuple (x,y,z).  target is string '>=x.y.z'.
+                Return True if current satisfies the target expression.
+            """
+            if '=' in target:
+                target = target.split('=')
+                assert target[0] in ['>', '<']
+                target_num = [int(x) for x in target[1].split('.')]
+                assert(len(target_num) == 3)
+                comp = target[0] + '='
+            else:
+                assert target[0] in ['>', '<']
+                target_num = [int(x) for x in target[1:].split('.')]
+                comp = target[0]
+            target_num = (target_num[0] << 16) | (target_num[1] << 8) | (target_num[2] << 0)
+            current_num = (current[0] << 16) | (current[1] << 8) | (current[2] << 0)
+            return eval(str(current_num) + comp + str(target_num))
+
+
+
         if name.lower().endswith(".json"):
             data = json.loads(open(name, "r").read())
-            fw = base64.b64decode(helpers.from_websafe(data["firmware"]).encode())
-            sig = base64.b64decode(helpers.from_websafe(data["signature"]).encode())
+            fw = parseField(data['firmware'])
+            sig = None
+
+            if 'versions' in data:
+                current = (0,0,0)
+                try:
+                    current = self.bootloader_version()
+                except CtapError as e:
+                    if e.code == CtapError.ERR.INVALID_COMMAND:
+                        pass
+                    else:
+                        raise (e)
+                for v in data['versions']:
+                    if isCorrectVersion(current, v):
+                        print('using signature version', v)
+                        sig = parseField(data['versions'][v]['signature'])
+                        break
+
+                if sig is None:
+                    raise RuntimeError('Improperly formatted firmware file.  Could not match version.')
+            else:
+                sig = parseField(data['signature'])
+
             ih = IntelHex()
             tmp = tempfile.NamedTemporaryFile(delete=False)
             tmp.write(fw)
