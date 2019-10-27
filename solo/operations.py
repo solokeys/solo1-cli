@@ -158,8 +158,28 @@ def mergehex(input_hex_files, output_hex_file, attestation_key=None, attestation
 
     first.tofile(output_hex_file, format="hex")
 
+def sign_firmware(sk_name, hex_file, ):
+    v1 = sign_firmware_for_version(sk_name, hex_file, 20)
+    v2 = sign_firmware_for_version(sk_name, hex_file, 19)
 
-def sign_firmware(sk_name, hex_file, APPLICATION_END_PAGE = 20):
+    # use fw from v2 since it's smaller.
+    fw = v2['firmware']
+
+    return {
+        'firmware': fw,
+        'signature': v2['signature'],
+        # signatures to use for different versions of bootloader
+        'versions':{
+            '<=2.3.0' : {
+                'signature': v1['signature']
+            },
+            '>2.3.0' : {
+                'signature': v2['signature']
+            }
+        }
+    }
+
+def sign_firmware_for_version(sk_name, hex_file, APPLICATION_END_PAGE):
     # Maybe this is not the optimal module...
 
     import base64
