@@ -86,10 +86,11 @@ solo_cli.add_command(genkey)
 @click.argument("verifying-key")
 @click.argument("app-hex")
 @click.argument("output-json")
-def sign(verifying_key, app_hex, output_json):
+@click.option("--end_page", help="Set APPLICATION_END_PAGE. Should be in sync with firmware settings.", default=20, type=int)
+def sign(verifying_key, app_hex, output_json, end_page):
     """Signs a firmware hex file, outputs a .json file that can be used for signed update."""
 
-    msg = solo.operations.sign_firmware(verifying_key, app_hex)
+    msg = solo.operations.sign_firmware(verifying_key, app_hex, APPLICATION_END_PAGE=end_page)
     print("Saving signed firmware to", output_json)
     with open(output_json, "wb+") as fh:
         fh.write(json.dumps(msg).encode())
@@ -102,7 +103,8 @@ solo_cli.add_command(sign)
 @click.option("--attestation-key", help="attestation key in hex")
 @click.argument("input_hex_files", nargs=-1)
 @click.argument("output_hex_file")
-def mergehex(attestation_key, input_hex_files, output_hex_file):
+@click.option("--end_page", help="Set APPLICATION_END_PAGE. Should be in sync with firmware settings.", default=20, type=int)
+def mergehex(attestation_key, input_hex_files, output_hex_file, end_page):
     """Merges hex files, and patches in the attestation key.
 
     \b
@@ -110,7 +112,7 @@ def mergehex(attestation_key, input_hex_files, output_hex_file):
     Note that later hex files replace data of earlier ones, if they overlap.
     """
     solo.operations.mergehex(
-        input_hex_files, output_hex_file, attestation_key=attestation_key
+        input_hex_files, output_hex_file, attestation_key=attestation_key, APPLICATION_END_PAGE=end_page
     )
 
 
