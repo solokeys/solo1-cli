@@ -9,6 +9,7 @@ author = "SoloKeys"
 author-email = "hello@solokeys.com"
 home-page = "https://github.com/solokeys/solo-python"
 requires-python = ">=3.6"
+description-file = "README.md"
 requires = [
   "click >= 7.0",
   "cryptography",

@@ -34,6 +34,7 @@ VERSION_FILE := "solo/VERSION"
 VERSION := $(shell cat $(VERSION_FILE))
 tag:
 	git tag -a $(VERSION) -m"v$(VERSION)"
+	git push origin $(VERSION)
 
 build: check
 	flit build

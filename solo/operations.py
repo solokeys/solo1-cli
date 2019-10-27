@@ -9,6 +9,7 @@
 
 import binascii
 import struct
+
 from intelhex import IntelHex
 
 from solo import helpers
@@ -36,39 +37,51 @@ def genkey(output_pem_file, input_seed_file=None):
 
     return vk
 
-hacker_attestation_cert = b''.join([b'0\x82\x02\xe90\x82\x02\x8e\xa0\x03\x02\x01\x02\x02\x01\x010'
-                                    b'\n\x06\x08*\x86H\xce=\x04\x03\x020\x81\x821\x0b0\t\x06\x03U'
-                                    b'\x04\x06\x13\x02US1\x110\x0f\x06\x03U\x04\x08\x0c\x08Maryla'
-                                    b'nd1\x140\x12\x06\x03U\x04\n\x0c\x0bSOLO HACKER1\x100\x0e\x06'
-                                    b'\x03U\x04\x0b\x0c\x07Root CA1\x150\x13\x06\x03U\x04\x03\x0c'
-                                    b'\x0csolokeys.com1!0\x1f\x06\t*\x86H\x86\xf7\r\x01\t\x01\x16'
-                                    b'\x12hello@solokeys.com0 \x17\r181211022012Z\x18\x0f20681128'
-                                    b'022012Z0\x81\x941\x0b0\t\x06\x03U\x04\x06\x13\x02US1\x110\x0f'
-                                    b'\x06\x03U\x04\x08\x0c\x08Maryland1\x140\x12\x06\x03U\x04\n\x0c'
-                                    b'\x0bSOLO HACKER1"0 \x06\x03U\x04\x0b\x0c\x19Authenticator Atte'
-                                    b'station1\x150\x13\x06\x03U\x04\x03\x0c\x0csolokeys.com1!0\x1f'
-                                    b'\x06\t*\x86H\x86\xf7\r\x01\t\x01\x16\x12hello@solokeys.com0Y0'
-                                    b'\x13\x06\x07*\x86H\xce=\x02\x01\x06\x08*\x86H\xce=\x03\x01\x07'
-                                    b'\x03B\x00\x04}x\xf6\xbe\xca@v;\xc7\\\xe3\xac\xf4\'\x12\xc3\x94'
-                                    b'\x98\x137\xa6A\x0e\x92\xf6\x9a;\x15G\x8d\xb6\xce\xd9\xd3O9\x13'
-                                    b'\xed\x12{\x81\x14;\xe8\xf9L\x968\xfe\xe3\xd6\xcb\x1bS\x93\xa2t'
-                                    b'\xf7\x13\x9a\x0f\x9d^\xa6\xa3\x81\xde0\x81\xdb0\x1d\x06\x03U'
-                                    b'\x1d\x0e\x04\x16\x04\x14\x9a\xfb\xa2!\t#\xb5\xe4z*\x1dzlN\x03'
-                                    b'\x89\x92\xa3\x0e\xc20\x81\xa1\x06\x03U\x1d#\x04\x81\x990\x81'
-                                    b'\x96\xa1\x81\x88\xa4\x81\x850\x81\x821\x0b0\t\x06\x03U\x04\x06'
-                                    b'\x13\x02US1\x110\x0f\x06\x03U\x04\x08\x0c\x08Maryland1\x140\x12'
-                                    b'\x06\x03U\x04\n\x0c\x0bSOLO HACKER1\x100\x0e\x06\x03U\x04\x0b\x0c'
-                                    b'\x07Root CA1\x150\x13\x06\x03U\x04\x03\x0c\x0csolokeys.com1!0\x1f'
-                                    b'\x06\t*\x86H\x86\xf7\r\x01\t\x01\x16\x12hello@solokeys.com\x82\t'
-                                    b'\x00\xeb\xd4\x84P\x14\xab\xd1W0\t\x06\x03U\x1d\x13\x04\x020\x000'
-                                    b'\x0b\x06\x03U\x1d\x0f\x04\x04\x03\x02\x04\xf00\n\x06\x08*\x86H\xce='
-                                    b'\x04\x03\x02\x03I\x000F\x02!\x00\xa1{*\x1dNB\xa8hmea\x1e\xf5\xfem'
-                                    b'\xc6\x99\xae| \x83\x16\xba\xd6\xe5\x0f\xd7\r~\x05\xda\xc9\x02!\x00'
-                                    b'\x92I\xf3\x0bW\xd1\x19r\xf2uZ\xa2\xe0\xb6\xbd\x0f\x078\xd0\xe5\xa2'
-                                    b'O\xa0\xf3\x87a\x82\xd8\xcdH\xfcW'])
 
-def mergehex(input_hex_files, output_hex_file, attestation_key=None, attestation_cert=None, 
-             APPLICATION_END_PAGE=20, lock = False, ):
+hacker_attestation_cert = b"".join(
+    [
+        b"0\x82\x02\xe90\x82\x02\x8e\xa0\x03\x02\x01\x02\x02\x01\x010"
+        b"\n\x06\x08*\x86H\xce=\x04\x03\x020\x81\x821\x0b0\t\x06\x03U"
+        b"\x04\x06\x13\x02US1\x110\x0f\x06\x03U\x04\x08\x0c\x08Maryla"
+        b"nd1\x140\x12\x06\x03U\x04\n\x0c\x0bSOLO HACKER1\x100\x0e\x06"
+        b"\x03U\x04\x0b\x0c\x07Root CA1\x150\x13\x06\x03U\x04\x03\x0c"
+        b"\x0csolokeys.com1!0\x1f\x06\t*\x86H\x86\xf7\r\x01\t\x01\x16"
+        b"\x12hello@solokeys.com0 \x17\r181211022012Z\x18\x0f20681128"
+        b"022012Z0\x81\x941\x0b0\t\x06\x03U\x04\x06\x13\x02US1\x110\x0f"
+        b"\x06\x03U\x04\x08\x0c\x08Maryland1\x140\x12\x06\x03U\x04\n\x0c"
+        b'\x0bSOLO HACKER1"0 \x06\x03U\x04\x0b\x0c\x19Authenticator Atte'
+        b"station1\x150\x13\x06\x03U\x04\x03\x0c\x0csolokeys.com1!0\x1f"
+        b"\x06\t*\x86H\x86\xf7\r\x01\t\x01\x16\x12hello@solokeys.com0Y0"
+        b"\x13\x06\x07*\x86H\xce=\x02\x01\x06\x08*\x86H\xce=\x03\x01\x07"
+        b"\x03B\x00\x04}x\xf6\xbe\xca@v;\xc7\\\xe3\xac\xf4'\x12\xc3\x94"
+        b"\x98\x137\xa6A\x0e\x92\xf6\x9a;\x15G\x8d\xb6\xce\xd9\xd3O9\x13"
+        b"\xed\x12{\x81\x14;\xe8\xf9L\x968\xfe\xe3\xd6\xcb\x1bS\x93\xa2t"
+        b"\xf7\x13\x9a\x0f\x9d^\xa6\xa3\x81\xde0\x81\xdb0\x1d\x06\x03U"
+        b"\x1d\x0e\x04\x16\x04\x14\x9a\xfb\xa2!\t#\xb5\xe4z*\x1dzlN\x03"
+        b"\x89\x92\xa3\x0e\xc20\x81\xa1\x06\x03U\x1d#\x04\x81\x990\x81"
+        b"\x96\xa1\x81\x88\xa4\x81\x850\x81\x821\x0b0\t\x06\x03U\x04\x06"
+        b"\x13\x02US1\x110\x0f\x06\x03U\x04\x08\x0c\x08Maryland1\x140\x12"
+        b"\x06\x03U\x04\n\x0c\x0bSOLO HACKER1\x100\x0e\x06\x03U\x04\x0b\x0c"
+        b"\x07Root CA1\x150\x13\x06\x03U\x04\x03\x0c\x0csolokeys.com1!0\x1f"
+        b"\x06\t*\x86H\x86\xf7\r\x01\t\x01\x16\x12hello@solokeys.com\x82\t"
+        b"\x00\xeb\xd4\x84P\x14\xab\xd1W0\t\x06\x03U\x1d\x13\x04\x020\x000"
+        b"\x0b\x06\x03U\x1d\x0f\x04\x04\x03\x02\x04\xf00\n\x06\x08*\x86H\xce="
+        b"\x04\x03\x02\x03I\x000F\x02!\x00\xa1{*\x1dNB\xa8hmea\x1e\xf5\xfem"
+        b"\xc6\x99\xae| \x83\x16\xba\xd6\xe5\x0f\xd7\r~\x05\xda\xc9\x02!\x00"
+        b"\x92I\xf3\x0bW\xd1\x19r\xf2uZ\xa2\xe0\xb6\xbd\x0f\x078\xd0\xe5\xa2"
+        b"O\xa0\xf3\x87a\x82\xd8\xcdH\xfcW"
+    ]
+)
+
+
+def mergehex(
+    input_hex_files,
+    output_hex_file,
+    attestation_key=None,
+    attestation_cert=None,
+    APPLICATION_END_PAGE=20,
+    lock=False,
+):
     """Merges hex files, and patches in the attestation key.
 
     If no attestation key is passed, uses default Solo Hacker one.
@@ -77,23 +90,22 @@ def mergehex(input_hex_files, output_hex_file, attestation_key=None, attestation
     """
 
     if attestation_key is not None and attestation_cert is None:
-        raise RuntimeError('Need to provide certificate with attestation_key')
+        raise RuntimeError("Need to provide certificate with attestation_key")
     if attestation_key is None and attestation_cert is not None:
-        raise RuntimeError('Need to provide certificate with attestation_key')
+        raise RuntimeError("Need to provide certificate with attestation_key")
 
     if attestation_key is None:
         # generic / hacker attestation key
         attestation_key = (
             "1b2626ecc8f69b0f69e34fb236d76466ba12ac16c3ab5750ba064e8b90e02448"
         )
-    
+
     if attestation_cert is None:
         attestation_cert = hacker_attestation_cert
     else:
-        attestation_cert = open(attestation_cert, 'rb').read()
+        attestation_cert = open(attestation_cert, "rb").read()
         if len(attestation_cert) < 100:
-            raise RuntimeError('Attestation certificate is invalid')
-
+            raise RuntimeError("Attestation certificate is invalid")
 
     # TODO put definitions somewhere else
     def flash_addr(num):
@@ -104,7 +116,7 @@ def mergehex(input_hex_files, output_hex_file, attestation_key=None, attestation
     AUTH_WORD_ADDR = flash_addr(APPLICATION_END_PAGE) - 8
     ATTEST_ADDR = flash_addr(PAGES - 15)
 
-    print(f'app end page: {APPLICATION_END_PAGE}')
+    print(f"app end page: {APPLICATION_END_PAGE}")
     first = IntelHex(input_hex_files[0])
     for input_hex_file in input_hex_files[1:]:
         print(f"merging {first} with {input_hex_file}")
@@ -131,12 +143,11 @@ def mergehex(input_hex_files, output_hex_file, attestation_key=None, attestation
     for i, x in enumerate(key):
         first[ATTEST_ADDR + i] = x
 
-
     offset = 32
 
     # patch in device settings / i.e. lock byte in little endian 64 int.
     lock_byte = 0x02 if lock else 0x00
-    device_settings = struct.pack('<Q', 0xaa551e7800000000 | lock_byte)
+    device_settings = struct.pack("<Q", 0xAA551E7800000000 | lock_byte)
 
     for i, x in enumerate(device_settings):
         first[offset + ATTEST_ADDR + i] = x
@@ -144,7 +155,7 @@ def mergehex(input_hex_files, output_hex_file, attestation_key=None, attestation
     offset += 8
 
     # patch in certificate size little endian 64 int.
-    cert_size = struct.pack('<Q', len(attestation_cert))
+    cert_size = struct.pack("<Q", len(attestation_cert))
 
     for i, x in enumerate(cert_size):
         first[offset + ATTEST_ADDR + i] = x
@@ -155,29 +166,26 @@ def mergehex(input_hex_files, output_hex_file, attestation_key=None, attestation
     for i, x in enumerate(attestation_cert):
         first[offset + ATTEST_ADDR + i] = x
 
-
     first.tofile(output_hex_file, format="hex")
 
-def sign_firmware(sk_name, hex_file, ):
+
+def sign_firmware(sk_name, hex_file):
     v1 = sign_firmware_for_version(sk_name, hex_file, 19)
     v2 = sign_firmware_for_version(sk_name, hex_file, 20)
 
     # use fw from v2 since it's smaller.
-    fw = v2['firmware']
+    fw = v2["firmware"]
 
     return {
-        'firmware': fw,
-        'signature': v2['signature'],
+        "firmware": fw,
+        "signature": v2["signature"],
         # signatures to use for different versions of bootloader
-        'versions':{
-            '<=2.3.0' : {
-                'signature': v1['signature']
-            },
-            '>2.3.0' : {
-                'signature': v2['signature']
-            }
-        }
+        "versions": {
+            "<=2.3.0": {"signature": v1["signature"]},
+            ">2.3.0": {"signature": v2["signature"]},
+        },
     }
+
 
 def sign_firmware_for_version(sk_name, hex_file, APPLICATION_END_PAGE):
     # Maybe this is not the optimal module...

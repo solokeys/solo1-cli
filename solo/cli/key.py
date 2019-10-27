@@ -345,14 +345,14 @@ def version(serial, udp):
     """Version of firmware on key."""
 
     try:
-        res = solo.client.find(serial, udp=udp).solo_version() 
+        res = solo.client.find(serial, udp=udp).solo_version()
         major, minor, patch = res[:3]
-        locked = ''
+        locked = ""
         if len(res) > 3:
             if res[3]:
-                locked = 'locked'
+                locked = "locked"
             else:
-                locked = 'unlocked'
+                locked = "unlocked"
         print(f"{major}.{minor}.{patch} {locked}")
 
     except solo.exceptions.NoSoloFoundError:

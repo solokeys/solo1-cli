@@ -30,7 +30,7 @@ from solo import helpers
 from solo.commands import SoloBootloader, SoloExtension
 
 
-def find(solo_serial=None, retries=5, raw_device=None, udp = False):
+def find(solo_serial=None, retries=5, raw_device=None, udp=False):
 
     if udp:
         solo.fido2.force_udp_backend()
@@ -190,7 +190,7 @@ class SoloClient:
 
     def solo_version(self,):
         try:
-            return self.send_data_hid(0x61, b'')
+            return self.send_data_hid(0x61, b"")
         except CtapError:
             data = self.exchange(SoloExtension.version)
             return (data[0], data[1], data[2])
@@ -300,7 +300,6 @@ class SoloClient:
         return True
 
     def program_file(self, name):
-
         def parseField(f):
             return base64.b64decode(helpers.from_websafe(f).encode())
 
@@ -308,29 +307,29 @@ class SoloClient:
             """ current is tuple (x,y,z).  target is string '>=x.y.z'.
                 Return True if current satisfies the target expression.
             """
-            if '=' in target:
-                target = target.split('=')
-                assert target[0] in ['>', '<']
-                target_num = [int(x) for x in target[1].split('.')]
-                assert(len(target_num) == 3)
-                comp = target[0] + '='
+            if "=" in target:
+                target = target.split("=")
+                assert target[0] in [">", "<"]
+                target_num = [int(x) for x in target[1].split(".")]
+                assert len(target_num) == 3
+                comp = target[0] + "="
             else:
-                assert target[0] in ['>', '<']
-                target_num = [int(x) for x in target[1:].split('.')]
+                assert target[0] in [">", "<"]
+                target_num = [int(x) for x in target[1:].split(".")]
                 comp = target[0]
-            target_num = (target_num[0] << 16) | (target_num[1] << 8) | (target_num[2] << 0)
+            target_num = (
+                (target_num[0] << 16) | (target_num[1] << 8) | (target_num[2] << 0)
+            )
             current_num = (current[0] << 16) | (current[1] << 8) | (current[2] << 0)
             return eval(str(current_num) + comp + str(target_num))
 
-
-
         if name.lower().endswith(".json"):
             data = json.loads(open(name, "r").read())
-            fw = parseField(data['firmware'])
+            fw = parseField(data["firmware"])
             sig = None
 
-            if 'versions' in data:
-                current = (0,0,0)
+            if "versions" in data:
+                current = (0, 0, 0)
                 try:
                     current = self.bootloader_version()
                 except CtapError as e:
@@ -338,16 +337,18 @@ class SoloClient:
                         pass
                     else:
                         raise (e)
-                for v in data['versions']:
+                for v in data["versions"]:
                     if isCorrectVersion(current, v):
-                        print('using signature version', v)
-                        sig = parseField(data['versions'][v]['signature'])
+                        print("using signature version", v)
+                        sig = parseField(data["versions"][v]["signature"])
                         break
 
                 if sig is None:
-                    raise RuntimeError('Improperly formatted firmware file.  Could not match version.')
+                    raise RuntimeError(
+                        "Improperly formatted firmware file.  Could not match version."
+                    )
             else:
-                sig = parseField(data['signature'])
+                sig = parseField(data["signature"])
 
             ih = IntelHex()
             tmp = tempfile.NamedTemporaryFile(delete=False)
