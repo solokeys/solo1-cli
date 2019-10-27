@@ -189,8 +189,11 @@ class SoloClient:
         return (data[0], 0, 0)
 
     def solo_version(self,):
-        data = self.exchange(SoloExtension.version)
-        return (data[0], data[1], data[2])
+        try:
+            return self.send_data_hid(0x61, b'')
+        except CtapError:
+            data = self.exchange(SoloExtension.version)
+            return (data[0], data[1], data[2])
 
     def write_flash(self, addr, data):
         self.exchange(SoloBootloader.write, addr, data)

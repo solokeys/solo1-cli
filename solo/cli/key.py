@@ -345,8 +345,16 @@ def version(serial, udp):
     """Version of firmware on key."""
 
     try:
-        major, minor, patch = solo.client.find(serial, udp=udp).solo_version()
-        print(f"{major}.{minor}.{patch}")
+        res = solo.client.find(serial, udp=udp).solo_version() 
+        major, minor, patch = res[:3]
+        locked = ''
+        if len(res) > 3:
+            if res[3]:
+                locked = 'locked'
+            else:
+                locked = 'unlocked'
+        print(f"{major}.{minor}.{patch} {locked}")
+
     except solo.exceptions.NoSoloFoundError:
         print("No Solo found.")
         print("If you are on Linux, are your udev rules up to date?")
