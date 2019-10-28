@@ -252,7 +252,7 @@ class SoloClient:
         except CtapError as e:
             if e.code == CtapError.ERR.INVALID_COMMAND:
                 print(
-                    "Solo appears to not be a solo hacker.  Try holding down the button for 2 while you plug token in."
+                    "Could not switch into bootloader mode.  Please hold down the button for 2s while you plug token in."
                 )
                 sys.exit(1)
             else:

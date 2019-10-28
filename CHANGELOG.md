@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.17] - 2019-10-28
+### Added
+### Changed
+- remove `--hacker` and `--secure` options when auto-updating.
+- pull `firmware-*.json` instead of choosing between hacker and secure
+
 ## [0.0.16] - 2019-10-28
 ### Added
 - option to specify attestation certificate with attestation key

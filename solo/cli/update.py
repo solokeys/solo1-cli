@@ -12,10 +12,12 @@ import hashlib
 import json
 import sys
 import tempfile
+import time
 
 import click
 import requests
 from fido2.ctap1 import ApduError
+from fido2.ctap import CtapError
 
 import solo
 from solo import helpers
@@ -25,12 +27,6 @@ from solo import helpers
 @click.option("-s", "--serial", help="Serial number of Solo key to target")
 @click.option(
     "-y", "--yes", is_flag=True, help="Don't ask for confirmation before flashing"
-)
-@click.option(
-    "--hacker", is_flag=True, default=False, help="Use this flag to flash hacker build"
-)
-@click.option(
-    "--secure", is_flag=True, default=False, help="Use this flag to flash secure build"
 )
 @click.option(
     "-lfs",
@@ -47,15 +43,8 @@ from solo import helpers
     hidden=True,
     help="Development option: use release refered to by ALPHA_VERSION",
 )
-def update(serial, yes, hacker, secure, local_firmware_server, alpha):
+def update(serial, yes, local_firmware_server, alpha):
     """Update Solo key to latest firmware version."""
-
-    # Check exactly one of --hacker/--secure is selected
-    exactly_one_variant = len({hacker, secure}) == 2
-    if not exactly_one_variant:
-        print("Please pass exactly one of `--hacker` or `--secure` as flag!")
-        print("This flag should correspond to the key you are updating.")
-        sys.exit(1)
 
     # Determine target key
     try:
@@ -95,15 +84,6 @@ def update(serial, yes, hacker, secure, local_firmware_server, alpha):
         print("Please switch key to bootloader mode:")
         print("Unplug, hold button, plug in, wait for flashing yellow light.")
         sys.exit(1)
-
-    # Have user confirm the targetted key is secure vs hacker
-    # TODO: check out automatically (currently interface is too unstable to do this.
-    variant = "Solo Hacker" if hacker else "Solo Secure"
-    if not yes:
-        print(f"We are about to update with the latest {variant} firmware.")
-        click.confirm(
-            f"Please confirm that the connected Solo key is a {variant}", abort=True
-        )
 
     # Get firmware version to use
     try:
@@ -147,10 +127,7 @@ def update(serial, yes, hacker, secure, local_firmware_server, alpha):
     else:
         base_url = f"https://github.com/solokeys/solo/releases/download/{version}"
 
-    if hacker:
-        firmware_file_github = f"firmware-hacker-{version}.hex"
-    else:
-        firmware_file_github = f"firmware-secure-{version}.json"
+    firmware_file_github = f"firmware-{version}.json"
     firmware_url = f"{base_url}/{firmware_file_github}"
 
     extension = firmware_url.rsplit(".")[-1]
@@ -164,13 +141,12 @@ def update(serial, yes, hacker, secure, local_firmware_server, alpha):
             print(f"URL attempted: {firmware_url}")
             sys.exit(1)
         content = r.content
-        if not hacker:
-            try:
-                # might as well use r.json() here too
-                json_content = json.loads(content.decode())
-            except Exception:
-                print(f"Invalid JSON content fetched from {firmware_url}!")
-                sys.exit(1)
+        try:
+            # might as well use r.json() here too
+            json_content = json.loads(content.decode())
+        except Exception:
+            print(f"Invalid JSON content fetched from {firmware_url}!")
+            sys.exit(1)
 
         with tempfile.NamedTemporaryFile(suffix="." + extension, delete=False) as fh:
             fh.write(r.content)
@@ -182,14 +158,11 @@ def update(serial, yes, hacker, secure, local_firmware_server, alpha):
 
     # Check sha256sum
     m = hashlib.sha256()
-    if hacker:
-        m.update(content)
-    else:
-        firmware_content = base64.b64decode(
-            helpers.from_websafe(json_content["firmware"]).encode()
-        )
-        crlf_firmware_content = b"\r\n".join(firmware_content.split(b"\n"))
-        m.update(crlf_firmware_content)
+    firmware_content = base64.b64decode(
+        helpers.from_websafe(json_content["firmware"]).encode()
+    )
+    crlf_firmware_content = b"\r\n".join(firmware_content.split(b"\n"))
+    m.update(crlf_firmware_content)
 
     our_digest = m.hexdigest()
     digest_url = firmware_url.rsplit(".", 1)[0] + ".sha2"
@@ -208,12 +181,26 @@ def update(serial, yes, hacker, secure, local_firmware_server, alpha):
     try:
         # We check the key accepted signature ourselves,
         # for more pertinent error messaging.
+        if not solo_client.is_solo_bootloader():
+            print("Switching into bootloader mode...")
+            solo_client.enter_bootloader_or_die()
+            time.sleep(0.5)
+            solo_client = solo.client.find(serial)
+
         solo_client.set_reboot(False)
         sig = solo_client.program_file(firmware_file)
     except Exception as e:
+        if isinstance(e, CtapError):
+            if e.code == CtapError.ERR.INVALID_COMMAND:
+                print("Could not switch into bootloader mode.")
+                print("Please put key into bootloader mode:")
+                print("1. Unplug key")
+                print("2. While holding button, plug in key for 2s")
+                sys.exit(1)
+
+        print("error:")
         print("problem flashing firmware!")
         print(e)
-        raise
         sys.exit(1)
 
     try:
@@ -224,7 +211,6 @@ def update(serial, yes, hacker, secure, local_firmware_server, alpha):
         print("...error!")
         print()
         print("Your key did not accept the firmware's signature! Possible reasons:")
-        print('  * Tried to flash "hacker" firmware on secure key')
         print(
             '  * Tried to flash "hacker" firmware on custom hacker key with verifying bootloader'
         )
@@ -239,5 +225,5 @@ def update(serial, yes, hacker, secure, local_firmware_server, alpha):
 
     print()
     print(
-        f"Congratulations, your {variant} was updated to the latest firmware version: {version}"
+        f"Congratulations, your key was updated to the latest firmware version: {version}"
     )
