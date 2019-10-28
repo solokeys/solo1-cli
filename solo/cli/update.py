@@ -16,7 +16,6 @@ import time
 
 import click
 import requests
-
 import solo
 from fido2.ctap import CtapError
 from fido2.ctap1 import ApduError

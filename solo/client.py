@@ -14,10 +14,9 @@ import sys
 import tempfile
 import time
 
+import solo.exceptions
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
-
-import solo.exceptions
 from fido2.attestation import Attestation
 from fido2.client import Fido2Client
 from fido2.ctap import CtapError
