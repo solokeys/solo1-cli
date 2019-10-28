@@ -148,9 +148,7 @@ class DFUDevice:
 
     def clear_status(self,):
         # bmReqType, bmReq, wValue, wIndex, data/size
-        _ = self.dev.ctrl_transfer(
-            DFU.type.SEND, DFU.bmReq.CLRSTATUS, 0, self.intNum, None
-        )
+        self.dev.ctrl_transfer(DFU.type.SEND, DFU.bmReq.CLRSTATUS, 0, self.intNum, None)
 
     def upload(self, block, size):
         """

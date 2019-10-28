@@ -103,7 +103,7 @@ def feedkernel(count, serial):
     t = struct.pack(f"ii{count}s", count * entropy_bits_per_byte, count, r)
 
     with open("/dev/random", mode="wb") as fh:
-        _ = fcntl.ioctl(fh, RNDADDENTROPY, t)
+        fcntl.ioctl(fh, RNDADDENTROPY, t)
     print(f"Entropy after:  0x{open(entropy_info_file).read().strip()}")
 
 
@@ -222,7 +222,7 @@ def probe(serial, udp, hash_type, filename):
             )
         )
         try:
-            _ = verify_key.verify(result)
+            verify_key.verify(result)
             verified = True
         except nacl.exceptions.BadSignatureError:
             verified = False
