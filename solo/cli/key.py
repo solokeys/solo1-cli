@@ -12,11 +12,11 @@ import sys
 
 import click
 from cryptography.hazmat.primitives import hashes
-from fido2.client import ClientError as Fido2ClientError
-from fido2.ctap1 import ApduError
 
 import solo
 import solo.fido2
+from fido2.client import ClientError as Fido2ClientError
+from fido2.ctap1 import ApduError
 from solo.cli.update import update
 
 

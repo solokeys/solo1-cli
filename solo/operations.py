@@ -11,7 +11,6 @@ import binascii
 import struct
 
 from intelhex import IntelHex
-
 from solo import helpers
 
 

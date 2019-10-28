@@ -16,6 +16,8 @@ import time
 
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
+
+import solo.exceptions
 from fido2.attestation import Attestation
 from fido2.client import Fido2Client
 from fido2.ctap import CtapError
@@ -24,8 +26,6 @@ from fido2.ctap2 import CTAP2
 from fido2.hid import CTAPHID, CtapHidDevice
 from fido2.utils import Timeout
 from intelhex import IntelHex
-
-import solo.exceptions
 from solo import helpers
 from solo.commands import SoloBootloader, SoloExtension
 
