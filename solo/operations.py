@@ -180,8 +180,8 @@ def sign_firmware(sk_name, hex_file):
         "signature": v2["signature"],
         # signatures to use for different versions of bootloader
         "versions": {
-            "<=2.3.0": {"signature": v1["signature"]},
-            ">2.3.0": {"signature": v2["signature"]},
+            "<=2.5.3": {"signature": v1["signature"]},
+            ">2.5.3": {"signature": v2["signature"]},
         },
     }
 

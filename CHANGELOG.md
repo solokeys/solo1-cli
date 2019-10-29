@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.18] - 2019-10-29
+### Added
+### Changed
+- When signing, signatures were incorrectly annotated with `2.3.0` version.  updated to `2.5.3`.
+
 ## [0.0.17] - 2019-10-28
 ### Added
 ### Changed
