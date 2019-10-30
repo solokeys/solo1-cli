@@ -18,6 +18,7 @@ from fido2.client import ClientError as Fido2ClientError
 from fido2.ctap1 import ApduError
 from solo.cli.update import update
 
+import getpass
 
 # https://pocoo-click.readthedocs.io/en/latest/commands/#nested-handling-and-contexts
 @click.group()
@@ -269,6 +270,22 @@ def reset(serial):
         solo.client.find(serial).reset()
         click.echo("....aaaand they're gone")
 
+@click.command()
+@click.option("-s", "--serial", help="Serial number of Solo to use")
+# @click.option("--new-pin", help="change current pin")
+def change_pin(serial):
+    """Change pin of current key"""
+    old_pin = getpass.getpass("Please enter old pin: ")
+    new_pin = getpass.getpass("Please enter new pin: ")
+    confirm_pin = getpass.getpass("Please confirm new pin: ")
+    if new_pin != confirm_pin:
+        click.echo("New pin are mismatched. Please try again!")
+        return
+    try:
+        solo.client.find(serial).change_pin(old_pin, new_pin)
+        click.echo("Done. Please use new pin to verify key")
+    except Exception as e:
+        print(e)
 
 @click.command()
 @click.option("--pin", help="PIN for to access key")
@@ -382,6 +399,7 @@ key.add_command(challenge_response)
 key.add_command(reset)
 key.add_command(update)
 key.add_command(probe)
+key.add_command(change_pin)
 # key.add_command(sha256sum)
 # key.add_command(sha512sum)
 key.add_command(version)
