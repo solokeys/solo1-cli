@@ -40,13 +40,11 @@ solo key version  # outputs the version of the firmware on your key
 ## Firmware Update
 
 Upon release of signed firmware updates in [solokeys/solo](https://github.com/solokeys/solo),
-to update the firmware on your Solo Secure ("regular" version) to the latest version:
+to update the firmware on your Solo to the latest version:
 
 - update your `solo` tool if necessary via `pip3 install --upgrade solo-python`
 - plug in your key, keeping the button pressed until the LED flashes yellow
-- run `solo key update --secure`
-
-To update an (unmodified) Solo Hacker, instead run `solo key update --hacker`.
+- run `solo key update`
 
 For possibly helpful additional information, see <https://github.com/solokeys/solo/issues/113>.
 
