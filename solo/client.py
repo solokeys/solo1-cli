@@ -215,6 +215,9 @@ class SoloClient:
     def reset(self,):
         self.ctap2.reset()
 
+    def change_pin(self,old_pin, new_pin):
+        self.client.pin_protocol.change_pin(old_pin, new_pin)
+
     def make_credential(self, pin=None):
         rp = {"id": self.host, "name": "example site"}
         user = {"id": self.user_id, "name": "example user"}
