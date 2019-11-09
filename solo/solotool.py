@@ -25,7 +25,6 @@ from hashlib import sha256
 
 import click
 import serial
-import solo
 import usb._objfinalizer
 import usb.core
 from cryptography import x509
@@ -39,6 +38,8 @@ from fido2.ctap2 import CTAP2
 from fido2.hid import CTAPHID, CtapHidDevice
 from fido2.utils import Timeout
 from intelhex import IntelHex
+
+import solo
 from solo import helpers
 
 

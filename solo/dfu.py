@@ -10,10 +10,11 @@
 import struct
 import time
 
-import solo.exceptions
 import usb._objfinalizer
 import usb.core
 import usb.util
+
+import solo.exceptions
 from solo.commands import DFU, STM32L4
 
 

@@ -12,8 +12,9 @@ import binascii
 import hashlib
 import secrets
 
-import solo.client
 from fido2.extensions import HmacSecretExtension
+
+import solo.client
 
 
 def make_credential(

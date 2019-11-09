@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.19] - 2019-11-09
+### Added
+- `solo key set-pin` and `change-pin` commands.
+
 ## [0.0.18] - 2019-10-29
 ### Added
 ### Changed

@@ -14,7 +14,6 @@ import sys
 import tempfile
 import time
 
-import solo.exceptions
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 from fido2.attestation import Attestation
@@ -25,6 +24,8 @@ from fido2.ctap2 import CTAP2
 from fido2.hid import CTAPHID, CtapHidDevice
 from fido2.utils import Timeout
 from intelhex import IntelHex
+
+import solo.exceptions
 from solo import helpers
 from solo.commands import SoloBootloader, SoloExtension
 
@@ -215,8 +216,11 @@ class SoloClient:
     def reset(self,):
         self.ctap2.reset()
 
-    def change_pin(self,old_pin, new_pin):
+    def change_pin(self, old_pin, new_pin):
         self.client.pin_protocol.change_pin(old_pin, new_pin)
+
+    def set_pin(self, new_pin):
+        self.client.pin_protocol.set_pin(new_pin)
 
     def make_credential(self, pin=None):
         rp = {"id": self.host, "name": "example site"}

@@ -11,9 +11,10 @@ import sys
 import time
 
 import click
-import solo
 import usb
 from fido2.ctap import CtapError
+
+import solo
 from solo.dfu import hot_patch_windows_libusb
 
 
