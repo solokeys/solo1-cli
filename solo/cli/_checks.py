@@ -4,8 +4,6 @@ import ctypes, os, platform
 LINUX_ROOT_WARNING = """THIS COMMAND SHOULD NOT BE RUN AS ROOT!
 
 Please install udev rules and run `solo` as regular user (without sudo).
-We suggest using: https://github.com/solokeys/solo/blob/master/udev/70-solokeys-access.rules
-
 For more information, see: https://docs.solokeys.io/solo/udev"""
 
 WINDOWS_CTAP_WARNING = """Try running `solo` with administrator privileges!
