@@ -20,7 +20,7 @@ from solo.cli.monitor import monitor
 from solo.cli.program import program
 
 from . import _patches  # noqa  (since otherwise "unused")
-from ._warnings import init_checks
+from ._checks import init_checks
 
 init_checks()
 
