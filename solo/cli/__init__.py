@@ -101,10 +101,24 @@ solo_cli.add_command(sign)
 
 @click.command()
 @click.option("--attestation-key", help="attestation key in hex")
+@click.option("--attestation-cert", help="attestation certificate file")
+@click.option(
+    "--lock",
+    help="Indicate to lock device from unsigned changes permanently.",
+    default=False,
+    is_flag=True,
+)
 @click.argument("input_hex_files", nargs=-1)
 @click.argument("output_hex_file")
-@click.option("--end_page", help="Set APPLICATION_END_PAGE. Should be in sync with firmware settings.", default=20, type=int)
-def mergehex(attestation_key, input_hex_files, output_hex_file, end_page):
+@click.option(
+    "--end_page",
+    help="Set APPLICATION_END_PAGE. Should be in sync with firmware settings.",
+    default=20,
+    type=int,
+)
+def mergehex(
+    attestation_key, attestation_cert, lock, input_hex_files, output_hex_file, end_page
+):
     """Merges hex files, and patches in the attestation key.
 
     \b
@@ -112,7 +126,12 @@ def mergehex(attestation_key, input_hex_files, output_hex_file, end_page):
     Note that later hex files replace data of earlier ones, if they overlap.
     """
     solo.operations.mergehex(
-        input_hex_files, output_hex_file, attestation_key=attestation_key, APPLICATION_END_PAGE=end_page
+        input_hex_files,
+        output_hex_file,
+        attestation_key=attestation_key,
+        APPLICATION_END_PAGE=end_page,
+        attestation_cert=attestation_cert,
+        lock=lock,
     )
 
 

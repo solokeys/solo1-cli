@@ -12,12 +12,11 @@ import sys
 from time import sleep, time
 
 import click
+import solo
+import solo.fido2
 from cryptography.hazmat.primitives import hashes
 from fido2.client import ClientError as Fido2ClientError
 from fido2.ctap1 import ApduError
-
-import solo
-import solo.fido2
 from solo.cli.update import update
 
 
@@ -120,7 +119,7 @@ def feedkernel(count, serial):
     t = struct.pack(f"ii{count}s", count * entropy_bits_per_byte, count, r)
 
     with open("/dev/random", mode="wb") as fh:
-        _ = fcntl.ioctl(fh, RNDADDENTROPY, t)
+        fcntl.ioctl(fh, RNDADDENTROPY, t)
     print(f"Entropy after:  0x{open(entropy_info_file).read().strip()}")
 
 
@@ -239,7 +238,7 @@ def probe(serial, udp, hash_type, filename):
             )
         )
         try:
-            _ = verify_key.verify(result)
+            verify_key.verify(result)
             verified = True
         except nacl.exceptions.BadSignatureError:
             verified = False
@@ -362,8 +361,16 @@ def version(serial, udp):
     """Version of firmware on key."""
 
     try:
-        major, minor, patch = solo.client.find(serial, udp=udp).solo_version()
-        print(f"{major}.{minor}.{patch}")
+        res = solo.client.find(serial, udp=udp).solo_version()
+        major, minor, patch = res[:3]
+        locked = ""
+        if len(res) > 3:
+            if res[3]:
+                locked = "locked"
+            else:
+                locked = "unlocked"
+        print(f"{major}.{minor}.{patch} {locked}")
+
     except solo.exceptions.NoSoloFoundError:
         print("No Solo found.")
         print("If you are on Linux, are your udev rules up to date?")

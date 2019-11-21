@@ -107,9 +107,23 @@ Licensed under either of
 at your option.
 
 ## Contributing
+
 Any contribution intentionally submitted for inclusion in the work by you, as defined in the Apache-2.0 license, shall be dual licensed as above, without any additional terms or conditions.
 
 Code is to be formatted and linted according to [Black](https://black.readthedocs.io/) and our [Flake8](http://flake8.pycqa.org/en/latest/) [configuration](.flake8)
 Run `make check` to test compliance, run `make fix` to apply some automatic fixes.
 
 We keep a [CHANGELOG](CHANGELOG.md).
+
+## Releasing
+
+For maintainers:
+
+- adjust `solo/VERSION` file as appropriate
+- add entry or entries to `CHANGELOG.md` (no need to repeat commit messages, but point out major changes
+  in such a way that a user of the library has an easy entrypoint to follow development)
+- run `make check` and/or `make fix` to ensure code consistency
+- run `make build` to double check
+- run `make publish` (assumes a `~/.pypirc` file with entry `[pypi]`), or `flit publish` manually
+- run `make tag` to tag the release and push it
+

@@ -6,10 +6,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.18] - 2019-10-29
+### Added
+### Changed
+- When signing, signatures were incorrectly annotated with `2.3.0` version.  updated to `2.5.3`.
+
+## [0.0.17] - 2019-10-28
+### Added
+### Changed
+- remove `--hacker` and `--secure` options when auto-updating.
+- pull `firmware-*.json` instead of choosing between hacker and secure
+
+## [0.0.16] - 2019-10-28
+### Added
+- option to specify attestation certificate with attestation key
+- mergehex operation adds in attestation certificate
+- mergehex operation adds in lock status with `--lock` flag
+
+### Changed
+- attestation key requires associate attestation cert
+- sign operation adds 2 signatures for 2 different versions of solo bootloader
+- solo version attempts to uses HID version command to additionally see lock status of key.
+
 ## [0.0.15] - 2019-08-30
 ### Added
 - `solo.hmac_secret.make_credential` method
 - separate `solo key make-credential` CLI target
+
 ### Changed
 - remove credential generation from `solo.hmac_secret.simple_secret`
 - demand `credential_id` in `solo key challenge-response`

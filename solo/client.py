@@ -14,6 +14,7 @@ import sys
 import tempfile
 import time
 
+import solo.exceptions
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 from fido2.attestation import Attestation
@@ -24,13 +25,11 @@ from fido2.ctap2 import CTAP2
 from fido2.hid import CTAPHID, CtapHidDevice
 from fido2.utils import Timeout
 from intelhex import IntelHex
-
-import solo.exceptions
 from solo import helpers
 from solo.commands import SoloBootloader, SoloExtension
 
 
-def find(solo_serial=None, retries=5, raw_device=None, udp = False):
+def find(solo_serial=None, retries=5, raw_device=None, udp=False):
 
     if udp:
         solo.fido2.force_udp_backend()
@@ -184,11 +183,14 @@ class SoloClient:
         data = self.exchange(SoloBootloader.version)
         if len(data) > 2:
             return (data[0], data[1], data[2])
-        return (data[0], 0, 0)
+        return (0, 0, data[0])
 
     def solo_version(self,):
-        data = self.exchange(SoloExtension.version)
-        return (data[0], data[1], data[2])
+        try:
+            return self.send_data_hid(0x61, b"")
+        except CtapError:
+            data = self.exchange(SoloExtension.version)
+            return (data[0], data[1], data[2])
 
     def write_flash(self, addr, data):
         self.exchange(SoloBootloader.write, addr, data)
@@ -252,7 +254,7 @@ class SoloClient:
         except CtapError as e:
             if e.code == CtapError.ERR.INVALID_COMMAND:
                 print(
-                    "Solo appears to not be a solo hacker.  Try holding down the button for 2 while you plug token in."
+                    "Could not switch into bootloader mode.  Please hold down the button for 2s while you plug token in."
                 )
                 sys.exit(1)
             else:
@@ -300,11 +302,56 @@ class SoloClient:
         return True
 
     def program_file(self, name):
+        def parseField(f):
+            return base64.b64decode(helpers.from_websafe(f).encode())
+
+        def isCorrectVersion(current, target):
+            """ current is tuple (x,y,z).  target is string '>=x.y.z'.
+                Return True if current satisfies the target expression.
+            """
+            if "=" in target:
+                target = target.split("=")
+                assert target[0] in [">", "<"]
+                target_num = [int(x) for x in target[1].split(".")]
+                assert len(target_num) == 3
+                comp = target[0] + "="
+            else:
+                assert target[0] in [">", "<"]
+                target_num = [int(x) for x in target[1:].split(".")]
+                comp = target[0]
+            target_num = (
+                (target_num[0] << 16) | (target_num[1] << 8) | (target_num[2] << 0)
+            )
+            current_num = (current[0] << 16) | (current[1] << 8) | (current[2] << 0)
+            return eval(str(current_num) + comp + str(target_num))
 
         if name.lower().endswith(".json"):
             data = json.loads(open(name, "r").read())
-            fw = base64.b64decode(helpers.from_websafe(data["firmware"]).encode())
-            sig = base64.b64decode(helpers.from_websafe(data["signature"]).encode())
+            fw = parseField(data["firmware"])
+            sig = None
+
+            if "versions" in data:
+                current = (0, 0, 0)
+                try:
+                    current = self.bootloader_version()
+                except CtapError as e:
+                    if e.code == CtapError.ERR.INVALID_COMMAND:
+                        pass
+                    else:
+                        raise (e)
+                for v in data["versions"]:
+                    if isCorrectVersion(current, v):
+                        print("using signature version", v)
+                        sig = parseField(data["versions"][v]["signature"])
+                        break
+
+                if sig is None:
+                    raise RuntimeError(
+                        "Improperly formatted firmware file.  Could not match version."
+                    )
+            else:
+                sig = parseField(data["signature"])
+
             ih = IntelHex()
             tmp = tempfile.NamedTemporaryFile(delete=False)
             tmp.write(fw)

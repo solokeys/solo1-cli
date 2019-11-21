@@ -9,11 +9,12 @@ author = "SoloKeys"
 author-email = "hello@solokeys.com"
 home-page = "https://github.com/solokeys/solo-python"
 requires-python = ">=3.6"
+description-file = "README.md"
 requires = [
   "click >= 7.0",
   "cryptography",
   "ecdsa",
-  "fido2 == 0.7.0",
+  "fido2 == 0.7.3",
   "intelhex",
   "pyserial",
   "pyusb",
