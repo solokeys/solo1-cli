@@ -137,7 +137,7 @@ class SoloClient:
     def send_data_hid(self, cmd, data):
         if not isinstance(data, bytes):
             data = struct.pack("%dB" % len(data), *[ord(x) for x in data])
-        with Timeout(1.0) as event:
+        with helpers.Timeout(1.0) as event:
             return self.dev.call(cmd, data, event)
 
     def exchange_hid(self, cmd, addr=0, data=b"A" * 16):
