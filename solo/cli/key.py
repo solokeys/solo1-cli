@@ -342,6 +342,11 @@ def verify(pin, serial, udp):
             'fingerprint':b'\x8d\xde\x12\xdb\x98\xe8|\x90\xc9\xd6#\x1a\x9c\xd8\xfe?T\xdf\x82\xb7=s.\x8er\xec\x9f\x98\xf8\xb5\xc6\xc1',
             'msg':'Valid Somu with firmware from SoloKeys.',
         },
+        {
+            'fingerprint':b'2u\x85\xe4\x9eIl\xff\xde\xbcK(\x06\x08\x1814\xe7\xcb\xf4\xc0\x16pg\x94v)\x1c\xd9\xb9\x81\x04',
+            'msg':'Valid Solo with firmware from SoloKeys.',
+        },
+
 
     ]
 
