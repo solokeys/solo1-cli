@@ -360,37 +360,34 @@ def verify(pin, serial, udp):
 
     fingerprints = [
         {
-            'fingerprint': b"r\xd5\x831&\xac\xfc\xe9\xa8\xe8&`\x18\xe6AI4\xc8\xbeJ\xb8h_\x91\xb0\x99!\x13\xbb\xd42\x95",
-            'msg': 'Valid Solo (<=3.0.0) firmware from SoloKeys.'
+            "fingerprint": b"r\xd5\x831&\xac\xfc\xe9\xa8\xe8&`\x18\xe6AI4\xc8\xbeJ\xb8h_\x91\xb0\x99!\x13\xbb\xd42\x95",
+            "msg": "Valid Solo (<=3.0.0) firmware from SoloKeys.",
         },
         {
-            'fingerprint': b"\xd0ml\xcb\xda}\xe5j\x16'\xc2\xa7\x89\x9c5\xa2\xa3\x16\xc8Q\xb3j\xd8\xed~\xd7\x84y\xbbx~\xf7",
-            'msg': 'Solo Hacker firmware.'
+            "fingerprint": b"\xd0ml\xcb\xda}\xe5j\x16'\xc2\xa7\x89\x9c5\xa2\xa3\x16\xc8Q\xb3j\xd8\xed~\xd7\x84y\xbbx~\xf7",
+            "msg": "Solo Hacker firmware.",
         },
         {
-            'fingerprint': b"\x05\x92\xe1\xb2\xba\x8ea\rb\x9a\x9b\xc0\x15\x19~J\xda\xdc16\xe0\xa0\xa1v\xd9\xb5}\x17\xa6\xb8\x0b8",
-            'msg': 'Local software emulation.'
+            "fingerprint": b"\x05\x92\xe1\xb2\xba\x8ea\rb\x9a\x9b\xc0\x15\x19~J\xda\xdc16\xe0\xa0\xa1v\xd9\xb5}\x17\xa6\xb8\x0b8",
+            "msg": "Local software emulation.",
         },
         {
-            'fingerprint':b"\xb3k\x03!\x11d\xdb\x1d`A>\xc0\xf8\xd8'\xe0\xee\xc2\x04\xbe)\x06S\x00\x94\x0e\xd9\xc5\x9b\x90S?",
-            'msg':'Valid Solo Tap with firmware from SoloKeys.',
+            "msg": "Valid Solo Tap with firmware from SoloKeys.",
         },
         {
-            'fingerprint':b'\x8d\xde\x12\xdb\x98\xe8|\x90\xc9\xd6#\x1a\x9c\xd8\xfe?T\xdf\x82\xb7=s.\x8er\xec\x9f\x98\xf8\xb5\xc6\xc1',
-            'msg':'Valid Somu with firmware from SoloKeys.',
+            "fingerprint": b"\x8d\xde\x12\xdb\x98\xe8|\x90\xc9\xd6#\x1a\x9c\xd8\xfe?T\xdf\x82\xb7=s.\x8er\xec\x9f\x98\xf8\xb5\xc6\xc1",
+            "msg": "Valid Somu with firmware from SoloKeys.",
         },
         {
-            'fingerprint':b'2u\x85\xe4\x9eIl\xff\xde\xbcK(\x06\x08\x1814\xe7\xcb\xf4\xc0\x16pg\x94v)\x1c\xd9\xb9\x81\x04',
-            'msg':'Valid Solo with firmware from SoloKeys.',
+            "fingerprint": b"2u\x85\xe4\x9eIl\xff\xde\xbcK(\x06\x08\x1814\xe7\xcb\xf4\xc0\x16pg\x94v)\x1c\xd9\xb9\x81\x04",
+            "msg": "Valid Solo with firmware from SoloKeys.",
         },
-
-
     ]
 
     known = False
     for f in fingerprints:
-        if cert.fingerprint(hashes.SHA256()) == f['fingerprint']:
-            print(f['msg'])
+        if cert.fingerprint(hashes.SHA256()) == f["fingerprint"]:
+            print(f["msg"])
             known = True
             break
 
