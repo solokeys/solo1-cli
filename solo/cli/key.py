@@ -375,6 +375,10 @@ def verify(pin, serial, udp):
             'fingerprint':b"\xb3k\x03!\x11d\xdb\x1d`A>\xc0\xf8\xd8'\xe0\xee\xc2\x04\xbe)\x06S\x00\x94\x0e\xd9\xc5\x9b\x90S?",
             'msg':'Valid Solo Tap with firmware from SoloKeys.',
         },
+        {
+            'fingerprint':b'\x8d\xde\x12\xdb\x98\xe8|\x90\xc9\xd6#\x1a\x9c\xd8\xfe?T\xdf\x82\xb7=s.\x8er\xec\x9f\x98\xf8\xb5\xc6\xc1',
+            'msg':'Valid Somu with firmware from SoloKeys.',
+        },
 
     ]
 
