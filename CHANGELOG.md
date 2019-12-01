@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.20] - 2019-12-01
+### Added
+- Add fingerprints for checking more Solo model certificates (Tap, Somu, Solo)
+
+### Changed
+- Attestation key marker in mergehex operation
+
 ## [0.0.19] - 2019-11-09
 ### Added
 - `solo key set-pin` and `change-pin` commands.

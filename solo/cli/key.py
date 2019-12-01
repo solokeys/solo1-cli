@@ -372,6 +372,7 @@ def verify(pin, serial, udp):
             "msg": "Local software emulation.",
         },
         {
+            "fingerprint": b"\xb3k\x03!\x11d\xdb\x1d`A>\xc0\xf8\xd8'\xe0\xee\xc2\x04\xbe)\x06S\x00\x94\x0e\xd9\xc5\x9b\x90S?",
             "msg": "Valid Solo Tap with firmware from SoloKeys.",
         },
         {
