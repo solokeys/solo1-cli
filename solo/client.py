@@ -325,12 +325,13 @@ class SoloClient:
             current_num = (current[0] << 16) | (current[1] << 8) | (current[2] << 0)
             return eval(str(current_num) + comp + str(target_num))
 
+        firmware_file_data = None
         if name.lower().endswith(".json"):
-            data = json.loads(open(name, "r").read())
-            fw = parseField(data["firmware"])
+            firmware_file_data = json.loads(open(name, "r").read())
+            fw = parseField(firmware_file_data["firmware"])
             sig = None
 
-            if "versions" in data:
+            if "versions" in firmware_file_data:
                 current = (0, 0, 0)
                 try:
                     current = self.bootloader_version()
@@ -339,18 +340,19 @@ class SoloClient:
                         pass
                     else:
                         raise (e)
-                for v in data["versions"]:
-                    if isCorrectVersion(current, v):
-                        print("using signature version", v)
-                        sig = parseField(data["versions"][v]["signature"])
-                        break
+                # for v in firmware_file_data["versions"]:
+                #     if not isCorrectVersion(current, v):
+                #         print("using signature version", v)
+                #         sig = parseField(firmware_file_data["versions"][v]["signature"])
+                #         break
+                sig = parseField(firmware_file_data["versions"]['>2.5.3']["signature"])
 
                 if sig is None:
                     raise RuntimeError(
                         "Improperly formatted firmware file.  Could not match version."
                     )
             else:
-                sig = parseField(data["signature"])
+                sig = parseField(firmware_file_data["signature"])
 
             ih = IntelHex()
             tmp = tempfile.NamedTemporaryFile(delete=False)
@@ -390,15 +392,24 @@ class SoloClient:
         if sig is None:
             sig = b"A" * 64
 
+        success = False
         if self.do_reboot:
             try:
                 print("bootloader is verifying signature...")
+                print(f'Trying with {sig.hex()}')
                 self.verify_flash(sig)
                 print("...pass!")
+                success = True
             except CtapError as e:
                 if e.code != 0x27:
                     raise
                 print("...error!")
+
+        # if not success:
+        #     for v in firmware_file_data["versions"]:
+        #         sig = v["signature"]
+        #         print(f'Trying with {sig}')
+        #         self.verify_flash(sig)
 
         return sig
 

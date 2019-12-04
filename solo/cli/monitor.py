@@ -32,28 +32,35 @@ def monitor(serial_port):
             exit(1)
         except:
             sys.stdout.buffer.write(b'.')
+            sys.stdout.flush()
         time.sleep(0.5)
 
 
     def reconnect():
         while True:
-            time.sleep(0.02)
+            time.sleep(0.5)
             try:
                 ser = serial.Serial(serial_port, 115200, timeout=0.05)
                 return ser
             except serial.SerialException:
+                sys.stdout.buffer.write(b'.')
+                sys.stdout.flush()
                 pass
 
     while True:
         try:
             data = ser.read(1)
+            sys.stdout.buffer.write(data)
         except KeyboardInterrupt:
             print('\nClosing')
             ser.close()
             return
         except serial.SerialException:
+            sys.stdout.buffer.write(b'.\n')
             print("reconnecting...")
+            # ser = reconnect()
+            # ser.close()
+            time.sleep(1.0)
             ser = reconnect()
             print("done")
-        sys.stdout.buffer.write(data)
         sys.stdout.flush()

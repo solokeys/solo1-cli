@@ -88,6 +88,7 @@ def mergehex(
     Note that later hex files replace data of earlier ones, if they overlap.
     """
 
+    # XOR
     if attestation_key is not None and attestation_cert is None:
         raise RuntimeError("Need to provide certificate with attestation_key")
     if attestation_key is None and attestation_cert is not None:
@@ -99,6 +100,7 @@ def mergehex(
         attestation_key = (
             "1b2626ecc8f69b0f69e34fb236d76466ba12ac16c3ab5750ba064e8b90e02448"
         )
+    assert(len(attestation_key) == 2*32)
 
     if attestation_cert is None:
         attestation_cert = hacker_attestation_cert
@@ -139,6 +141,7 @@ def mergehex(
     first[AUTH_WORD_ADDR + 7] = 0xFF
 
     # patch in the attestation key
+    print(f'Using attestation key[:2]: {attestation_key[:4]}...')
     key = binascii.unhexlify(attestation_key)
 
     for i, x in enumerate(key):
@@ -147,6 +150,7 @@ def mergehex(
     offset = 32
 
     # patch in device settings / i.e. lock byte in little endian 64 int.
+    print(f'Setting lock = {lock}')
     lock_byte = 0x02 if lock else 0x00
     device_settings = struct.pack("<Q", 0xAA551E7800000000 | lock_byte)
 
@@ -182,7 +186,8 @@ def sign_firmware(sk_name, hex_file, APPLICATION_END_PAGE = 20):
         "signature": v2["signature"],
         # signatures to use for different versions of bootloader
         "versions": {
-            "<=2.5.3": {"signature": v1["signature"]},
+            ">=0.7.0": {"signature": v2["signature"]},
+            # "<=2.5.3": {"signature": v1["signature"]},
             ">2.5.3": {"signature": v2["signature"]},
         },
     }
