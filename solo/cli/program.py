@@ -32,6 +32,21 @@ def program():
 # program.add_command(ctap)
 
 @click.command()
+def dfu_ls():
+    """ List all dfu devices with serials
+    """
+    dfus = solo.dfu.find_all()
+    if dfus is None or len(dfus) == 0:
+        print("No STU DFU device found.")
+        sys.exit(1)
+    idx = 1
+    for dfu in dfus:
+        print ("Serial device %d : %s"% ( idx, usb.util.get_string(dfu.dev, dfu.dev.iSerialNumber)))
+        idx = idx + 1
+
+program.add_command(dfu_ls)
+
+@click.command()
 @click.option(
     "-d",
     "--detach",
