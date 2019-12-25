@@ -31,6 +31,100 @@ def program():
 
 # program.add_command(ctap)
 
+@click.command()
+@click.option(
+    "-d",
+    "--detach",
+    default=False,
+    is_flag=True,
+    help="Reboot after successful programming",
+)
+@click.option("-n", "--dry-run", is_flag=True, help="Just attach and detach")
+@click.argument("firmware")
+def dfu_all(detach, dry_run,firmware):
+    """ Program all connected devices via STMicroelectronics DFU interface
+    """
+    import time
+
+    from intelhex import IntelHex
+    import usb.core
+
+    dfus = solo.dfu.find_all()
+    if dfus is None or len(dfus) == 0:
+        print("No STU DFU device found.")
+        sys.exit(1)
+
+    for dfu in dfus:
+        dfu.init()
+
+        if not dry_run:
+            # The actual programming
+            # TODO: move to `operations.py` or elsewhere
+            ih = IntelHex()
+            ih.fromfile(firmware, format="hex")
+
+            chunk = 2048
+            # Why is this unused
+            # seg = ih.segments()[0]
+            size = sum([max(x[1] - x[0], chunk) for x in ih.segments()])
+            total = 0
+            t1 = time.time() * 1000
+
+            print("erasing...")
+            try:
+                dfu.mass_erase()
+            except usb.core.USBError:
+                # garbage write, sometimes needed before mass_erase
+                dfu.write_page(0x08000000 + 2048 * 10, "ZZFF" * (2048 // 4))
+                dfu.mass_erase()
+
+            page = 0
+            for start, end in ih.segments():
+                for i in range(start, end, chunk):
+                    page += 1
+                    data = ih.tobinarray(start=i, size=chunk)
+                    dfu.write_page(i, data)
+                    total += chunk
+                    # here and below, progress would overshoot 100% otherwise
+                    progress = min(100, total / float(size) * 100)
+
+                    sys.stdout.write(
+                        "downloading %.2f%%  %08x - %08x ...         \r"
+                        % (progress, i, i + page)
+                    )
+                    # time.sleep(0.100)
+
+                # print('done')
+                # print(dfu.read_mem(i,16))
+
+            t2 = time.time() * 1000
+            print()
+            print("time: %d ms" % (t2 - t1))
+            print("verifying...")
+            progress = 0
+            for start, end in ih.segments():
+                for i in range(start, end, chunk):
+                    data1 = dfu.read_mem(i, 2048)
+                    data2 = ih.tobinarray(start=i, size=chunk)
+                    total += chunk
+                    progress = min(100, total / float(size) * 100)
+                    sys.stdout.write(
+                        "reading %.2f%%  %08x - %08x ...         \r"
+                        % (progress, i, i + page)
+                    )
+                    if (end - start) == chunk:
+                        assert data1 == data2
+            print()
+            print("firmware readback verified.")
+
+        if detach:
+            dfu.prepare_options_bytes_detach()
+            dfu.detach()
+            print("Please powercycle the device (pull out, plug in again)")
+
+        hot_patch_windows_libusb()
+
+program.add_command(dfu_all)
 
 @click.command()
 @click.option("-s", "--serial", help="serial number of DFU to use")
