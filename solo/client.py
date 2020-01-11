@@ -22,7 +22,7 @@ from fido2.ctap import CtapError
 from fido2.ctap1 import CTAP1
 from fido2.ctap2 import CTAP2
 from fido2.hid import CTAPHID, CtapHidDevice
-from fido2.utils import Timeout
+from threading import Timer, Event
 from intelhex import IntelHex
 
 import solo.exceptions
@@ -138,8 +138,11 @@ class SoloClient:
     def send_data_hid(self, cmd, data):
         if not isinstance(data, bytes):
             data = struct.pack("%dB" % len(data), *[ord(x) for x in data])
-        with Timeout(1.0) as event:
-            return self.dev.call(cmd, data, event)
+        event = Event()
+        timer = Timer(1.0, event.set)
+        timer.daemon = True
+        timer.start()
+        return self.dev.call(cmd, data, event)
 
     def exchange_hid(self, cmd, addr=0, data=b"A" * 16):
         req = SoloClient.format_request(cmd, addr, data)

@@ -36,7 +36,6 @@ from fido2.ctap import CtapError
 from fido2.ctap1 import CTAP1, ApduError
 from fido2.ctap2 import CTAP2
 from fido2.hid import CTAPHID, CtapHidDevice
-from fido2.utils import Timeout
 from intelhex import IntelHex
 
 import solo
