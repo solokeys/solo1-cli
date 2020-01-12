@@ -13,6 +13,7 @@ import struct
 import sys
 import tempfile
 import time
+from threading import Event, Timer
 
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
@@ -22,7 +23,6 @@ from fido2.ctap import CtapError
 from fido2.ctap1 import CTAP1
 from fido2.ctap2 import CTAP2
 from fido2.hid import CTAPHID, CtapHidDevice
-from threading import Timer, Event
 from intelhex import IntelHex
 
 import solo.exceptions

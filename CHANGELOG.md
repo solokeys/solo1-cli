@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.21] - 2019-12-01
+### Changed
+- Update to use python-fido2 v0.8
+
 ## [0.0.20] - 2019-12-01
 ### Added
 - Add fingerprints for checking more Solo model certificates (Tap, Somu, Solo)
