@@ -47,9 +47,14 @@ def monitor(serial_port):
                 sys.stdout.flush()
                 pass
 
+    t0 = time.time()
     while True:
         try:
             data = ser.read(1)
+            if b'\n' in data:
+                t1 = time.time()
+                times = '{0:5.3f}'.format(t1-t0)
+                data = f'{data.decode()} {times} '.encode()
             sys.stdout.buffer.write(data)
         except KeyboardInterrupt:
             print('\nClosing')
