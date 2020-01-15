@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.23] - 2019-01-20
+## Changed
+- Fix Timeout
+
 ## [0.0.22] - 2019-01-20
 ### Changed
 - Fix fallout of move to fido2 0.8
