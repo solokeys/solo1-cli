@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.22] - 2019-01-20
+### Changed
+- Fix fallout of move to fido2 0.8
+
 ## [0.0.21] - 2019-12-01
 ### Changed
 - Update to use python-fido2 v0.8

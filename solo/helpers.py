@@ -19,3 +19,25 @@ def from_websafe(data):
     data = data.replace("-", "+")
     data = data.replace("_", "/")
     return data + "=="[: (3 * len(data)) % 4]
+
+
+class Timeout(object):
+    """Utility class for adding a timeout to an event.
+    :param time_or_event: A number, in seconds, or a threading.Event object.
+    :ivar event: The Event associated with the Timeout.
+    :ivar timer: The Timer associated with the Timeout, if any.
+    """
+
+    def __init__(self, time):
+        self.event = time
+        self.timer = None
+
+    def __enter__(self):
+        if self.timer:
+            self.timer.start()
+        return self.event
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if self.timer:
+            self.timer.cancel()
+            self.timer.join()

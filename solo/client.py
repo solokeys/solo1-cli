@@ -13,7 +13,6 @@ import struct
 import sys
 import tempfile
 import time
-from threading import Event, Timer
 
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
@@ -23,6 +22,7 @@ from fido2.ctap import CtapError
 from fido2.ctap1 import CTAP1
 from fido2.ctap2 import CTAP2
 from fido2.hid import CTAPHID, CtapHidDevice
+from fido2.webauthn import PublicKeyCredentialCreationOptions
 from intelhex import IntelHex
 
 import solo.exceptions
@@ -138,11 +138,8 @@ class SoloClient:
     def send_data_hid(self, cmd, data):
         if not isinstance(data, bytes):
             data = struct.pack("%dB" % len(data), *[ord(x) for x in data])
-        event = Event()
-        timer = Timer(1.0, event.set)
-        timer.daemon = True
-        timer.start()
-        return self.dev.call(cmd, data, event)
+        with helpers.Timeout(1.0) as event:
+            return self.dev.call(cmd, data, event)
 
     def exchange_hid(self, cmd, addr=0, data=b"A" * 16):
         req = SoloClient.format_request(cmd, addr, data)
@@ -228,10 +225,14 @@ class SoloClient:
     def make_credential(self, pin=None):
         rp = {"id": self.host, "name": "example site"}
         user = {"id": self.user_id, "name": "example user"}
-        challenge = "Y2hhbGxlbmdl"
-        attest, data = self.client.make_credential(
-            rp, user, challenge, exclude_list=[], pin=pin
+        challenge = b"Y2hhbGxlbmdl"
+        options = PublicKeyCredentialCreationOptions(
+            rp,
+            user,
+            challenge,
+            [{"type": "public-key", "alg": -8}, {"type": "public-key", "alg": -7}],
         )
+        attest, data = self.client.make_credential(options, pin=pin)
         try:
             attest.verify(data.hash)
         except AttributeError:
