@@ -7,6 +7,9 @@
 # http://opensource.org/licenses/MIT>, at your option. This file may not be
 # copied, modified, or distributed except according to those terms.
 
+from numbers import Number
+from threading import Event, Timer
+
 
 def to_websafe(data):
     data = data.replace("+", "-")
@@ -28,9 +31,13 @@ class Timeout(object):
     :ivar timer: The Timer associated with the Timeout, if any.
     """
 
-    def __init__(self, time):
-        self.event = time
-        self.timer = None
+    def __init__(self, time_or_event):
+        if isinstance(time_or_event, Number):
+            self.event = Event()
+            self.timer = Timer(time_or_event, self.event.set)
+        else:
+            self.event = time_or_event
+            self.timer = None
 
     def __enter__(self):
         if self.timer:
