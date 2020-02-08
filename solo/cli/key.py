@@ -10,6 +10,7 @@
 import getpass
 import os
 import sys
+import time
 
 import click
 from cryptography.hazmat.primitives import hashes
@@ -433,6 +434,22 @@ def wink(serial, udp):
 
     solo.client.find(serial, udp=udp).wink()
 
+@click.command()
+@click.option("-s", "--serial", help="Serial number of Solo to use")
+@click.option(
+    "--udp", is_flag=True, default=False, help="Communicate over UDP with software key"
+)
+@click.option("--ping-data", default="pong", help="Data to send (default: pong)")
+def ping(serial, udp, ping_data):
+    """Send ping command to key"""
+
+    client = solo.client.find(serial, udp=udp)
+    start = time.time()
+    res = client.ping(ping_data)
+    end = time.time()
+    duration = int((end-start) * 1000)
+    print(f"ping returned: {res}")
+    print(f"took {duration} ms")
 
 key.add_command(rng)
 rng.add_command(hexbytes)
@@ -450,3 +467,4 @@ key.add_command(set_pin)
 key.add_command(version)
 key.add_command(verify)
 key.add_command(wink)
+key.add_command(ping)

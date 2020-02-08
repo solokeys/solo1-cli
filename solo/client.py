@@ -213,6 +213,9 @@ class SoloClient:
     def wink(self,):
         self.send_data_hid(CTAPHID.WINK, b"")
 
+    def ping(self,data="pong"):
+        return self.send_data_hid(CTAPHID.PING, data)
+
     def reset(self,):
         self.ctap2.reset()
 
