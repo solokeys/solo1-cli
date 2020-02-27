@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ## [0.0.23] - 2019-01-20
+## Added
+- Add command to disable bootloader-access / updates on Solo devices
+
+## [0.0.23] - 2019-01-20
 ## Changed
 - Fix Timeout
 
