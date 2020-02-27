@@ -8,7 +8,6 @@
 # copied, modified, or distributed except according to those terms.
 
 import json
-import os
 
 import click
 import usb.core

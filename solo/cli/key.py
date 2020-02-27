@@ -434,6 +434,7 @@ def wink(serial, udp):
 
     solo.client.find(serial, udp=udp).wink()
 
+
 @click.command()
 @click.option("-s", "--serial", help="Serial number of Solo to use")
 @click.option(
@@ -447,9 +448,10 @@ def ping(serial, udp, ping_data):
     start = time.time()
     res = client.ping(ping_data)
     end = time.time()
-    duration = int((end-start) * 1000)
+    duration = int((end - start) * 1000)
     print(f"ping returned: {res}")
     print(f"took {duration} ms")
+
 
 @click.command()
 @click.option("-s", "--serial", help="Serial number of Solo to use")

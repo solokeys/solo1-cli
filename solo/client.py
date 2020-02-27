@@ -213,7 +213,7 @@ class SoloClient:
     def wink(self,):
         self.send_data_hid(CTAPHID.WINK, b"")
 
-    def ping(self,data="pong"):
+    def ping(self, data="pong"):
         return self.send_data_hid(CTAPHID.PING, data)
 
     def reset(self,):
@@ -397,6 +397,7 @@ class SoloClient:
             self.write_flash(i, data)
             total += chunk
             progress = total / float(size) * 100
+            sys.stdout.write("updating firmware %.2f%%...\r" % progress)
         sys.stdout.write("updated firmware 100%             \r\n")
         t2 = time.time() * 1000
         print("time: %.2f s" % ((t2 - t1) / 1000.0))
