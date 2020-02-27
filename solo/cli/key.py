@@ -433,6 +433,18 @@ def wink(serial, udp):
 
     solo.client.find(serial, udp=udp).wink()
 
+@click.command()
+@click.option("-s", "--serial", help="Serial number of Solo to use")
+def disable_updates(serial):
+    """Permanently disable firmware updates on Solo.  Cannot be undone.  Solo must be in bootloader mode."""
+
+    dev = solo.client.find(serial)
+    dev.use_hid()
+    if dev.disable_solo_bootloader():
+        print("Success, firmware updates have been permanently disabled on this device.")
+        print("You will not be able to access bootloader mode again.")
+    else:
+        print("Failed to disable the firmware update.")
 
 key.add_command(rng)
 rng.add_command(hexbytes)
@@ -450,3 +462,4 @@ key.add_command(set_pin)
 key.add_command(version)
 key.add_command(verify)
 key.add_command(wink)
+key.add_command(disable_updates)

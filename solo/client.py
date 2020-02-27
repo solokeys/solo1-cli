@@ -299,6 +299,10 @@ class SoloClient:
         of any updates.
         If you've started from a solo hacker, make you you've programmed a final/production build!
         """
+        if not self.is_solo_bootloader():
+            print('Device must be in bootloader mode.')
+            return False
+
         ret = self.exchange(
             SoloBootloader.disable, 0, b"\xcd\xde\xba\xaa"
         )  # magic number
@@ -306,7 +310,7 @@ class SoloClient:
             print("Failed to disable bootloader")
             return False
         time.sleep(0.1)
-        self.exchange(SoloBootloader.do_reboot)
+        self.exchange(SoloBootloader.reboot)
         return True
 
     def program_file(self, name):
@@ -387,10 +391,11 @@ class SoloClient:
             s = i
             e = min(i + chunk, seg[1])
             data = ih.tobinarray(start=i, size=e - s)
+            print (' %08d  %08x-%08x' % (i, i, i+ e - s))
             self.write_flash(i, data)
             total += chunk
             progress = total / float(size) * 100
-            sys.stdout.write("updating firmware %.2f%%...\r" % progress)
+            sys.stdout.write("updating firmware %.2f%%...\r\n" % progress)
         sys.stdout.write("updated firmware 100%             \r\n")
         t2 = time.time() * 1000
         print("time: %.2f s" % ((t2 - t1) / 1000.0))
