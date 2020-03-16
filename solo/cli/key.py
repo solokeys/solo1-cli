@@ -321,16 +321,11 @@ def verify(pin, serial, udp):
     print("Please press the button on your Solo key")
     try:
         cert = solo.client.find(serial, udp=udp).make_credential(pin=pin)
-    except ValueError as e:
-        # python-fido2 library pre-emptively returns `ValueError('PIN required!')`
-        # instead of trying, and returning  `CTAP error: 0x36 - PIN_REQUIRED`
-        if "PIN required" in str(e):
-            print("Your key has a PIN set. Please pass it using `--pin <your PIN>`")
-            sys.exit(1)
-        raise
-
     except Fido2ClientError as e:
         cause = str(e.cause)
+        if "PIN required" in cause:
+            print("Your key has a PIN set. Please pass it using `--pin <your PIN>`")
+            sys.exit(1)
         # error 0x31
         if "PIN_INVALID" in cause:
             print("Your key has a different PIN. Please try to remember it :)")
