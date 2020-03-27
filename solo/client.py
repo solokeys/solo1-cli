@@ -19,6 +19,7 @@ from cryptography.hazmat.backends import default_backend
 from fido2.attestation import Attestation
 from fido2.client import Fido2Client
 from fido2.ctap import CtapError
+from fido2.ctap2 import CredentialManagement
 from fido2.ctap1 import CTAP1
 from fido2.ctap2 import CTAP2
 from fido2.hid import CTAPHID, CtapHidDevice
@@ -246,6 +247,11 @@ class SoloClient:
         cert = x509.load_der_x509_certificate(x5c, default_backend())
 
         return cert
+
+    def cred_mgmt(self, pin):
+        token = self.client.pin_protocol.get_pin_token(pin)
+        pin_protocol = 1
+        return CredentialManagement(self.ctap2, pin_protocol, token)
 
     def enter_solo_bootloader(self,):
         """
