@@ -133,11 +133,13 @@ def make_credential(serial, host, user, udp, prompt, pin):
 
     import solo.hmac_secret
 
-    #check for PIN
-    if not pin:
-        pin = getpass.getpass("PIN (leave empty for no PIN: ")
-    if not pin:
+    dev = solo.client.find(serial, udp=udp)
+    if dev.has_pin() is False:
+        #remove PIN if no PIN set
         pin = None
+    elif not pin:
+        #Ask for PIN is set and not in command
+        pin = getpass.getpass("PIN: ")
 
     solo.hmac_secret.make_credential(
         host=host, user_id=user, serial=serial, output=True, prompt=prompt, udp=udp, pin=pin
@@ -177,11 +179,13 @@ def challenge_response(serial, host, user, prompt, credential_id, challenge, udp
 
     import solo.hmac_secret
 
-    #check for PIN
-    if not pin:
-        pin = getpass.getpass("PIN (leave empty for no PIN: ")
-    if not pin:
+    dev = solo.client.find(serial, udp=udp)
+    if dev.has_pin() is False:
+        #remove PIN if no PIN set
         pin = None
+    elif not pin:
+        #Ask for PIN is set and not in command
+        pin = getpass.getpass("PIN: ")
 
     solo.hmac_secret.simple_secret(
         credential_id,
@@ -333,14 +337,19 @@ def verify(pin, serial, udp):
     """Verify key is valid Solo Secure or Solo Hacker."""
 
     # Any longer and this needs to go in a submodule
-    print("Please press the button on your Solo key")
     try:
-        cert = solo.client.find(serial, udp=udp).make_credential(pin=pin)
+        dev = solo.client.find(serial, udp=udp)
+        if dev.has_pin() is False:
+            #remove PIN if no PIN set
+            pin = None
+        elif not pin:
+            #Ask for PIN is set and not in command
+            pin = getpass.getpass("PIN: ")
+
+        print("Please press the button on your Solo key")
+        cert = dev.make_credential(pin=pin)
     except Fido2ClientError as e:
         cause = str(e.cause)
-        if "PIN required" in cause:
-            print("Your key has a PIN set. Please pass it using `--pin <your PIN>`")
-            sys.exit(1)
         # error 0x31
         if "PIN_INVALID" in cause:
             print("Your key has a different PIN. Please try to remember it :)")
