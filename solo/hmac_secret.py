@@ -9,7 +9,8 @@
 #
 # isort:skip_file
 
-
+import re
+import base64
 import binascii
 import hashlib
 import secrets
@@ -60,7 +61,7 @@ def make_credential(
     credential = attestation_object.auth_data.credential_data
     credential_id = credential.credential_id
     if output:
-        print(credential_id.hex())
+        print(base64.b64encode(credential_id).decode('ascii'))
 
     return credential_id
 
@@ -86,7 +87,15 @@ def simple_secret(
     client.origin = f"https://{client.host}"
     client.user_id = user_id
     # user = {"id": user_id, "name": "A. User"}
-    credential_id = binascii.a2b_hex(credential_id)
+
+    #check for even number of hex characters (case-insensitive)
+    pattern = re.compile("^([A-Fa-f0-9]{2})+$")
+    if pattern.match(credential_id) is not None:
+        print("using hex decoding:")
+        credential_id = binascii.a2b_hex(credential_id)
+    else:
+        print("non-hex characters found, trying base64 instead")
+        credential_id = base64.b64decode(credential_id)
 
     allow_list = [{"type": "public-key", "id": credential_id}]
 
