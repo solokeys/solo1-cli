@@ -115,6 +115,7 @@ def feedkernel(count, serial):
     "--host", help="Relying party's host", default="solokeys.dev", show_default=True
 )
 @click.option("--user", help="User ID", default="they", show_default=True)
+@click.option("--pin", help="PIN", default=None)
 @click.option(
     "--udp", is_flag=True, default=False, help="Communicate over UDP with software key"
 )
@@ -124,16 +125,22 @@ def feedkernel(count, serial):
     default="Touch your authenticator to generate a credential...",
     show_default=True,
 )
-def make_credential(serial, host, user, udp, prompt):
+def make_credential(serial, host, user, udp, prompt, pin):
     """Generate a credential.
 
     Pass `--prompt ""` to output only the `credential_id` as hex.
     """
 
     import solo.hmac_secret
+    
+    #check for PIN
+    if not pin:
+        pin = getpass.getpass("PIN (leave empty for no PIN: ")
+    if not pin:
+        pin = None
 
     solo.hmac_secret.make_credential(
-        host=host, user_id=user, serial=serial, output=True, prompt=prompt, udp=udp
+        host=host, user_id=user, serial=serial, output=True, prompt=prompt, udp=udp, pin=pin
     )
 
 
@@ -141,6 +148,7 @@ def make_credential(serial, host, user, udp, prompt):
 @click.option("-s", "--serial", help="Serial number of Solo use")
 @click.option("--host", help="Relying party's host", default="solokeys.dev")
 @click.option("--user", help="User ID", default="they")
+@click.option("--pin", help="PIN", default=None)
 @click.option(
     "--udp", is_flag=True, default=False, help="Communicate over UDP with software key"
 )
@@ -152,7 +160,7 @@ def make_credential(serial, host, user, udp, prompt):
 )
 @click.argument("credential-id")
 @click.argument("challenge")
-def challenge_response(serial, host, user, prompt, credential_id, challenge, udp):
+def challenge_response(serial, host, user, prompt, credential_id, challenge, udp, pin):
     """Uses `hmac-secret` to implement a challenge-response mechanism.
 
     We abuse hmac-secret, which gives us `HMAC(K, hash(challenge))`, where `K`
@@ -169,6 +177,12 @@ def challenge_response(serial, host, user, prompt, credential_id, challenge, udp
 
     import solo.hmac_secret
 
+    #check for PIN
+    if not pin:
+        pin = getpass.getpass("PIN (leave empty for no PIN: ")
+    if not pin:
+        pin = None    
+
     solo.hmac_secret.simple_secret(
         credential_id,
         challenge,
@@ -178,6 +192,7 @@ def challenge_response(serial, host, user, prompt, credential_id, challenge, udp
         prompt=prompt,
         output=True,
         udp=udp,
+        pin=pin,
     )
 
 
