@@ -409,3 +409,8 @@ class SoloClient:
             self.verify_flash(sig)
 
         return sig
+
+    def has_pin (self):
+        haspin = (self.client.info.options["clientPin"])
+        print(haspin)
+        return (haspin)
