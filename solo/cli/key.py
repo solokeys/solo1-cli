@@ -132,7 +132,7 @@ def make_credential(serial, host, user, udp, prompt, pin):
     """
 
     import solo.hmac_secret
-    
+
     #check for PIN
     if not pin:
         pin = getpass.getpass("PIN (leave empty for no PIN: ")
@@ -181,7 +181,7 @@ def challenge_response(serial, host, user, prompt, credential_id, challenge, udp
     if not pin:
         pin = getpass.getpass("PIN (leave empty for no PIN: ")
     if not pin:
-        pin = None    
+        pin = None
 
     solo.hmac_secret.simple_secret(
         credential_id,
