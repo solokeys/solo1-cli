@@ -412,5 +412,4 @@ class SoloClient:
 
     def has_pin (self):
         haspin = (self.client.info.options["clientPin"])
-        print(haspin)
         return (haspin)
