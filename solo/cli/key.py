@@ -296,6 +296,10 @@ def reset(serial):
 @click.option("-s", "--serial", help="Serial number of Solo to use")
 # @click.option("--new-pin", help="change current pin")
 def change_pin(serial):
+    client = solo.client.find(serial)
+    if not client.has_pin():
+        print("This Device does not have a PIN yet, use set-pin instead")
+        sys.exit(1)
     """Change pin of current key"""
     old_pin = getpass.getpass("Please enter old pin: ")
     new_pin = getpass.getpass("Please enter new pin: ")
@@ -304,7 +308,7 @@ def change_pin(serial):
         click.echo("New pin are mismatched. Please try again!")
         return
     try:
-        solo.client.find(serial).change_pin(old_pin, new_pin)
+        client.change_pin(old_pin, new_pin)
         click.echo("Done. Please use new pin to verify key")
     except Exception as e:
         print(e)
@@ -314,6 +318,10 @@ def change_pin(serial):
 @click.option("-s", "--serial", help="Serial number of Solo to use")
 # @click.option("--new-pin", help="change current pin")
 def set_pin(serial):
+    client = solo.client.find(serial)
+    if client.has_pin():
+        print("This Device already has a PIN, use change-pin instead")
+        sys.exit(1)
     """Set pin of current key"""
     new_pin = getpass.getpass("Please enter new pin: ")
     confirm_pin = getpass.getpass("Please confirm new pin: ")
@@ -321,7 +329,7 @@ def set_pin(serial):
         click.echo("New pin are mismatched. Please try again!")
         return
     try:
-        solo.client.find(serial).set_pin(new_pin)
+        client.set_pin(new_pin)
         click.echo("Done. Please use new pin to verify key")
     except Exception as e:
         print(e)
