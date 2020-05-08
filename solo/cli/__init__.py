@@ -172,3 +172,6 @@ def ls(all):
 
 
 solo_cli.add_command(ls)
+
+from pygments.console import colorize
+print(f'*** {colorize("red", "Nitrokey tool for Nitrokey FIDO2")}')
