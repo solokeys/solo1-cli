@@ -45,6 +45,10 @@ from solo import helpers
 def update(serial, yes, local_firmware_server, alpha):
     """Update Solo key to latest firmware version."""
 
+    update_url = 'https://update.nitrokey.com/'
+    print('Please use {} to run the firmware update'.format(update_url))
+    return
+
     # Determine target key
     try:
         solo_client = solo.client.find(serial)
