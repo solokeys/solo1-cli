@@ -389,8 +389,23 @@ def wink(serial, udp):
 
     solo.client.find(serial, udp=udp).wink()
 
+@click.command()
+@click.option("-s", "--serial", help="Serial number of Solo to use")
+@click.option(
+    "--udp", is_flag=True, default=False, help="Communicate over UDP with software key"
+)
+def reboot(serial, udp):
+    """Send reboot command to key (development command)"""
+    print('Reboot')
+    CTAP_REBOOT = 0x53
+    dev = solo.client.find(serial, udp=udp).dev
+    try:
+        dev.call(CTAP_REBOOT ^ 0x80, b'')
+    except OSError:
+        pass
 
 key.add_command(rng)
+key.add_command(reboot)
 rng.add_command(hexbytes)
 rng.add_command(raw)
 rng.add_command(feedkernel)
