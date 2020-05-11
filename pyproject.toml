@@ -4,10 +4,10 @@ build-backend = "flit.buildapi"
 
 [tool.flit.metadata]
 module = "solo"
-dist-name = "solo-python"  # Unfortunately, `solo` is in use on PyPI
-author = "SoloKeys"
-author-email = "hello@solokeys.com"
-home-page = "https://github.com/solokeys/solo-python"
+dist-name = "nitro-python"  # Unfortunately, `solo` is in use on PyPI
+author = "Nitrokey"
+author-email = "info@nitrokey.com"
+home-page = "https://github.com/Nitrokey/nitro-python"
 requires-python = ">=3.6"
 description-file = "README.md"
 requires = [
@@ -19,6 +19,7 @@ requires = [
   "pyserial",
   "pyusb",
   "requests",
+  "pygments",
 ]
 classifiers=[
     "License :: OSI Approved :: MIT License",
@@ -31,4 +32,4 @@ classifiers=[
 ]
 
 [tool.flit.scripts]
-solo = "solo.cli:solo_cli"
+nitrokey = "solo.cli:solo_cli"
