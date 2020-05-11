@@ -6,7 +6,7 @@
 # http://apache.org/licenses/LICENSE-2.0> or the MIT license <LICENSE-MIT or
 # http://opensource.org/licenses/MIT>, at your option. This file may not be
 # copied, modified, or distributed except according to those terms.
-
+import binascii
 import os
 import sys
 from time import sleep, time
@@ -338,18 +338,18 @@ def verify(pin, serial, udp):
             sys.exit(1)
         raise
 
-    solo_fingerprint = b"r\xd5\x831&\xac\xfc\xe9\xa8\xe8&`\x18\xe6AI4\xc8\xbeJ\xb8h_\x91\xb0\x99!\x13\xbb\xd42\x95"
-    hacker_fingerprint = b"\xd0ml\xcb\xda}\xe5j\x16'\xc2\xa7\x89\x9c5\xa2\xa3\x16\xc8Q\xb3j\xd8\xed~\xd7\x84y\xbbx~\xf7"
-    udp_fingerprint = b"\x05\x92\xe1\xb2\xba\x8ea\rb\x9a\x9b\xc0\x15\x19~J\xda\xdc16\xe0\xa0\xa1v\xd9\xb5}\x17\xa6\xb8\x0b8"
 
-    if cert.fingerprint(hashes.SHA256()) == solo_fingerprint:
-        print("Valid Solo Secure firmware from SoloKeys")
-    elif cert.fingerprint(hashes.SHA256()) == hacker_fingerprint:
-        print("Valid Solo Hacker firmware")
-    elif cert.fingerprint(hashes.SHA256()) == udp_fingerprint:
-        print("Local software key")
+    hashdb = {
+        b'd7a23679007fe799aeda4388890f33334aba4097bb33fee609c8998a1ba91bd3': "Nitrokey FIDO2 1.x",
+        b'e1f40563be291c30bc3cc381a7ef46b89ef972bdb048b716b0a888043cf9072a': "Nitrokey FIDO2 Dev 2.x ",
+    }
+
+    dev_fingerprint = cert.fingerprint(hashes.SHA256())
+    a_hex = binascii.b2a_hex(dev_fingerprint)
+    if a_hex in hashdb:
+        print('Found device: {}'.format(hashdb[a_hex]))
     else:
-        print("Unknown fingerprint! ", cert.fingerprint(hashes.SHA256()))
+        print("Unknown fingerprint! ", a_hex)
 
 
 @click.command()
