@@ -1,5 +1,5 @@
 import socket
-
+import sys
 import fido2._pyu2f
 import fido2._pyu2f.base
 
@@ -56,3 +56,27 @@ class HidOverUDP(fido2._pyu2f.base.HidDevice):
             except TypeError:
                 msg[i] = v
         return msg
+
+
+# Linux fix for serial number:
+if sys.platform.startswith("linux"):
+    import fido2._pyu2f.linux
+
+    # Adjust function ParseUevent from python-fido2
+    def newParseUevent(uevent, desc):
+        lines = uevent.split(b"\n")
+        for line in lines:
+            line = line.strip()
+            if not line:
+                continue
+            k, v = line.split(b"=")
+            if k == b"HID_NAME":
+                desc.product_string = v.decode("utf8")
+            elif k == b"HID_ID":
+                _, vid, pid = v.split(b":")
+                desc.vendor_id = int(vid, 16)
+                desc.product_id = int(pid, 16)
+            elif k == b"HID_UNIQ":
+                desc.serial_number = v.decode("utf8")
+
+    fido2._pyu2f.linux.ParseUevent = newParseUevent

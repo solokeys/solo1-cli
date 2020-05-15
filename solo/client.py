@@ -29,6 +29,7 @@ from intelhex import IntelHex
 import solo.exceptions
 from solo import helpers
 from solo.commands import SoloBootloader, SoloExtension
+import solo.fido2
 
 
 def find(solo_serial=None, retries=5, raw_device=None, udp=False):
