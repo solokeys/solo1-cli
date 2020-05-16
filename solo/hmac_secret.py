@@ -72,7 +72,7 @@ def simple_secret(
     user_id="they",
     serial=None,
     pin=None,
-    prompt="Touch your authenticator to generate a reponse...",
+    prompt="Touch your authenticator to generate a response...",
     output=True,
     udp=False,
 ):
