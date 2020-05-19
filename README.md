@@ -24,7 +24,7 @@ nitrokey program aux bootloader-version
 # download firmware by hand
 wget https://github.com/Nitrokey/nitrokey-fido2-firmware/releases/download/1.1.0.nitrokey/fido2-firmware-1.1.0.nitrokey-app-signed.json
 # and program it through the bootloader:
-solo program bootloader fido2-firmware-1.1.0.nitrokey-app-signed.json
+nitrokey program bootloader fido2-firmware-1.1.0.nitrokey-app-signed.json
 nitrokey program aux leave-bootloader
 # test key
 nitrokey key verify
