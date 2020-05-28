@@ -116,7 +116,8 @@ def mergehex(
     PAGES = 128
     APPLICATION_END_PAGE = PAGES - APPLICATION_END_PAGE
     AUTH_WORD_ADDR = flash_addr(APPLICATION_END_PAGE) - 8
-    ATTEST_ADDR = flash_addr(PAGES - 15)
+    ATTESTATION_PAGE = 15
+    ATTEST_ADDR = flash_addr(PAGES - ATTESTATION_PAGE)
 
     print(f"app end page: {APPLICATION_END_PAGE}")
     first = IntelHex(input_hex_files[0])
