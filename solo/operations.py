@@ -153,7 +153,7 @@ def mergehex(
     # patch in device settings / i.e. lock byte in little endian 64 int.
     print(f'Setting lock = {lock}')
     lock_byte = 0x02 if lock else 0x00
-    device_settings = struct.pack("<Q", 0xAA551E7800000000 | lock_byte)
+    device_settings = struct.pack("<Q", 0xAA551E7900000000 | lock_byte)
 
     for i, x in enumerate(device_settings):
         first[offset + ATTEST_ADDR + i] = x
