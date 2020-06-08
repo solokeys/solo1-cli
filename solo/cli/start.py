@@ -22,8 +22,8 @@ from solo.cli.update import update
 
 # https://pocoo-click.readthedocs.io/en/latest/commands/#nested-handling-and-contexts
 @click.group()
-def key():
-    """Interact with Solo keys, see subcommands."""
+def start():
+    """Interact with 'Nitrokey Start' keys, see subcommands."""
     pass
 
 
@@ -403,20 +403,20 @@ def reboot(serial, udp):
         dev.call(CTAP_REBOOT ^ 0x80, b'')
     except OSError:
         pass
-
-key.add_command(rng)
-key.add_command(reboot)
-rng.add_command(hexbytes)
-rng.add_command(raw)
-rng.add_command(feedkernel)
-key.add_command(make_credential)
-key.add_command(challenge_response)
-key.add_command(reset)
-key.add_command(status)
-key.add_command(update)
-key.add_command(probe)
-# key.add_command(sha256sum)
-# key.add_command(sha512sum)
-key.add_command(version)
-key.add_command(verify)
-key.add_command(wink)
+#
+# start.add_command(rng)
+# start.add_command(reboot)
+# rng.add_command(hexbytes)
+# rng.add_command(raw)
+# rng.add_command(feedkernel)
+# start.add_command(make_credential)
+# start.add_command(challenge_response)
+# start.add_command(reset)
+# start.add_command(status)
+# start.add_command(update)
+# start.add_command(probe)
+# # key.add_command(sha256sum)
+# # key.add_command(sha512sum)
+# start.add_command(version)
+# start.add_command(verify)
+# start.add_command(wink)

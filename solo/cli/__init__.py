@@ -15,7 +15,8 @@ import usb.core
 
 import solo
 import solo.operations
-from solo.cli.key import key
+from solo.cli.fido2 import fido2
+from solo.cli.start import start
 from solo.cli.monitor import monitor
 from solo.cli.program import program
 
@@ -40,7 +41,8 @@ def solo_cli():
     pass
 
 
-solo_cli.add_command(key)
+solo_cli.add_command(fido2)
+solo_cli.add_command(start)
 solo_cli.add_command(monitor)
 solo_cli.add_command(program)
 
