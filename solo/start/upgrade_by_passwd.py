@@ -58,7 +58,10 @@ from struct import pack
 from subprocess import check_output
 import platform
 import requests
-import rsa
+
+from click import BadParameter
+
+import solo.start.rsa as rsa
 from solo.start.gnuk_token import get_gnuk_device, gnuk_devices_by_vidpid, \
     regnual, SHA256_OID_PREFIX, crc32, parse_kdf_data
 from solo.start.kdf_calc import kdf_calc
@@ -129,7 +132,7 @@ def main(wait_e, keyno, passwd, data_regnual, data_upgrade, skip_bootloader, ver
             local_print("CRC32: %04x\n" % crc32code)
         data_regnual += pack('<I', crc32code)
 
-        rsa_key = rsa.read_key_from_file('rsa_example.key')
+        rsa_key = rsa.read_key_from_file('solo/start/rsa_example.key')
         rsa_raw_pubkey = rsa.get_raw_pubkey(rsa_key)
 
         gnuk = get_gnuk_device(logger=logger)
@@ -237,9 +240,9 @@ def get_latest_release_data():
 def validate_binary_file(path: str):
     import os.path
     if not os.path.exists(path):
-        raise argparse.ArgumentTypeError('Path does not exist: "{}"'.format(path))
+        raise BadParameter('Path does not exist: "{}"'.format(path))
     if not path.endswith('.bin'):
-        raise argparse.ArgumentTypeError(
+        raise BadParameter(
             'Supplied file "{}" does not have ".bin" extension. Make sure you are sending correct file to the device.'.format(
                 os.path.basename(path)))
     return path
@@ -247,41 +250,47 @@ def validate_binary_file(path: str):
 
 def validate_name(path: str, name: str):
     if name not in path:
-        raise argparse.ArgumentTypeError(
+        raise BadParameter(
             'Supplied file "{}" does not have "{}" in name. Make sure you have not swapped the arguments.'.format(
                 os.path.basename(path), name))
     return path
 
 
-def validate_gnuk(path: str):
+def validate_gnuk(ctx, param, path: str):
+    if path is None:
+        return path
+
     validate_binary_file(path)
     validate_name(path, 'gnuk')
     return path
 
 
-def validate_regnual(path: str):
+def validate_regnual(ctx, param, path: str):
+    if path is None:
+        return path
+
     validate_binary_file(path)
     validate_name(path, 'regnual')
     return path
 
 
-def parse_arguments():
-    parser = argparse.ArgumentParser(description='Update tool for GNUK')
-    parser.add_argument('--regnual', type=validate_regnual, help='path to regnual binary', default=None)
-    parser.add_argument('--gnuk', type=validate_gnuk, help='path to gnuk binary', default=None)
-    parser.add_argument('-f', dest='default_password', action='store_true',
-                        default=False, help='use default Admin PIN: {}'.format(DEFAULT_PW3))
-    parser.add_argument('-p', dest='password',
-                        help='use provided Admin PIN')
-    parser.add_argument('-e', dest='wait_e', default=DEFAULT_WAIT_FOR_REENUMERATION, type=int,
-                        help='time to wait for device to enumerate, after regnual was executed on device')
-    parser.add_argument('-k', dest='keyno', default=0, type=int, help='selected key index')
-    parser.add_argument('-v', dest='verbose', default=0, type=int, help='verbosity level')
-    parser.add_argument('-y', dest='yes', default=False, action='store_true', help='agree to everything')
-    parser.add_argument('-b', dest='skip_bootloader', default=False, action='store_true',
-                        help='Skip bootloader upload (e.g. when done so already)')
-    args = parser.parse_args()
-    return args
+# def parse_arguments():
+#     parser = argparse.ArgumentParser(description='Update tool for GNUK')
+#     parser.add_argument('--regnual', type=validate_regnual, help='path to regnual binary', default=None)
+#     parser.add_argument('--gnuk', type=validate_gnuk, help='path to gnuk binary', default=None)
+#     parser.add_argument('-f', dest='default_password', action='store_true',
+#                         default=False, help='use default Admin PIN: {}'.format(DEFAULT_PW3))
+#     parser.add_argument('-p', dest='password',
+#                         help='use provided Admin PIN')
+#     parser.add_argument('-e', dest='wait_e', default=DEFAULT_WAIT_FOR_REENUMERATION, type=int,
+#                         help='time to wait for device to enumerate, after regnual was executed on device')
+#     parser.add_argument('-k', dest='keyno', default=0, type=int, help='selected key index')
+#     parser.add_argument('-v', dest='verbose', default=0, type=int, help='verbosity level')
+#     parser.add_argument('-y', dest='yes', default=False, action='store_true', help='agree to everything')
+#     parser.add_argument('-b', dest='skip_bootloader', default=False, action='store_true',
+#                         help='Skip bootloader upload (e.g. when done so already)')
+#     args = parser.parse_args()
+#     return args
 
 
 def kill_smartcard_services():
@@ -364,15 +373,9 @@ def download_file_or_exit(url):
     firmware_data = resp.content
     return firmware_data
 
+def start_update(regnual, gnuk, default_password, password, wait_e, keyno, verbose, yes,
+        skip_bootloader, green_led):
 
-def log_arguments_securely(args):
-    args_log = copy.deepcopy(args)
-    args_log.password = '<hidden>'
-    logger.debug('Arguments: {}'.format(args_log))
-    del args_log
-
-
-def start():
     local_print('Nitrokey Start firmware update tool')
     logger.debug('Start session {}'.format(datetime.now()))
     local_print('Platform: {}'.format(platform.platform()))
@@ -380,28 +383,26 @@ def start():
     local_print('Python: {}'.format(platform.python_version()))
     local_print('Saving run log to: {}'.format(UPGRADE_LOG_FN))
 
-    # FIXME remove that to allow standalone
-    if os.getcwd() != os.path.dirname(os.path.abspath(__file__)):
-        logger.debug('Wrong directory')
-        local_print("Please change working directory to: %s" % os.path.dirname(os.path.abspath(__file__)))
-        exit(1)
+    # # FIXME remove that to allow standalone
+    # if os.getcwd() != os.path.dirname(os.path.abspath(__file__)):
+    #     logger.debug('Wrong directory')
+    #     local_print("Please change working directory to: %s" % os.path.dirname(os.path.abspath(__file__)))
+    #     exit(1)
 
-    args = parse_arguments()
-    keyno = args.keyno
+    #args = parse_arguments()
+    #keyno = keyno
     passwd = None
-    wait_e = args.wait_e
+    #wait_e = wait_e
 
-    if args.verbose is 3:
+    if verbose is 3:
         stream_handler = logging.StreamHandler()
         stream_handler.setLevel(logging.DEBUG)
         stream_handler.setFormatter(logging.Formatter(LOG_FORMAT_STDOUT))
         logger.addHandler(stream_handler)
 
-    log_arguments_securely(args)
-
-    if args.password:
-        passwd = args.password
-    elif args.default_password:  # F for Factory setting
+    if password:
+        passwd = password
+    elif default_password:  # F for Factory setting
         passwd = DEFAULT_PW3
     if not passwd:
         try:
@@ -411,8 +412,8 @@ def start():
             exit(2)
 
     local_print('Firmware data to be used:')
-    data = get_firmware_file(args.regnual, FirmwareType.REGNUAL)
-    data_upgrade = get_firmware_file(args.gnuk, FirmwareType.GNUK)
+    data = get_firmware_file(regnual, FirmwareType.REGNUAL)
+    data_upgrade = get_firmware_file(gnuk, FirmwareType.GNUK)
 
     # Detect devices
     dev_strings = get_devices()
@@ -433,11 +434,11 @@ def start():
     local_print('Please note:')
     local_print('- Latest firmware available is: '
           '{} (published: {}),\n provided firmware: {}'
-          .format(latest_tag['tag_name'], latest_tag['published_at'], args.gnuk))
+          .format(latest_tag['tag_name'], latest_tag['published_at'], gnuk))
     local_print('- All data will be removed from the device')
     local_print('- Do not interrupt the update process, or the device will not run properly')
     local_print('- Whole process should not take more than 1 minute')
-    if args.yes:
+    if yes:
         local_print('Accepted automatically')
     else:
         answer = input('Do you want to continue? [yes/no]: ')
@@ -451,7 +452,8 @@ def start():
     for attempt_counter in range(2):
         try:
             # First 4096-byte in data_upgrade is SYS, so, skip it.
-            main(wait_e, keyno, passwd, data, data_upgrade[4096:], args.skip_bootloader, verbosity=args.verbose)
+            main(wait_e, keyno, passwd, data, data_upgrade[4096:],
+                 skip_bootloader, verbosity=verbose)
             update_done = True
             break
         except ValueError as e:
@@ -513,10 +515,3 @@ def start():
     logger.debug('Finishing session {}'.format(datetime.now()))
     local_print('Log saved to: {}'.format(UPGRADE_LOG_FN))
 
-
-if __name__ == '__main__':
-    if IS_LINUX:
-        with ThreadLog(logger.getChild('dmesg'), 'dmesg -w'):
-            start()
-    else:
-        start()
