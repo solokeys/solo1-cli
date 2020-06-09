@@ -32,6 +32,17 @@ def rng():
     """Access TRNG on key, see subcommands."""
     pass
 
+@click.command()
+def list():
+    """List all 'Nitrokey FIDO2' devices"""
+    solos = solo.client.find_all()
+    print(":: 'Nitrokey FIDO2' keys")
+    for c in solos:
+        descriptor = c.dev.descriptor
+        if "serial_number" in descriptor:
+            print(f"{descriptor['serial_number']}: {descriptor['product_string']}")
+        else:
+            print(f"{descriptor['path']}: {descriptor['product_string']}")
 
 @click.command()
 @click.option("--count", default=8, help="How many bytes to generate (defaults to 8)")
@@ -406,6 +417,7 @@ def reboot(serial, udp):
 
 fido2.add_command(rng)
 fido2.add_command(reboot)
+fido2.add_command(list)
 rng.add_command(hexbytes)
 rng.add_command(raw)
 rng.add_command(feedkernel)

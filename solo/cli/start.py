@@ -19,7 +19,8 @@ import click
 
 from subprocess import check_output
 
-from solo.gnuk_token import get_gnuk_device, gnuk_devices
+from solo.start.gnuk_token import get_gnuk_device
+from solo.start.usb_strings import get_devices as get_devices_strings
 from usb.core import USBError
 
 
@@ -35,8 +36,8 @@ def start():
 def list():
     """list connected devices"""
     print(":: 'Nitrokey Start' keys:")
-    for dev, config, alt in gnuk_devices():
-        print(f"{dev.dev.serial_number}: {dev.dev.product}")
+    for dct in get_devices_strings():
+        print(f"{dct['Serial']}: {dct['Vendor']} {dct['Product']} ({dct['Revision']})")
 
 
 @click.command()
