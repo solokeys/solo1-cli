@@ -41,9 +41,7 @@ except ImportError:
     print(IMPORT_ERROR_HELP)
     exit(1)
 
-import argparse
 import binascii
-import copy
 import hashlib
 import logging
 import os
@@ -86,7 +84,7 @@ IS_LINUX = platform.system() == "Linux"
 
 
 def local_print(message: str = '', **kwargs):
-    if message and message is not '.':
+    if message and message != '.':
         logger.debug('print: {}'.format(message.strip()))
     print(message, **kwargs)
 
@@ -168,10 +166,12 @@ def main(wait_e, keyno, passwd, data_regnual, data_upgrade, skip_bootloader, ver
         if verbosity:
             local_print("%08x:%08x" % mem_info)
 
-        local_print('*** Running update. Do NOT remove the device from the USB slot, until further notice.')
+        local_print('*** Running update. Do NOT remove the device from the USB slot, '
+                    'until further notice.')
 
         local_print("Downloading flash upgrade program...")
-        gnuk.download(mem_info[0], data_regnual, progress_func=progress_func, verbose=verbosity is 2)
+        gnuk.download(mem_info[0], data_regnual, progress_func=progress_func,
+                      verbose=verbosity == 2)
         local_print("Run flash upgrade program...")
         gnuk.execute(mem_info[0] + len(data_regnual) - 4)
         #
@@ -183,7 +183,8 @@ def main(wait_e, keyno, passwd, data_regnual, data_upgrade, skip_bootloader, ver
     if reg is None:
         local_print("Waiting for device to appear:")
         # while reg == None:
-        local_print("  Wait {} second{}...".format(wait_e, 's' if wait_e > 1 else ''), end='')
+        local_print("  Wait {} second{}...".format(wait_e, 's' if wait_e > 1 else ''),
+                    end='')
         for i in range(wait_e):
             if reg is not None:
                 break
@@ -209,7 +210,8 @@ def main(wait_e, keyno, passwd, data_regnual, data_upgrade, skip_bootloader, ver
     if verbosity:
         local_print("%08x:%08x" % mem_info)
     local_print("Downloading the program")
-    reg.download(mem_info[0], data_upgrade, progress_func=progress_func, verbose=verbosity is 2)
+    reg.download(mem_info[0], data_upgrade, progress_func=progress_func,
+                 verbose=verbosity == 2)
     local_print("Protecting device")
     reg.protect()
     local_print("Finish flashing")
@@ -273,26 +275,6 @@ def validate_regnual(ctx, param, path: str):
     validate_name(path, 'regnual')
     return path
 
-
-# def parse_arguments():
-#     parser = argparse.ArgumentParser(description='Update tool for GNUK')
-#     parser.add_argument('--regnual', type=validate_regnual, help='path to regnual binary', default=None)
-#     parser.add_argument('--gnuk', type=validate_gnuk, help='path to gnuk binary', default=None)
-#     parser.add_argument('-f', dest='default_password', action='store_true',
-#                         default=False, help='use default Admin PIN: {}'.format(DEFAULT_PW3))
-#     parser.add_argument('-p', dest='password',
-#                         help='use provided Admin PIN')
-#     parser.add_argument('-e', dest='wait_e', default=DEFAULT_WAIT_FOR_REENUMERATION, type=int,
-#                         help='time to wait for device to enumerate, after regnual was executed on device')
-#     parser.add_argument('-k', dest='keyno', default=0, type=int, help='selected key index')
-#     parser.add_argument('-v', dest='verbose', default=0, type=int, help='verbosity level')
-#     parser.add_argument('-y', dest='yes', default=False, action='store_true', help='agree to everything')
-#     parser.add_argument('-b', dest='skip_bootloader', default=False, action='store_true',
-#                         help='Skip bootloader upload (e.g. when done so already)')
-#     args = parser.parse_args()
-#     return args
-
-
 def kill_smartcard_services():
     local_print('*** Could not connect to the device. Attempting to close scdaemon.')
     # check_output(["gpg-connect-agent",
@@ -341,7 +323,8 @@ def validate_hash(url: str, hash: bytes):
     for line in checksums.splitlines():
         if name in line.decode():
             hash_expected, hash_name = line.split()
-            logger.debug('{} {}/{} {}'.format(hash_expected == hash, hash_name, name, hash[-8:], hash_expected[-8:]))
+            logger.debug('{} {}/{} {}'.format(hash_expected == hash, hash_name, name,
+                                              hash[-8:], hash_expected[-8:]))
             return hash_expected == hash
     return False
 
@@ -359,8 +342,8 @@ def get_firmware_file(file_name: str, type: FirmwareType):
     hash_data = hash_data_512(firmware_data)
     hash_valid = 'valid' if validate_hash(url, hash_data) else 'invalid'
 
-    local_print(
-        "- {}: {}, hash: ...{} {} (from ...{})".format(type, len(firmware_data), hash_data[-8:], hash_valid, url[-24:]))
+    local_print("- {}: {}, hash: ...{} {} (from ...{})".format(
+            type, len(firmware_data), hash_data[-8:], hash_valid, url[-24:]))
     return firmware_data
 
 
@@ -368,10 +351,11 @@ def get_firmware_file(file_name: str, type: FirmwareType):
 def download_file_or_exit(url):
     resp = requests.get(url)
     if not resp.ok:
-        local_print('Cannot download firmware data {}/{}: {}'.format('type', url, resp.status_code))
+        local_print(f"Cannot download firmware: {url}: {resp.status_code}")
         exit(1)
     firmware_data = resp.content
     return firmware_data
+
 
 def start_update(regnual, gnuk, default_password, password, wait_e, keyno, verbose, yes,
         skip_bootloader, green_led):
@@ -383,18 +367,16 @@ def start_update(regnual, gnuk, default_password, password, wait_e, keyno, verbo
     local_print('Python: {}'.format(platform.python_version()))
     local_print('Saving run log to: {}'.format(UPGRADE_LOG_FN))
 
-    # # FIXME remove that to allow standalone
-    # if os.getcwd() != os.path.dirname(os.path.abspath(__file__)):
-    #     logger.debug('Wrong directory')
-    #     local_print("Please change working directory to: %s" % os.path.dirname(os.path.abspath(__file__)))
-    #     exit(1)
+    arg_descs = ["regnual", "gnuk", "default_password", "password", "wait_e", "keyno",
+            "verbose", "yes", "skip_bootloader", "green_led"]
+    args = (regnual, gnuk, default_password, "<hidden>", wait_e, keyno, verbose, yes,
+        skip_bootloader, green_led)
+    logger.debug("Arguments: " + ", ".join(f"{key}= '{val}'" \
+                 for key, val in zip(arg_descs, args)))
 
-    #args = parse_arguments()
-    #keyno = keyno
     passwd = None
-    #wait_e = wait_e
 
-    if verbose is 3:
+    if verbose == 3:
         stream_handler = logging.StreamHandler()
         stream_handler.setLevel(logging.DEBUG)
         stream_handler.setFormatter(logging.Formatter(LOG_FORMAT_STDOUT))

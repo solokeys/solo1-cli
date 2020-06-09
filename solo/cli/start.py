@@ -1,4 +1,11 @@
 # -*- coding: utf-8 -*-
+#
+# Copyright 2020 Nitrokey Developers
+#
+# Licensed under the Apache License, Version 2.0, <LICENSE-APACHE or
+# http://apache.org/licenses/LICENSE-2.0> or the MIT license <LICENSE-MIT or
+# http://opensource.org/licenses/MIT>, at your option. This file may not be
+# copied, modified, or distributed except according to those terms.
 
 import sys
 from time import sleep, time
@@ -91,12 +98,18 @@ def update(regnual, gnuk, default_password, password, wait_e, keyno, verbose, ye
 
     args = (regnual, gnuk, default_password, password, wait_e, keyno, verbose, yes,
            skip_bootloader, green_led)
+
+    if green_led and (regnual is None or gnuk is None):
+        print("You selected the --green-led option, please provide '--regnual' and "
+              "'--gnuk' in addition to proceed. ")
+        print("use on from: https://github.com/Nitrokey/nitrokey-start-firmware)")
+        sys.exit(1)
+
     if IS_LINUX:
         with ThreadLog(logger.getChild('dmesg'), 'dmesg -w'):
             start_update(*args)
     else:
         start_update(*args)
-
 
 
 start.add_command(list)

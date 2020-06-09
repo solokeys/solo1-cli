@@ -6,6 +6,7 @@
 # http://apache.org/licenses/LICENSE-2.0> or the MIT license <LICENSE-MIT or
 # http://opensource.org/licenses/MIT>, at your option. This file may not be
 # copied, modified, or distributed except according to those terms.
+
 import binascii
 import os
 import sys
@@ -255,36 +256,6 @@ def probe(serial, udp, hash_type, filename):
             verified = False
         print(f"verified? {verified}")
     # print(fido2.cbor.loads(result))
-
-
-# @click.command()
-# @click.option("-s", "--serial", help="Serial number of Solo to use")
-# @click.argument("filename")
-# def sha256sum(serial, filename):
-#     """Calculate SHA256 hash of FILENAME."""
-
-#     data = open(filename, 'rb').read()
-#     # CTAPHID_BUFFER_SIZE
-#     # https://fidoalliance.org/specs/fido-v2.0-id-20180227/fido-client-to-authenticator-protocol-v2.0-id-20180227.html#usb-message-and-packet-structure
-#     assert len(data) <= 7609
-#     p = solo.client.find(serial)
-#     sha256sum = p.calculate_sha256(data)
-#     print(sha256sum.hex().lower())
-
-# @click.command()
-# @click.option("-s", "--serial", help="Serial number of Solo to use")
-# @click.argument("filename")
-# def sha512sum(serial, filename):
-#     """Calculate SHA512 hash of FILENAME."""
-
-#     data = open(filename, 'rb').read()
-#     # CTAPHID_BUFFER_SIZE
-#     # https://fidoalliance.org/specs/fido-v2.0-id-20180227/fido-client-to-authenticator-protocol-v2.0-id-20180227.html#usb-message-and-packet-structure
-#     assert len(data) <= 7609
-#     p = solo.client.find(serial)
-#     sha512sum = p.calculate_sha512(data)
-#     print(sha512sum.hex().lower())
-
 
 @click.command()
 @click.option("-s", "--serial", help="Serial number of Solo to use")
