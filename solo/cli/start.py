@@ -74,6 +74,11 @@ def set_identity(identity):
 
 
 @click.command()
+@click.option(
+    "--green-led", is_flag=True, default=False,
+    help="Use firmware for early 'Nitrokey Start' keys"
+)
+@click.option()
 def update():
     """update device"""
     pass
