@@ -60,11 +60,11 @@ solo_cli.add_command(version)
 @click.option("--input-seed-file")
 @click.argument("output_pem_file")
 def genkey(input_seed_file, output_pem_file):
-    """Generates key pair that can be used for Solo signed firmware updates.
+    """Generates key pair that can be used for Nitrokey signed firmware updates.
 
     \b
     * Generates NIST P256 keypair.
-    * Public key must be copied into correct source location in solo bootloader
+    * Public key must be copied into correct source location in Nitrokey's bootloader
     * The private key can be used for signing updates.
     * You may optionally supply a file to seed the RNG for key generating.
     """
@@ -124,7 +124,7 @@ def mergehex(
     """Merges hex files, and patches in the attestation key.
 
     \b
-    If no attestation key is passed, uses default Solo Hacker one.
+    If no attestation key is passed, uses default Solo Hacker one.  <---- TODO: remove?
     Note that later hex files replace data of earlier ones, if they overlap.
     """
     solo.operations.mergehex(

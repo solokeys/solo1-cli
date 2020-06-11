@@ -17,7 +17,7 @@ import serial
 @click.command()
 @click.argument("serial_port")
 def monitor(serial_port):
-    """Reads Solo Hacker serial output from USB serial port SERIAL_PORT.
+    """Reads Nitrokey  serial output from USB serial port SERIAL_PORT.
 
     SERIAL-PORT is something like /dev/ttyACM0 or COM10.
     Automatically reconnects. Baud rate is 115200.

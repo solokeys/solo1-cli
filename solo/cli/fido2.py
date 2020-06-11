@@ -8,9 +8,12 @@
 # copied, modified, or distributed except according to those terms.
 
 import binascii
+
+from time import sleep, time
+
+import getpass
 import os
 import sys
-from time import sleep, time
 
 import click
 import solo
@@ -24,7 +27,7 @@ from solo.cli.update import update
 # https://pocoo-click.readthedocs.io/en/latest/commands/#nested-handling-and-contexts
 @click.group()
 def fido2():
-    """Interact with Solo keys, see subcommands."""
+    """Interact with Nitrokey keys, see subcommands."""
     pass
 
 
@@ -47,7 +50,7 @@ def list():
 
 @click.command()
 @click.option("--count", default=8, help="How many bytes to generate (defaults to 8)")
-@click.option("-s", "--serial", help="Serial number of Solo to use")
+@click.option("-s", "--serial", help="Serial number of Nitrokey to use")
 def hexbytes(count, serial):
     """Output COUNT number of random bytes, hex-encoded."""
     if not 0 <= count <= 255:
@@ -58,7 +61,7 @@ def hexbytes(count, serial):
 
 
 @click.command()
-@click.option("-s", "--serial", help="Serial number of Solo to use")
+@click.option("-s", "--serial", help="Serial number of Nitrokey to use")
 def raw(serial):
     """Output raw entropy endlessly."""
     p = solo.client.find(serial)
@@ -67,7 +70,7 @@ def raw(serial):
         sys.stdout.buffer.write(r)
 
 @click.command()
-@click.option("-s", "--serial", help="Serial number of Solo to use")
+@click.option("-s", "--serial", help="Serial number of Nitrokey to use")
 @click.option("-b", "--blink", is_flag=True, help="Blink in the meantime")
 def status(serial, blink: bool):
     """Print device's status"""
@@ -85,7 +88,7 @@ def status(serial, blink: bool):
 
 @click.command()
 @click.option("--count", default=64, help="How many bytes to generate (defaults to 8)")
-@click.option("-s", "--serial", help="Serial number of Solo to use")
+@click.option("-s", "--serial", help="Serial number of Nitrokey to use")
 def feedkernel(count, serial):
     """Feed random bytes to /dev/random."""
 
@@ -136,7 +139,7 @@ def feedkernel(count, serial):
 
 
 @click.command()
-@click.option("-s", "--serial", help="Serial number of Solo use")
+@click.option("-s", "--serial", help="Serial number of Nitrokey use")
 @click.option(
     "--host", help="Relying party's host", default="solokeys.dev", show_default=True
 )
@@ -164,7 +167,7 @@ def make_credential(serial, host, user, udp, prompt):
 
 
 @click.command()
-@click.option("-s", "--serial", help="Serial number of Solo use")
+@click.option("-s", "--serial", help="Serial number of Nitrokey use")
 @click.option("--host", help="Relying party's host", default="solokeys.dev")
 @click.option("--user", help="User ID", default="they")
 @click.option(
@@ -208,7 +211,7 @@ def challenge_response(serial, host, user, prompt, credential_id, challenge, udp
 
 
 @click.command()
-@click.option("-s", "--serial", help="Serial number of Solo use")
+@click.option("-s", "--serial", help="Serial number of Nitrokey use")
 @click.option(
     "--udp", is_flag=True, default=False, help="Communicate over UDP with software key"
 )
@@ -258,7 +261,7 @@ def probe(serial, udp, hash_type, filename):
     # print(fido2.cbor.loads(result))
 
 @click.command()
-@click.option("-s", "--serial", help="Serial number of Solo to use")
+@click.option("-s", "--serial", help="Serial number of Nitrokey to use")
 def reset(serial):
     """Reset key - wipes all credentials!!!"""
     if click.confirm(
@@ -270,16 +273,51 @@ def reset(serial):
 
 
 @click.command()
+@click.option("-s", "--serial", help="Serial number of Nitrokey to use")
+# @click.option("--new-pin", help="change current pin")
+def change_pin(serial):
+    """Change pin of current key"""
+    old_pin = getpass.getpass("Please enter old pin: ")
+    new_pin = getpass.getpass("Please enter new pin: ")
+    confirm_pin = getpass.getpass("Please confirm new pin: ")
+    if new_pin != confirm_pin:
+        click.echo("New pin are mismatched. Please try again!")
+        return
+    try:
+        solo.client.find(serial).change_pin(old_pin, new_pin)
+        click.echo("Done. Please use new pin to verify key")
+    except Exception as e:
+        print(e)
+
+
+@click.command()
+@click.option("-s", "--serial", help="Serial number of Nitrokey to use")
+# @click.option("--new-pin", help="change current pin")
+def set_pin(serial):
+    """Set pin of current key"""
+    new_pin = getpass.getpass("Please enter new pin: ")
+    confirm_pin = getpass.getpass("Please confirm new pin: ")
+    if new_pin != confirm_pin:
+        click.echo("New pin are mismatched. Please try again!")
+        return
+    try:
+        solo.client.find(serial).set_pin(new_pin)
+        click.echo("Done. Please use new pin to verify key")
+    except Exception as e:
+        print(e)
+
+
+@click.command()
 @click.option("--pin", help="PIN for to access key")
-@click.option("-s", "--serial", help="Serial number of Solo to use")
+@click.option("-s", "--serial", help="Serial number of Nitrokey to use")
 @click.option(
     "--udp", is_flag=True, default=False, help="Communicate over UDP with software key"
 )
 def verify(pin, serial, udp):
-    """Verify key is valid Solo Secure or Solo Hacker."""
+    """Verify key is valid Nitrokey 'Start' or 'FIDO2' key."""
 
     # Any longer and this needs to go in a submodule
-    print("Please press the button on your Solo key")
+    print("Please press the button on your Nitrokey key")
     try:
         cert = solo.client.find(serial, udp=udp).make_credential(pin=pin)
     except ValueError as e:
@@ -335,7 +373,7 @@ def verify(pin, serial, udp):
 
 
 @click.command()
-@click.option("-s", "--serial", help="Serial number of Solo to use")
+@click.option("-s", "--serial", help="Serial number of Nitrokey to use")
 @click.option(
     "--udp", is_flag=True, default=False, help="Communicate over UDP with software key"
 )
@@ -354,15 +392,15 @@ def version(serial, udp):
         print(f"{major}.{minor}.{patch} {locked}")
 
     except solo.exceptions.NoSoloFoundError:
-        print("No Solo found.")
+        print("No Nitrokey found.")
         print("If you are on Linux, are your udev rules up to date?")
     except (solo.exceptions.NoSoloFoundError, ApduError):
         # Older
-        print("Firmware is out of date (key does not know the SOLO_VERSION command).")
+        print("Firmware is out of date (key does not know the NITROKEY_VERSION command).")
 
 
 @click.command()
-@click.option("-s", "--serial", help="Serial number of Solo to use")
+@click.option("-s", "--serial", help="Serial number of Nitrokey to use")
 @click.option(
     "--udp", is_flag=True, default=False, help="Communicate over UDP with software key"
 )
@@ -372,7 +410,7 @@ def wink(serial, udp):
     solo.client.find(serial, udp=udp).wink()
 
 @click.command()
-@click.option("-s", "--serial", help="Serial number of Solo to use")
+@click.option("-s", "--serial", help="Serial number of Nitrokey to use")
 @click.option(
     "--udp", is_flag=True, default=False, help="Communicate over UDP with software key"
 )
