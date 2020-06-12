@@ -142,7 +142,7 @@ solo_cli.add_command(mergehex)
 
 @click.command()
 def ls():
-    """List Solos (in firmware or bootloader mode) and potential Solos in dfu mode."""
+    """List Nitrokey keys (in firmware or bootloader mode)"""
 
     fido2.commands["list"].callback()
     start.commands["list"].callback()
