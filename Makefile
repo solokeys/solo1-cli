@@ -44,13 +44,13 @@ publish: check
 
 venv:
 	python3 -m venv venv
-	venv/bin/pip install -U pip
+	venv/bin/python3 -m pip install -U pip
 
 # re-run if dev or runtime dependencies change,
 # or when adding new scripts
 update-venv: venv
-	venv/bin/pip install -U pip
-	venv/bin/pip install -U -r dev-requirements.txt
+	venv/bin/python3 -m pip install -U pip
+	venv/bin/python3 -m pip install -U -r dev-requirements.txt
 	venv/bin/flit install --symlink
 
 .PHONY: CI
