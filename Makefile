@@ -1,24 +1,26 @@
 .PHONY: black build clean publish reinstall
 
+PACKAGE_NAME=solo
+
 # setup development environment
 init: update-venv
 
 # ensure this passes before commiting
 check: lint
-	black --check solo/
-	isort --check-only --recursive solo/
+	venv/bin/black --check $(PACKAGE_NAME)/
+	venv/bin/isort --check-only --recursive $(PACKAGE_NAME)/
 
 # automatic code fixes
 fix: black isort
 
 black:
-	black solo/
+	venv/bin/black $(PACKAGE_NAME)/
 
 isort:
-	isort -y --recursive solo/
+	venv/bin/isort -y --recursive $(PACKAGE_NAME)/
 
 lint:
-	flake8 solo/
+	venv/bin/flake8 $(PACKAGE_NAME)/
 
 semi-clean:
 	rm -rf **/__pycache__
@@ -30,7 +32,7 @@ clean: semi-clean
 
 # Package management
 
-VERSION_FILE := "solo/VERSION"
+VERSION_FILE := "$(PACKAGE_NAME)/VERSION"
 VERSION := $(shell cat $(VERSION_FILE))
 tag:
 	git tag -a $(VERSION) -m"v$(VERSION)"
@@ -44,11 +46,16 @@ publish: check
 
 venv:
 	python3 -m venv venv
-	venv/bin/pip install -U pip
+	venv/bin/python3 -m pip install -U pip
 
 # re-run if dev or runtime dependencies change,
 # or when adding new scripts
 update-venv: venv
-	venv/bin/pip install -U pip
-	venv/bin/pip install -U -r dev-requirements.txt
+	venv/bin/python3 -m pip install -U pip
+	venv/bin/python3 -m pip install -U -r dev-requirements.txt
 	venv/bin/flit install --symlink
+
+.PHONY: CI
+CI:
+	env FLIT_ROOT_INSTALL=1 $(MAKE) init
+	env FLIT_ROOT_INSTALL=1 $(MAKE) build
