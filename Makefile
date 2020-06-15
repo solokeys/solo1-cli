@@ -52,3 +52,8 @@ update-venv: venv
 	venv/bin/pip install -U pip
 	venv/bin/pip install -U -r dev-requirements.txt
 	venv/bin/flit install --symlink
+
+.PHONY: CI
+CI:
+	$(MAKE) init
+	$(MAKE) build
