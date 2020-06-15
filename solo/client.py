@@ -316,6 +316,9 @@ class SoloClient:
         self.exchange(SoloBootloader.reboot)
         return True
 
+    def program_kbd(self, cmd):
+        return self.ctap2.send_cbor(0x51, cmd)
+
     def program_file(self, name):
         def parseField(f):
             return base64.b64decode(helpers.from_websafe(f).encode())

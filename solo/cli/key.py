@@ -465,6 +465,19 @@ def ping(serial, udp, ping_data):
 
 @click.command()
 @click.option("-s", "--serial", help="Serial number of Solo to use")
+@click.argument("sequence")
+def keyboard(serial, sequence):
+    """Program the specified key sequence to Solo"""
+
+    dev = solo.client.find(serial)
+    buf = sequence.encode("ascii")
+    if len(buf) > 64:
+        print("Keyboard sequence cannot exceed 64 bytes")
+    else:
+        dev.program_kbd(buf)
+
+@click.command()
+@click.option("-s", "--serial", help="Serial number of Solo to use")
 def disable_updates(serial):
     """Permanently disable firmware updates on Solo.  Cannot be undone.  Solo must be in bootloader mode."""
 
@@ -497,3 +510,4 @@ key.add_command(verify)
 key.add_command(wink)
 key.add_command(disable_updates)
 key.add_command(ping)
+key.add_command(keyboard)
