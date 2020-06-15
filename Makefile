@@ -1,24 +1,26 @@
 .PHONY: black build clean publish reinstall
 
+PACKAGE_NAME=solo
+
 # setup development environment
 init: update-venv
 
 # ensure this passes before commiting
 check: lint
-	venv/bin/black --check solo/
-	venv/bin/isort --check-only --recursive solo/
+	venv/bin/black --check $(PACKAGE_NAME)/
+	venv/bin/isort --check-only --recursive $(PACKAGE_NAME)/
 
 # automatic code fixes
 fix: black isort
 
 black:
-	venv/bin/black solo/
+	venv/bin/black $(PACKAGE_NAME)/
 
 isort:
-	venv/bin/isort -y --recursive solo/
+	venv/bin/isort -y --recursive $(PACKAGE_NAME)/
 
 lint:
-	venv/bin/flake8 solo/
+	venv/bin/flake8 $(PACKAGE_NAME)/
 
 semi-clean:
 	rm -rf **/__pycache__
@@ -30,7 +32,7 @@ clean: semi-clean
 
 # Package management
 
-VERSION_FILE := "solo/VERSION"
+VERSION_FILE := "$(PACKAGE_NAME)/VERSION"
 VERSION := $(shell cat $(VERSION_FILE))
 tag:
 	git tag -a $(VERSION) -m"v$(VERSION)"
