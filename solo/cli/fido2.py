@@ -6,6 +6,7 @@
 # http://apache.org/licenses/LICENSE-2.0> or the MIT license <LICENSE-MIT or
 # http://opensource.org/licenses/MIT>, at your option. This file may not be
 # copied, modified, or distributed except according to those terms.
+
 import binascii
 import os
 import sys
@@ -22,7 +23,7 @@ from solo.cli.update import update
 
 # https://pocoo-click.readthedocs.io/en/latest/commands/#nested-handling-and-contexts
 @click.group()
-def key():
+def fido2():
     """Interact with Solo keys, see subcommands."""
     pass
 
@@ -32,6 +33,17 @@ def rng():
     """Access TRNG on key, see subcommands."""
     pass
 
+@click.command()
+def list():
+    """List all 'Nitrokey FIDO2' devices"""
+    solos = solo.client.find_all()
+    print(":: 'Nitrokey FIDO2' keys")
+    for c in solos:
+        descriptor = c.dev.descriptor
+        if "serial_number" in descriptor:
+            print(f"{descriptor['serial_number']}: {descriptor['product_string']}")
+        else:
+            print(f"{descriptor['path']}: {descriptor['product_string']}")
 
 @click.command()
 @click.option("--count", default=8, help="How many bytes to generate (defaults to 8)")
@@ -245,36 +257,6 @@ def probe(serial, udp, hash_type, filename):
         print(f"verified? {verified}")
     # print(fido2.cbor.loads(result))
 
-
-# @click.command()
-# @click.option("-s", "--serial", help="Serial number of Solo to use")
-# @click.argument("filename")
-# def sha256sum(serial, filename):
-#     """Calculate SHA256 hash of FILENAME."""
-
-#     data = open(filename, 'rb').read()
-#     # CTAPHID_BUFFER_SIZE
-#     # https://fidoalliance.org/specs/fido-v2.0-id-20180227/fido-client-to-authenticator-protocol-v2.0-id-20180227.html#usb-message-and-packet-structure
-#     assert len(data) <= 7609
-#     p = solo.client.find(serial)
-#     sha256sum = p.calculate_sha256(data)
-#     print(sha256sum.hex().lower())
-
-# @click.command()
-# @click.option("-s", "--serial", help="Serial number of Solo to use")
-# @click.argument("filename")
-# def sha512sum(serial, filename):
-#     """Calculate SHA512 hash of FILENAME."""
-
-#     data = open(filename, 'rb').read()
-#     # CTAPHID_BUFFER_SIZE
-#     # https://fidoalliance.org/specs/fido-v2.0-id-20180227/fido-client-to-authenticator-protocol-v2.0-id-20180227.html#usb-message-and-packet-structure
-#     assert len(data) <= 7609
-#     p = solo.client.find(serial)
-#     sha512sum = p.calculate_sha512(data)
-#     print(sha512sum.hex().lower())
-
-
 @click.command()
 @click.option("-s", "--serial", help="Serial number of Solo to use")
 def reset(serial):
@@ -404,19 +386,20 @@ def reboot(serial, udp):
     except OSError:
         pass
 
-key.add_command(rng)
-key.add_command(reboot)
+fido2.add_command(rng)
+fido2.add_command(reboot)
+fido2.add_command(list)
 rng.add_command(hexbytes)
 rng.add_command(raw)
 rng.add_command(feedkernel)
-key.add_command(make_credential)
-key.add_command(challenge_response)
-key.add_command(reset)
-key.add_command(status)
-key.add_command(update)
-key.add_command(probe)
+fido2.add_command(make_credential)
+fido2.add_command(challenge_response)
+fido2.add_command(reset)
+fido2.add_command(status)
+fido2.add_command(update)
+fido2.add_command(probe)
 # key.add_command(sha256sum)
 # key.add_command(sha512sum)
-key.add_command(version)
-key.add_command(verify)
-key.add_command(wink)
+fido2.add_command(version)
+fido2.add_command(verify)
+fido2.add_command(wink)

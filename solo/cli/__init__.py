@@ -15,7 +15,8 @@ import usb.core
 
 import solo
 import solo.operations
-from solo.cli.key import key
+from solo.cli.fido2 import fido2
+from solo.cli.start import start
 from solo.cli.monitor import monitor
 from solo.cli.program import program
 
@@ -40,7 +41,8 @@ def solo_cli():
     pass
 
 
-solo_cli.add_command(key)
+solo_cli.add_command(fido2)
+solo_cli.add_command(start)
 solo_cli.add_command(monitor)
 solo_cli.add_command(program)
 
@@ -139,39 +141,13 @@ solo_cli.add_command(mergehex)
 
 
 @click.command()
-@click.option(
-    "-a", "--all", is_flag=True, default=False, help="Show ST DFU devices too."
-)
-def ls(all):
+def ls():
     """List Solos (in firmware or bootloader mode) and potential Solos in dfu mode."""
 
-    solos = solo.client.find_all()
-    print(":: Solos")
-    for c in solos:
-        descriptor = c.dev.descriptor
-        if "serial_number" in descriptor:
-            print(f"{descriptor['serial_number']}: {descriptor['product_string']}")
-        else:
-            print(f"{descriptor['path']}: {descriptor['product_string']}")
-
-    if all:
-        print(":: Potential Solos in DFU mode")
-        try:
-            st_dfus = solo.dfu.find_all()
-            for d in st_dfus:
-                dev_raw = d.dev
-                dfu_serial = dev_raw.serial_number
-                print(f"{dfu_serial}")
-        except usb.core.NoBackendError:
-            print("No libusb available.")
-            print(
-                "This error is only relevant if you plan to use the ST DFU interface."
-            )
-            print("If you are on Windows, please install a driver:")
-            print("https://github.com/libusb/libusb/wiki/Windows#driver-installation")
-
+    fido2.commands["list"].callback()
+    start.commands["list"].callback()
 
 solo_cli.add_command(ls)
 
 from pygments.console import colorize
-print(f'*** {colorize("red", "Nitrokey tool for Nitrokey FIDO2")}')
+print(f'*** {colorize("red", "Nitrokey tool for Nitrokey FIDO2 & Nitrokey Start")}')
