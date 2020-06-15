@@ -5,20 +5,20 @@ init: update-venv
 
 # ensure this passes before commiting
 check: lint
-	black --check solo/
-	isort --check-only --recursive solo/
+	venv/bin/black --check solo/
+	venv/bin/isort --check-only --recursive solo/
 
 # automatic code fixes
 fix: black isort
 
 black:
-	black solo/
+	venv/bin/black solo/
 
 isort:
-	isort -y --recursive solo/
+	venv/bin/isort -y --recursive solo/
 
 lint:
-	flake8 solo/
+	venv/bin/flake8 solo/
 
 semi-clean:
 	rm -rf **/__pycache__
@@ -55,5 +55,5 @@ update-venv: venv
 
 .PHONY: CI
 CI:
-	$(MAKE) init
-	$(MAKE) build
+	env FLIT_ROOT_INSTALL=1 $(MAKE) init
+	env FLIT_ROOT_INSTALL=1 $(MAKE) build
