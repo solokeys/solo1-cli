@@ -12,6 +12,7 @@ import os
 import sys
 from time import sleep, time
 
+import json
 import click
 import solo
 import solo.fido2
@@ -20,12 +21,107 @@ from fido2.client import ClientError as Fido2ClientError
 from fido2.ctap1 import ApduError
 from solo.cli.update import update
 
+from solo.cli.monitor import monitor
+from solo.cli.program import program
+import solo.operations
 
 # https://pocoo-click.readthedocs.io/en/latest/commands/#nested-handling-and-contexts
 @click.group()
 def fido2():
     """Interact with Solo keys, see subcommands."""
     pass
+
+
+
+@click.group()
+def util():
+    """Additional utilities, see subcommands."""
+    pass
+
+
+
+
+@click.command()
+@click.option("--input-seed-file")
+@click.argument("output_pem_file")
+def genkey(input_seed_file, output_pem_file):
+    """Generates key pair that can be used for Solo signed firmware updates.
+
+    \b
+    * Generates NIST P256 keypair.
+    * Public key must be copied into correct source location in solo bootloader
+    * The private key can be used for signing updates.
+    * You may optionally supply a file to seed the RNG for key generating.
+    """
+
+    vk = solo.operations.genkey(output_pem_file, input_seed_file=input_seed_file)
+
+    print("Public key in various formats:")
+    print()
+    print([c for c in vk.to_string()])
+    print()
+    print("".join(["%02x" % c for c in vk.to_string()]))
+    print()
+    print('"\\x' + "\\x".join(["%02x" % c for c in vk.to_string()]) + '"')
+    print()
+
+
+
+
+@click.command()
+@click.argument("verifying-key")
+@click.argument("app-hex")
+@click.argument("output-json")
+@click.option("--end_page", help="Set APPLICATION_END_PAGE. Should be in sync with firmware settings.", default=20, type=int)
+def sign(verifying_key, app_hex, output_json, end_page):
+    """Signs a firmware hex file, outputs a .json file that can be used for signed update."""
+
+    msg = solo.operations.sign_firmware(verifying_key, app_hex, APPLICATION_END_PAGE=end_page)
+    print("Saving signed firmware to", output_json)
+    with open(output_json, "wb+") as fh:
+        fh.write(json.dumps(msg).encode())
+
+
+
+@click.command()
+@click.option("--attestation-key", help="attestation key in hex")
+@click.option("--attestation-cert", help="attestation certificate file")
+@click.option(
+    "--lock",
+    help="Indicate to lock device from unsigned changes permanently.",
+    default=False,
+    is_flag=True,
+)
+@click.argument("input_hex_files", nargs=-1)
+@click.argument("output_hex_file")
+@click.option(
+    "--end_page",
+    help="Set APPLICATION_END_PAGE. Should be in sync with firmware settings.",
+    default=20,
+    type=int,
+)
+def mergehex(
+    attestation_key, attestation_cert, lock, input_hex_files, output_hex_file, end_page
+):
+    """Merges hex files, and patches in the attestation key.
+
+    \b
+    If no attestation key is passed, uses default Solo Hacker one.
+    Note that later hex files replace data of earlier ones, if they overlap.
+    """
+    solo.operations.mergehex(
+        input_hex_files,
+        output_hex_file,
+        attestation_key=attestation_key,
+        APPLICATION_END_PAGE=end_page,
+        attestation_cert=attestation_cert,
+        lock=lock,
+    )
+
+
+
+
+
 
 
 @click.group()
@@ -403,3 +499,10 @@ fido2.add_command(probe)
 fido2.add_command(version)
 fido2.add_command(verify)
 fido2.add_command(wink)
+
+fido2.add_command(util)
+util.add_command(monitor)
+util.add_command(program)
+util.add_command(sign)
+util.add_command(genkey)
+util.add_command(mergehex)
