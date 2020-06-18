@@ -34,16 +34,19 @@ nitrokey key verify
 
 Here is brief guide for the Nitrokey Start automatic firmware download and update:
 ```
+# install the current alpha package
 $ pip3 install https://github.com/Nitrokey/nitro-python/releases/download/0.2.0.nitrokey/nitro_python-0.2.0-py3-none-any.whl
+
+# verify installation and device connection
 $ nitrokey version
 0.2.0
 $ nitrokey start list
 FSIJ-1.2.15-87042524: Nitrokey Nitrokey Start (RTM.10)
 
-# starts update process, logs saved to upgrade.log
+# starts update process, logs saved to upgrade.log, handy in case of failure
 $ nitrokey start update
 
-# does not ask for confirmation nor the default Admin PIN
+# does not ask for confirmation nor the default Admin PIN, handy for batch calls
 $ nitrokey start update -p 12345678 -y
 
 # following will flash files from the local disk, instead of downloading them
