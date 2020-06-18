@@ -9,6 +9,7 @@
 
 import base64
 import getpass
+import hashlib
 import os
 import sys
 import time
@@ -559,6 +560,31 @@ def cred_rm(pin, credential_id, serial, udp):
     cred = {"id": base64.b64decode(credential_id), "type": "public-key"}
     cm.delete_cred(cred)
 
+@click.command()
+@click.option("--pin", help="PIN for to access key")
+@click.option("-s", "--serial", help="Serial number of Solo to use")
+@click.argument("credential-id")
+@click.argument("filename")
+def sign_file(pin, serial, credential_id, filename):
+    """Sign the specified file using the given credential-id"""
+
+    dev = solo.client.find(serial)
+    dgst = hashlib.sha256()
+    with open(filename, "rb") as f:
+        while True:
+            data = f.read(64*1024)
+            if not data:
+                break
+            dgst.update(data)
+    print("{0}  {1}".format(dgst.hexdigest(), filename))
+    print("Please press the button on your Solo key")
+    ret = dev.sign_hash(base64.b64decode(credential_id), dgst.digest(), pin)
+    sig = ret[1]
+    sig_file = filename + ".sig"
+    print("Saving signature to " + sig_file)
+    with open(sig_file, 'wb') as f:
+        f.write(sig)
+
 key.add_command(rng)
 rng.add_command(hexbytes)
 rng.add_command(raw)
@@ -578,6 +604,7 @@ key.add_command(wink)
 key.add_command(disable_updates)
 key.add_command(ping)
 key.add_command(cred)
+key.add_command(sign_file)
 cred.add_command(cred_info)
 cred.add_command(cred_ls)
 cred.add_command(cred_rm)
