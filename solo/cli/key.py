@@ -491,6 +491,7 @@ def keyboard(serial, sequence):
     else:
         dev.program_kbd(buf)
 
+
 @click.command()
 @click.option("-s", "--serial", help="Serial number of Solo to use")
 def disable_updates(serial):
