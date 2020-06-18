@@ -59,13 +59,13 @@ import requests
 
 from click import BadParameter
 
-import solo.start.rsa as rsa
-from solo.start.gnuk_token import get_gnuk_device, gnuk_devices_by_vidpid, \
+import nitrokey.start.rsa as rsa
+from nitrokey.start.gnuk_token import get_gnuk_device, gnuk_devices_by_vidpid, \
     regnual, SHA256_OID_PREFIX, crc32, parse_kdf_data
-from solo.start.kdf_calc import kdf_calc
-from solo.start.threaded_log import ThreadLog
-from solo.start.usb_strings import get_devices, print_device
-from solo.start.rsa_pub_key import rsa_key_data
+from nitrokey.start.kdf_calc import kdf_calc
+from nitrokey.start.threaded_log import ThreadLog
+from nitrokey.start.usb_strings import get_devices, print_device
+from nitrokey.start.rsa_pub_key import rsa_key_data
 
 
 LOG_FORMAT_STDOUT = '*** %(asctime)-15s %(levelname)6s %(name)10s %(message)s'

@@ -1,6 +1,6 @@
 .PHONY: black build clean publish reinstall
 
-PACKAGE_NAME=solo
+PACKAGE_NAME=nitrokey
 VENV=venv
 
 

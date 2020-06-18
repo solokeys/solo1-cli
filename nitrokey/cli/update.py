@@ -16,10 +16,10 @@ import time
 
 import click
 import requests
-import solo
+import nitrokey
 from fido2.ctap import CtapError
 from fido2.ctap1 import ApduError
-from solo import helpers
+from nitrokey import helpers
 
 
 @click.command()
