@@ -39,6 +39,19 @@ def read_key_from_file(file):
         raise ValueError("wrong key", p, q, n)
     return (unhexlify(n_str), unhexlify(e_str), unhexlify(p_str), unhexlify(q_str), e, p, q, n)
 
+def read_key_from_list(data):
+    n_str, e_str, p_str, q_str = data
+    e = int(e_str, 16)
+    p = int(p_str, 16)
+    q = int(q_str, 16)
+    n = int(n_str, 16)
+    if n != p * q:
+        raise ValueError("wrong key", p, q, n)
+    return (unhexlify(n_str), unhexlify(e_str), unhexlify(p_str), unhexlify(q_str), e, p, q, n)
+
+
+
+
 # egcd and modinv are from wikibooks
 # https://en.wikibooks.org/wiki/Algorithm_Implementation/Mathematics/Extended_Euclidean_algorithm
 
