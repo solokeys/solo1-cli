@@ -65,7 +65,7 @@ update-venv: $(VENV)
 CI:
 	env FLIT_ROOT_INSTALL=1 $(MAKE) init VENV=$(VENV)
 	env FLIT_ROOT_INSTALL=1 $(MAKE) build-forced VENV=$(VENV)
-
+	$(MAKE) check || true
 
 .PHONY: build-CI-test
 build-CI-test:
