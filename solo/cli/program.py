@@ -25,7 +25,7 @@ def program():
 
 # @click.command()
 # def ctap():
-#     """Program via CTAP (either CTAP1 or CTAP2) (assumes Solo bootloader)."""
+#     """Program via CTAP (either CTAP1 or CTAP2) (assumes Nitrokey bootloader)."""
 #     pass
 
 
@@ -141,7 +141,7 @@ program.add_command(dfu)
 
 
 @click.command()
-@click.option("-s", "--serial", help="Serial number of Solo to use")
+@click.option("-s", "--serial", help="Serial number of Nitrokey to use")
 @click.argument("firmware")  # , help="firmware (bundle) to program")
 def check_only(serial, firmware):
     """Validate currently flashed firmware, and run on success. Bootloader only."""
@@ -161,10 +161,10 @@ program.add_command(check_only)
 
 
 @click.command()
-@click.option("-s", "--serial", help="Serial number of Solo to use")
+@click.option("-s", "--serial", help="Serial number of Nitrokey to use")
 @click.argument("firmware")  # , help="firmware (bundle) to program")
 def bootloader(serial, firmware):
-    """Program via Solo bootloader interface.
+    """Program via Nitrokey bootloader interface.
 
     \b
     FIRMWARE argument should be either a .hex or .json file.
@@ -193,11 +193,11 @@ def bootloader(serial, firmware):
 
         p.enter_bootloader_or_die()
 
-        print("Solo rebooted.  Reconnecting...")
+        print("Nitrokey rebooted.  Reconnecting...")
         time.sleep(0.5)
         p = solo.client.find(serial)
         if p is None:
-            print("Cannot find Solo device.")
+            print("Cannot find Nitrokey device.")
             sys.exit(1)
         p.use_hid()
         p.program_file(firmware)
@@ -220,16 +220,16 @@ def _enter_bootloader(serial):
 
     p.enter_bootloader_or_die()
 
-    print("Solo rebooted.  Reconnecting...")
+    print("Nitrokey rebooted.  Reconnecting...")
     time.sleep(0.5)
     if solo.client.find(serial) is None:
         raise RuntimeError("Failed to reconnect!")
 
 
 @click.command()
-@click.option("-s", "--serial", help="Serial number of Solo to use")
+@click.option("-s", "--serial", help="Serial number of Nitrokey to use")
 def enter_bootloader(serial):
-    """Switch from Solo firmware to Solo bootloader.
+    """Switch from Nitrokey firmware to Nitrokey bootloader.
 
     Note that after powercycle, you will be in the firmware again,
     assuming it is valid.
@@ -242,9 +242,9 @@ aux.add_command(enter_bootloader)
 
 
 @click.command()
-@click.option("-s", "--serial", help="Serial number of Solo to use")
+@click.option("-s", "--serial", help="Serial number of Nitrokey to use")
 def leave_bootloader(serial):
-    """Switch from Solo bootloader to Solo firmware."""
+    """Switch from Nitrokey bootloader to Nitrokey firmware."""
     p = solo.client.find(serial)
     # this is a bit too low-level...
     # p.exchange(solo.commands.SoloBootloader.done, 0, b"A" * 64)
@@ -255,9 +255,9 @@ aux.add_command(leave_bootloader)
 
 
 @click.command()
-@click.option("-s", "--serial", help="Serial number of Solo to use")
+@click.option("-s", "--serial", help="Serial number of Nitrokey to use")
 def enter_dfu(serial):
-    """Switch from Solo bootloader to ST DFU bootloader.
+    """Switch from Nitrokey bootloader to ST DFU bootloader.
 
     This changes the boot options of the key, which only reliably
     take effect after a powercycle.
@@ -275,11 +275,11 @@ aux.add_command(enter_dfu)
 
 
 @click.command()
-@click.option("-s", "--serial", help="Serial number of Solo to use")
+@click.option("-s", "--serial", help="Serial number of Nitrokey to use")
 def leave_dfu(serial):
     """Leave ST DFU bootloader.
 
-    Switches to Solo bootloader or firmware, latter if firmware is valid.
+    Switches to Nitrokey bootloader or firmware, latter if firmware is valid.
 
     This changes the boot options of the key, which only reliably
     take effect after a powercycle.
@@ -302,7 +302,7 @@ aux.add_command(leave_dfu)
 
 
 @click.command()
-@click.option("-s", "--serial", help="Serial number of Solo to use")
+@click.option("-s", "--serial", help="Serial number of Nitrokey to use")
 def reboot(serial):
     """Reboot.
 
@@ -320,7 +320,7 @@ aux.add_command(reboot)
 
 
 @click.command()
-@click.option("-s", "--serial", help="Serial number of Solo to use")
+@click.option("-s", "--serial", help="Serial number of Nitrokey to use")
 def bootloader_version(serial):
     """Version of bootloader."""
     p = solo.client.find(serial)

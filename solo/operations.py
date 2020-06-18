@@ -83,7 +83,7 @@ def mergehex(
 ):
     """Merges hex files, and patches in the attestation key.
 
-    If no attestation key is passed, uses default Solo Hacker one.
+    If no attestation key is passed, uses default Nitrokey Hacker one.
 
     Note that later hex files replace data of earlier ones, if they overlap.
     """

@@ -48,7 +48,7 @@ def find(solo_serial=None, retries=5, raw_device=None, udp=False):
             time.sleep(0.2)
 
     # return None
-    raise solo.exceptions.NoSoloFoundError("no Solo found")
+    raise solo.exceptions.NoSoloFoundError("no Nitrokey found")
 
 
 def find_all():
@@ -238,7 +238,7 @@ class SoloClient:
 
     def enter_solo_bootloader(self,):
         """
-        If solo is configured as solo hacker or something similar,
+        If Nitrokey is configured as Nitrokey hacker or something similar,
         this command will tell the token to boot directly to the bootloader
         so it can be reprogrammed
         """
@@ -273,7 +273,7 @@ class SoloClient:
 
     def enter_st_dfu(self,):
         """
-        If solo is configured as solo hacker or something similar,
+        If Nitrokey is configured as Nitrokey hacker or something similar,
         this command will tell the token to boot directly to the st DFU
         so it can be reprogrammed.  Warning, you could brick your device.
         """
@@ -287,9 +287,9 @@ class SoloClient:
 
     def disable_solo_bootloader(self,):
         """
-        Disables the Solo bootloader.  Only do this if you want to void the possibility
+        Disables the Nitrokey bootloader.  Only do this if you want to void the possibility
         of any updates.
-        If you've started from a solo hacker, make you you've programmed a final/production build!
+        If you've started from a Nitrokey hacker, make you you've programmed a final/production build!
         """
         ret = self.exchange(
             SoloBootloader.disable, 0, b"\xcd\xde\xba\xaa"
