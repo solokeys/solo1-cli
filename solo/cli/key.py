@@ -7,7 +7,9 @@
 # http://opensource.org/licenses/MIT>, at your option. This file may not be
 # copied, modified, or distributed except according to those terms.
 
+import base64
 import getpass
+import hashlib
 import os
 import sys
 import time
@@ -16,6 +18,7 @@ import click
 from cryptography.hazmat.primitives import hashes
 from fido2.client import ClientError as Fido2ClientError
 from fido2.ctap1 import ApduError
+from fido2.ctap2 import CredentialManagement
 
 import solo
 import solo.fido2
@@ -26,6 +29,12 @@ from solo.cli.update import update
 @click.group()
 def key():
     """Interact with Solo keys, see subcommands."""
+    pass
+
+
+@click.group(name="credential")
+def cred():
+    """Credential management, see subcommands."""
     pass
 
 
@@ -133,14 +142,20 @@ def make_credential(serial, host, user, udp, prompt, pin):
 
     import solo.hmac_secret
 
-    #check for PIN
+    # check for PIN
     if not pin:
         pin = getpass.getpass("PIN (leave empty for no PIN: ")
     if not pin:
         pin = None
 
     solo.hmac_secret.make_credential(
-        host=host, user_id=user, serial=serial, output=True, prompt=prompt, udp=udp, pin=pin
+        host=host,
+        user_id=user,
+        serial=serial,
+        output=True,
+        prompt=prompt,
+        udp=udp,
+        pin=pin,
     )
 
 
@@ -177,7 +192,7 @@ def challenge_response(serial, host, user, prompt, credential_id, challenge, udp
 
     import solo.hmac_secret
 
-    #check for PIN
+    # check for PIN
     if not pin:
         pin = getpass.getpass("PIN (leave empty for no PIN: ")
     if not pin:
@@ -492,6 +507,105 @@ def disable_updates(serial):
         print("Failed to disable the firmware update.")
 
 
+@click.command(name="info")
+@click.option("--pin", help="PIN for to access key")
+@click.option("-s", "--serial", help="Serial number of Solo to use")
+@click.option(
+    "--udp", is_flag=True, default=False, help="Communicate over UDP with software key"
+)
+def cred_info(pin, serial, udp):
+    """Get credentials metadata"""
+    if not pin:
+        pin = getpass.getpass("PIN: ")
+
+    client = solo.client.find(serial, udp=udp)
+    cm = client.cred_mgmt(pin)
+    meta = cm.get_metadata()
+    existing = meta[CredentialManagement.RESULT.EXISTING_CRED_COUNT]
+    remaining = meta[CredentialManagement.RESULT.MAX_REMAINING_COUNT]
+    print("Existing resident keys: {}".format(existing))
+    print("Remaining resident keys: {}".format(remaining))
+
+
+@click.command(name="ls")
+@click.option("--pin", help="PIN for to access key")
+@click.option("-s", "--serial", help="Serial number of Solo to use")
+@click.option(
+    "--udp", is_flag=True, default=False, help="Communicate over UDP with software key"
+)
+def cred_ls(pin, serial, udp):
+    """List stored credentials"""
+    if not pin:
+        pin = getpass.getpass("PIN: ")
+
+    client = solo.client.find(serial, udp=udp)
+    cm = client.cred_mgmt(pin)
+    meta = cm.get_metadata()
+    existing = meta[CredentialManagement.RESULT.EXISTING_CRED_COUNT]
+    if existing == 0:
+        print("No resident credentials on this device.")
+        return
+    rps = cm.enumerate_rps()
+    all_creds = {}
+    for rp in rps:
+        rp_id = rp[CredentialManagement.RESULT.RP]["id"]
+        creds = cm.enumerate_creds(rp[CredentialManagement.RESULT.RP_ID_HASH])
+        all_creds[rp_id] = creds
+    if all_creds:
+        print("{:20}{:20}{}".format("Relying Party", "Username", "Credential ID"))
+        print("-" * 53)
+    for rp_id, creds in all_creds.items():
+        for cred in creds:
+            user = cred.get(CredentialManagement.RESULT.USER, "")
+            cred_id = cred[CredentialManagement.RESULT.CREDENTIAL_ID]["id"]
+            cred_id_b64 = base64.b64encode(cred_id).decode("ascii")
+            print("{:20}{:20}{}".format(rp_id, user["name"], cred_id_b64))
+
+
+@click.command(name="rm")
+@click.option("--pin", help="PIN for to access key")
+@click.option("-s", "--serial", help="Serial number of Solo to use")
+@click.option(
+    "--udp", is_flag=True, default=False, help="Communicate over UDP with software key"
+)
+@click.argument("credential-id")
+def cred_rm(pin, credential_id, serial, udp):
+    """Remove stored credential"""
+    if not pin:
+        pin = getpass.getpass("PIN: ")
+
+    client = solo.client.find(serial, udp=udp)
+    cm = client.cred_mgmt(pin)
+    cred = {"id": base64.b64decode(credential_id), "type": "public-key"}
+    cm.delete_cred(cred)
+
+
+@click.command()
+@click.option("--pin", help="PIN for to access key")
+@click.option("-s", "--serial", help="Serial number of Solo to use")
+@click.argument("credential-id")
+@click.argument("filename")
+def sign_file(pin, serial, credential_id, filename):
+    """Sign the specified file using the given credential-id"""
+
+    dev = solo.client.find(serial)
+    dgst = hashlib.sha256()
+    with open(filename, "rb") as f:
+        while True:
+            data = f.read(64 * 1024)
+            if not data:
+                break
+            dgst.update(data)
+    print("{0}  {1}".format(dgst.hexdigest(), filename))
+    print("Please press the button on your Solo key")
+    ret = dev.sign_hash(base64.b64decode(credential_id), dgst.digest(), pin)
+    sig = ret[1]
+    sig_file = filename + ".sig"
+    print("Saving signature to " + sig_file)
+    with open(sig_file, "wb") as f:
+        f.write(sig)
+
+
 key.add_command(rng)
 rng.add_command(hexbytes)
 rng.add_command(raw)
@@ -511,3 +625,8 @@ key.add_command(wink)
 key.add_command(disable_updates)
 key.add_command(ping)
 key.add_command(keyboard)
+key.add_command(cred)
+key.add_command(sign_file)
+cred.add_command(cred_info)
+cred.add_command(cred_ls)
+cred.add_command(cred_rm)
