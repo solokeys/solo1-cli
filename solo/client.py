@@ -322,6 +322,9 @@ class SoloClient:
         self.exchange(SoloBootloader.reboot)
         return True
 
+    def program_kbd(self, cmd):
+        return self.ctap2.send_cbor(0x51, cmd)
+
     def sign_hash(self, credential_id, dgst, pin):
         if pin:
             pin_token = self.client.pin_protocol.get_pin_token(pin)
