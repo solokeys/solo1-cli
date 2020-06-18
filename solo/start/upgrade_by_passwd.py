@@ -65,6 +65,8 @@ from solo.start.gnuk_token import get_gnuk_device, gnuk_devices_by_vidpid, \
 from solo.start.kdf_calc import kdf_calc
 from solo.start.threaded_log import ThreadLog
 from solo.start.usb_strings import get_devices, print_device
+from solo.start.rsa_pub_key import rsa_key_data
+
 
 LOG_FORMAT_STDOUT = '*** %(asctime)-15s %(levelname)6s %(name)10s %(message)s'
 LOG_FORMAT = '%(relativeCreated)-8d %(levelname)6s %(name)10s %(message)s'
@@ -130,7 +132,7 @@ def main(wait_e, keyno, passwd, data_regnual, data_upgrade, skip_bootloader, ver
             local_print("CRC32: %04x\n" % crc32code)
         data_regnual += pack('<I', crc32code)
 
-        rsa_key = rsa.read_key_from_file('solo/start/rsa_example.key')
+        rsa_key = rsa.read_key_from_list(rsa_key_data)
         rsa_raw_pubkey = rsa.get_raw_pubkey(rsa_key)
 
         gnuk = get_gnuk_device(logger=logger)
