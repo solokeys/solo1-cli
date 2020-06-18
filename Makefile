@@ -40,11 +40,15 @@ tag:
 	git tag -a $(VERSION) -m"v$(VERSION)"
 	git push origin $(VERSION)
 
+.PHONY: build-forced
+build-forced:
+	$(VENV)/bin/flit build
+
 build: check
-	flit build
+	$(VENV)/bin/flit build
 
 publish: check
-	flit --repository pypi publish
+	$(VENV)/bin/flit --repository pypi publish
 
 $(VENV):
 	python3 -m venv $(VENV)
@@ -60,7 +64,7 @@ update-venv: $(VENV)
 .PHONY: CI
 CI:
 	env FLIT_ROOT_INSTALL=1 $(MAKE) init VENV=$(VENV)
-	env FLIT_ROOT_INSTALL=1 $(MAKE) build VENV=$(VENV)
+	env FLIT_ROOT_INSTALL=1 $(MAKE) build-forced VENV=$(VENV)
 
 
 .PHONY: build-CI-test
