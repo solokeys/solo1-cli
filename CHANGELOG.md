@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.25] - 2020-06-18
+- credential management commands @rgerganov
+- static password vendor command @rgerganov
+- sign-file vendor command @rgerganov
+- typo @lolaum
+
 ## [0.0.24] - 2020-02-27
 ## Added
 - Add command to disable bootloader-access / updates on Solo devices
