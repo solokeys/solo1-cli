@@ -13,12 +13,12 @@ from subprocess import check_output
 
 import click
 
-from solo.start.gnuk_token import get_gnuk_device
-from solo.start.usb_strings import get_devices as get_devices_strings
+from nitrokey.start.gnuk_token import get_gnuk_device
+from nitrokey.start.usb_strings import get_devices as get_devices_strings
 
-from solo.start.upgrade_by_passwd import validate_gnuk, validate_regnual, logger, \
+from nitrokey.start.upgrade_by_passwd import validate_gnuk, validate_regnual, logger, \
     start_update, DEFAULT_WAIT_FOR_REENUMERATION, DEFAULT_PW3, IS_LINUX
-from solo.start.threaded_log import ThreadLog
+from nitrokey.start.threaded_log import ThreadLog
 
 from usb.core import USBError
 

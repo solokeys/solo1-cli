@@ -11,10 +11,12 @@ import os
 
 import click
 
-import solo
-import solo.operations
-from solo.cli.fido2 import fido2
-from solo.cli.start import start
+import json
+
+import nitrokey
+import nitrokey.operations
+from nitrokey.cli.fido2 import fido2
+from nitrokey.cli.start import start
 
 from . import _patches  # noqa  (since otherwise "unused")
 
@@ -23,7 +25,7 @@ if (os.name == "posix") and os.environ.get("ALLOW_ROOT") is None:
         print("THIS COMMAND SHOULD NOT BE RUN AS ROOT!")
         print()
         print(
-            "Please install udev rules and run `solo` as regular user (without sudo)."
+            "Please install udev rules and run `nitrokey` as regular user (without sudo)."
         )
         print(
             "We suggest using: https://github.com/solokeys/solo/blob/master/udev/70-solokeys-access.rules"
@@ -44,7 +46,7 @@ solo_cli.add_command(start)
 @click.command()
 def version():
     """Version of python-solo library and tool."""
-    print(solo.__version__)
+    print(nitrokey.__version__)
 
 
 solo_cli.add_command(version)
@@ -63,7 +65,7 @@ def genkey(input_seed_file, output_pem_file):
     * You may optionally supply a file to seed the RNG for key generating.
     """
 
-    vk = solo.operations.genkey(output_pem_file, input_seed_file=input_seed_file)
+    vk = nitrokey.operations.genkey(output_pem_file, input_seed_file=input_seed_file)
 
     print("Public key in various formats:")
     print()
@@ -86,7 +88,7 @@ solo_cli.add_command(genkey)
 def sign(verifying_key, app_hex, output_json, end_page):
     """Signs a firmware hex file, outputs a .json file that can be used for signed update."""
 
-    msg = solo.operations.sign_firmware(verifying_key, app_hex, APPLICATION_END_PAGE=end_page)
+    msg = nitrokey.operations.sign_firmware(verifying_key, app_hex, APPLICATION_END_PAGE=end_page)
     print("Saving signed firmware to", output_json)
     with open(output_json, "wb+") as fh:
         fh.write(json.dumps(msg).encode())
@@ -121,7 +123,7 @@ def mergehex(
     If no attestation key is passed, uses default Solo Hacker one.  <---- TODO: remove?
     Note that later hex files replace data of earlier ones, if they overlap.
     """
-    solo.operations.mergehex(
+    nitrokey.operations.mergehex(
         input_hex_files,
         output_hex_file,
         attestation_key=attestation_key,

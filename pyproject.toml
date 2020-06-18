@@ -3,8 +3,8 @@ requires = ["flit"]
 build-backend = "flit.buildapi"
 
 [tool.flit.metadata]
-module = "solo"
-dist-name = "nitro-python"  # Unfortunately, `solo` is in use on PyPI
+module = "nitrokey"
+dist-name = "nitro-python"
 author = "Nitrokey"
 author-email = "info@nitrokey.com"
 home-page = "https://github.com/Nitrokey/nitro-python"
@@ -32,4 +32,4 @@ classifiers=[
 ]
 
 [tool.flit.scripts]
-nitrokey = "solo.cli:solo_cli"
+nitrokey = "nitrokey.cli:solo_cli"
