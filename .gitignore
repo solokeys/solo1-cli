@@ -4,6 +4,7 @@
 
 dist/
 venv/
+venv-ci/
 firmware-*.json
 *.sha2
 *.hex
