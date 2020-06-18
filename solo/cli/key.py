@@ -142,14 +142,20 @@ def make_credential(serial, host, user, udp, prompt, pin):
 
     import solo.hmac_secret
 
-    #check for PIN
+    # check for PIN
     if not pin:
         pin = getpass.getpass("PIN (leave empty for no PIN: ")
     if not pin:
         pin = None
 
     solo.hmac_secret.make_credential(
-        host=host, user_id=user, serial=serial, output=True, prompt=prompt, udp=udp, pin=pin
+        host=host,
+        user_id=user,
+        serial=serial,
+        output=True,
+        prompt=prompt,
+        udp=udp,
+        pin=pin,
     )
 
 
@@ -186,7 +192,7 @@ def challenge_response(serial, host, user, prompt, credential_id, challenge, udp
 
     import solo.hmac_secret
 
-    #check for PIN
+    # check for PIN
     if not pin:
         pin = getpass.getpass("PIN (leave empty for no PIN: ")
     if not pin:
@@ -529,7 +535,7 @@ def cred_ls(pin, serial, udp):
     rps = cm.enumerate_rps()
     all_creds = {}
     for rp in rps:
-        rp_id = rp[CredentialManagement.RESULT.RP]['id']
+        rp_id = rp[CredentialManagement.RESULT.RP]["id"]
         creds = cm.enumerate_creds(rp[CredentialManagement.RESULT.RP_ID_HASH])
         all_creds[rp_id] = creds
     if all_creds:
@@ -538,9 +544,9 @@ def cred_ls(pin, serial, udp):
     for rp_id, creds in all_creds.items():
         for cred in creds:
             user = cred.get(CredentialManagement.RESULT.USER, "")
-            cred_id = cred[CredentialManagement.RESULT.CREDENTIAL_ID]['id']
-            cred_id_b64 = base64.b64encode(cred_id).decode('ascii')
-            print("{:20}{:20}{}".format(rp_id, user['name'], cred_id_b64))
+            cred_id = cred[CredentialManagement.RESULT.CREDENTIAL_ID]["id"]
+            cred_id_b64 = base64.b64encode(cred_id).decode("ascii")
+            print("{:20}{:20}{}".format(rp_id, user["name"], cred_id_b64))
 
 
 @click.command(name="rm")
@@ -560,6 +566,7 @@ def cred_rm(pin, credential_id, serial, udp):
     cred = {"id": base64.b64decode(credential_id), "type": "public-key"}
     cm.delete_cred(cred)
 
+
 @click.command()
 @click.option("--pin", help="PIN for to access key")
 @click.option("-s", "--serial", help="Serial number of Solo to use")
@@ -572,7 +579,7 @@ def sign_file(pin, serial, credential_id, filename):
     dgst = hashlib.sha256()
     with open(filename, "rb") as f:
         while True:
-            data = f.read(64*1024)
+            data = f.read(64 * 1024)
             if not data:
                 break
             dgst.update(data)
@@ -582,8 +589,9 @@ def sign_file(pin, serial, credential_id, filename):
     sig = ret[1]
     sig_file = filename + ".sig"
     print("Saving signature to " + sig_file)
-    with open(sig_file, 'wb') as f:
+    with open(sig_file, "wb") as f:
         f.write(sig)
+
 
 key.add_command(rng)
 rng.add_command(hexbytes)
