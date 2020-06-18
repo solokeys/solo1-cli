@@ -20,7 +20,7 @@ from fido2.attestation import Attestation
 from fido2.client import Fido2Client
 from fido2.ctap import CtapError
 from fido2.ctap1 import CTAP1
-from fido2.ctap2 import CTAP2
+from fido2.ctap2 import CTAP2, CredentialManagement
 from fido2.hid import CTAPHID, CtapHidDevice
 from fido2.utils import hmac_sha256
 from fido2.webauthn import PublicKeyCredentialCreationOptions
@@ -248,6 +248,11 @@ class SoloClient:
 
         return cert
 
+    def cred_mgmt(self, pin):
+        token = self.client.pin_protocol.get_pin_token(pin)
+        pin_protocol = 1
+        return CredentialManagement(self.ctap2, pin_protocol, token)
+
     def enter_solo_bootloader(self,):
         """
         If solo is configured as solo hacker or something similar,
@@ -321,9 +326,14 @@ class SoloClient:
         if pin:
             pin_token = self.client.pin_protocol.get_pin_token(pin)
             pin_auth = hmac_sha256(pin_token, dgst)[:16]
-            return self.ctap2.send_cbor(0x50, {1: dgst, 2: {"id": credential_id, "type": "public-key"}, 3: pin_auth})
+            return self.ctap2.send_cbor(
+                0x50,
+                {1: dgst, 2: {"id": credential_id, "type": "public-key"}, 3: pin_auth},
+            )
         else:
-            return self.ctap2.send_cbor(0x50, {1: dgst, 2: {"id": credential_id, "type": "public-key"}})
+            return self.ctap2.send_cbor(
+                0x50, {1: dgst, 2: {"id": credential_id, "type": "public-key"}}
+            )
 
     def program_file(self, name):
         def parseField(f):
