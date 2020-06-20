@@ -13,10 +13,10 @@ import click
 
 import json
 
-import nitrokey
-import nitrokey.operations
-from nitrokey.cli.fido2 import fido2
-from nitrokey.cli.start import start
+import pynitrokey
+import pynitrokey.operations
+from pynitrokey.cli.fido2 import fido2
+from pynitrokey.cli.start import start
 
 from . import _patches  # noqa  (since otherwise "unused")
 
@@ -25,7 +25,7 @@ if (os.name == "posix") and os.environ.get("ALLOW_ROOT") is None:
         print("THIS COMMAND SHOULD NOT BE RUN AS ROOT!")
         print()
         print(
-            "Please install udev rules and run `nitrokey` as regular user (without sudo)."
+            "Please install udev rules and run `pynitrokey` as regular user (without sudo)."
         )
         print(
             "We suggest using: https://github.com/solokeys/solo/blob/master/udev/70-solokeys-access.rules"
@@ -35,21 +35,21 @@ if (os.name == "posix") and os.environ.get("ALLOW_ROOT") is None:
 
 
 @click.group()
-def solo_cli():
+def nitropy():
     pass
 
 
-solo_cli.add_command(fido2)
-solo_cli.add_command(start)
+nitropy.add_command(fido2)
+nitropy.add_command(start)
 
 
 @click.command()
 def version():
     """Version of python-solo library and tool."""
-    print(nitrokey.__version__)
+    print(pynitrokey.__version__)
 
 
-solo_cli.add_command(version)
+nitropy.add_command(version)
 
 
 @click.command()
@@ -65,7 +65,7 @@ def genkey(input_seed_file, output_pem_file):
     * You may optionally supply a file to seed the RNG for key generating.
     """
 
-    vk = nitrokey.operations.genkey(output_pem_file, input_seed_file=input_seed_file)
+    vk = pynitrokey.operations.genkey(output_pem_file, input_seed_file=input_seed_file)
 
     print("Public key in various formats:")
     print()
@@ -77,7 +77,7 @@ def genkey(input_seed_file, output_pem_file):
     print()
 
 
-solo_cli.add_command(genkey)
+nitropy.add_command(genkey)
 
 
 @click.command()
@@ -88,13 +88,13 @@ solo_cli.add_command(genkey)
 def sign(verifying_key, app_hex, output_json, end_page):
     """Signs a firmware hex file, outputs a .json file that can be used for signed update."""
 
-    msg = nitrokey.operations.sign_firmware(verifying_key, app_hex, APPLICATION_END_PAGE=end_page)
+    msg = pynitrokey.operations.sign_firmware(verifying_key, app_hex, APPLICATION_END_PAGE=end_page)
     print("Saving signed firmware to", output_json)
     with open(output_json, "wb+") as fh:
         fh.write(json.dumps(msg).encode())
 
 
-solo_cli.add_command(sign)
+nitropy.add_command(sign)
 
 
 @click.command()
@@ -123,7 +123,7 @@ def mergehex(
     If no attestation key is passed, uses default Solo Hacker one.  <---- TODO: remove?
     Note that later hex files replace data of earlier ones, if they overlap.
     """
-    nitrokey.operations.mergehex(
+    pynitrokey.operations.mergehex(
         input_hex_files,
         output_hex_file,
         attestation_key=attestation_key,
@@ -133,7 +133,7 @@ def mergehex(
     )
 
 
-solo_cli.add_command(mergehex)
+nitropy.add_command(mergehex)
 
 
 @click.command()
@@ -143,7 +143,7 @@ def ls():
     fido2.commands["list"].callback()
     start.commands["list"].callback()
 
-solo_cli.add_command(ls)
+nitropy.add_command(ls)
 
 from pygments.console import colorize
 print(f'*** {colorize("red", "Nitrokey tool for Nitrokey FIDO2 & Nitrokey Start")}')

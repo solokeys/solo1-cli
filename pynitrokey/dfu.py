@@ -10,11 +10,11 @@
 import struct
 import time
 
-import nitrokey.exceptions
+import pynitrokey.exceptions
 import usb._objfinalizer
 import usb.core
 import usb.util
-from nitrokey.commands import DFU, STM32L4
+from pynitrokey.commands import DFU, STM32L4
 
 
 def find(dfu_serial=None, attempts=8, raw_device=None, altsetting=1):
@@ -86,7 +86,7 @@ class DFUDevice:
                     d for d in devs if ser == usb.util.get_string(d, d.iSerialNumber)
                 ]
                 if len(eligible) > 1:
-                    raise nitrokey.exceptions.NonUniqueDeviceError
+                    raise pynitrokey.exceptions.NonUniqueDeviceError
                 if len(eligible) == 0:
                     raise RuntimeError("No ST DFU devices found.")
 
@@ -97,7 +97,7 @@ class DFUDevice:
                     usb.core.find(idVendor=0x0483, idProduct=0xDF11, find_all=True)
                 )
                 if len(eligible) > 1:
-                    raise nitrokey.exceptions.NonUniqueDeviceError
+                    raise pynitrokey.exceptions.NonUniqueDeviceError
                 if len(eligible) == 0:
                     raise RuntimeError("No ST DFU devices found.")
                 self.dev = eligible[0]

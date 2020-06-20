@@ -16,10 +16,10 @@ import time
 
 import click
 import requests
-import nitrokey
+import pynitrokey
 from fido2.ctap import CtapError
 from fido2.ctap1 import ApduError
-from nitrokey import helpers
+from pynitrokey import helpers
 
 
 @click.command()

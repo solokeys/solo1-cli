@@ -1,6 +1,6 @@
 .PHONY: black build clean publish reinstall
 
-PACKAGE_NAME=nitrokey
+PACKAGE_NAME=pynitrokey
 VENV=venv
 
 
@@ -59,6 +59,8 @@ $(VENV):
 update-venv: $(VENV)
 	$(VENV)/bin/python3 -m pip install -U pip
 	$(VENV)/bin/python3 -m pip install -U -r dev-requirements.txt
+	find $(VENV) -name flit
+	find $(VENV)
 	$(VENV)/bin/flit install --symlink
 
 .PHONY: CI
