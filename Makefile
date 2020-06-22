@@ -66,6 +66,8 @@ CI:
 	env FLIT_ROOT_INSTALL=1 $(MAKE) init VENV=$(VENV)
 	env FLIT_ROOT_INSTALL=1 $(MAKE) build-forced VENV=$(VENV)
 	$(MAKE) check || true
+	$(VENV)/bin/nitropy --help
+	$(VENV)/bin/nitropy
 
 .PHONY: build-CI-test
 build-CI-test:
