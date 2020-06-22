@@ -31,7 +31,7 @@ import pynitrokey.operations
 # https://pocoo-click.readthedocs.io/en/latest/commands/#nested-handling-and-contexts
 @click.group()
 def fido2():
-    """Interact with Nitrokey keys, see subcommands."""
+    """Interact with Nitrokey FIDO2 keys, see subcommands."""
     pass
 
 
