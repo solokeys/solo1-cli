@@ -237,7 +237,7 @@ def feedkernel(count, serial):
 @click.command()
 @click.option("-s", "--serial", help="Serial number of Nitrokey use")
 @click.option(
-    "--host", help="Relying party's host", default="solokeys.dev", show_default=True
+    "--host", help="Relying party's host", default="nitrokeys.dev", show_default=True
 )
 @click.option("--user", help="User ID", default="they", show_default=True)
 @click.option(
@@ -264,7 +264,7 @@ def make_credential(serial, host, user, udp, prompt):
 
 @click.command()
 @click.option("-s", "--serial", help="Serial number of Nitrokey use")
-@click.option("--host", help="Relying party's host", default="solokeys.dev")
+@click.option("--host", help="Relying party's host", default="nitrokeys.dev")
 @click.option("--user", help="User ID", default="they")
 @click.option(
     "--udp", is_flag=True, default=False, help="Communicate over UDP with software key"
@@ -285,7 +285,7 @@ def challenge_response(serial, host, user, prompt, credential_id, challenge, udp
     a 32 byte value is expected (in original usage, it's a salt).
 
     This means that we first need to setup a credential_id; this depends on the
-    specific authenticator used. To do this, use `solo key make-credential`.
+    specific authenticator used. To do this, use `nitropy fido2 make-credential`.
 
     If so desired, user and relying party can be changed from the defaults.
 
@@ -445,12 +445,12 @@ def verify(pin, serial, udp):
             print(
                 "Your key's PIN is blocked. To use it again, you need to fully reset it."
             )
-            print("You can do this using: `solo key reset`")
+            print("You can do this using: `nitropy fido2 reset`")
             sys.exit(1)
         # error 0x01
         if "INVALID_COMMAND" in cause:
             print("Error getting credential, is your key in bootloader mode?")
-            print("Try: `solo program aux leave-bootloader`")
+            print("Try: `nitropy fido2 util program aux leave-bootloader`")
             sys.exit(1)
         raise
 

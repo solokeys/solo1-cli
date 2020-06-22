@@ -17,7 +17,7 @@ from fido2.extensions import HmacSecretExtension
 
 
 def make_credential(
-    host="solokeys.dev",
+    host="nitrokeys.dev",
     user_id="they",
     serial=None,
     pin=None,
@@ -54,7 +54,7 @@ def make_credential(
 def simple_secret(
     credential_id,
     secret_input,
-    host="solokeys.dev",
+    host="nitrokeys.dev",
     user_id="they",
     serial=None,
     pin=None,

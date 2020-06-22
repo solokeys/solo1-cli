@@ -25,13 +25,13 @@ if (os.name == "posix") and os.environ.get("ALLOW_ROOT") is None:
         print("THIS COMMAND SHOULD NOT BE RUN AS ROOT!")
         print()
         print(
-            "Please install udev rules and run `pynitrokey` as regular user (without sudo)."
+            "Please install udev rules and run `nitropy` as regular user (without sudo)."
         )
         print(
-            "We suggest using: https://github.com/solokeys/solo/blob/master/udev/70-solokeys-access.rules"
+            "We suggest using: https://raw.githubusercontent.com/Nitrokey/libnitrokey/master/data/41-nitrokey.rules"
         )
         print()
-        print("For more information, see: https://docs.solokeys.io/solo/udev/")
+        print("For more information, see: https://www.nitrokey.com/documentation/installation#p:nitrokey-fido2&os:linux")
 
 
 @click.group()
@@ -45,7 +45,7 @@ nitropy.add_command(start)
 
 @click.command()
 def version():
-    """Version of python-solo library and tool."""
+    """Version of pynitrokey library and tool."""
     print(pynitrokey.__version__)
 
 
