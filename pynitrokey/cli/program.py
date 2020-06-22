@@ -11,10 +11,10 @@ import sys
 import time
 
 import click
-import nitrokey
+import pynitrokey
 import usb
 from fido2.ctap import CtapError
-from nitrokey.dfu import hot_patch_windows_libusb
+from pynitrokey.dfu import hot_patch_windows_libusb
 
 
 @click.group()
@@ -59,7 +59,7 @@ def dfu(serial, connect_attempts, detach, dry_run, firmware):
     from intelhex import IntelHex
     import usb.core
 
-    dfu = nitrokey.dfu.find(serial, attempts=connect_attempts)
+    dfu = pynitrokey.dfu.find(serial, attempts=connect_attempts)
 
     if dfu is None:
         print("No STU DFU device found.")
@@ -145,7 +145,7 @@ program.add_command(dfu)
 @click.argument("firmware")  # , help="firmware (bundle) to program")
 def check_only(serial, firmware):
     """Validate currently flashed firmware, and run on success. Bootloader only."""
-    p = nitrokey.client.find(serial)
+    p = pynitrokey.client.find(serial)
     try:
         p.use_hid()
         p.program_file(firmware)
@@ -181,7 +181,7 @@ def bootloader(serial, firmware):
     Enter bootloader mode using `solo program aux enter-bootloader` first.
     """
 
-    p = nitrokey.client.find(serial)
+    p = pynitrokey.client.find(serial)
     try:
         p.use_hid()
         p.program_file(firmware)
@@ -195,7 +195,7 @@ def bootloader(serial, firmware):
 
         print("Nitrokey rebooted.  Reconnecting...")
         time.sleep(0.5)
-        p = nitrokey.client.find(serial)
+        p = pynitrokey.client.find(serial)
         if p is None:
             print("Cannot find Nitrokey device.")
             sys.exit(1)
@@ -216,13 +216,13 @@ program.add_command(aux)
 
 
 def _enter_bootloader(serial):
-    p = nitrokey.client.find(serial)
+    p = pynitrokey.client.find(serial)
 
     p.enter_bootloader_or_die()
 
     print("Nitrokey rebooted.  Reconnecting...")
     time.sleep(0.5)
-    if nitrokey.client.find(serial) is None:
+    if pynitrokey.client.find(serial) is None:
         raise RuntimeError("Failed to reconnect!")
 
 
@@ -245,9 +245,9 @@ aux.add_command(enter_bootloader)
 @click.option("-s", "--serial", help="Serial number of Nitrokey to use")
 def leave_bootloader(serial):
     """Switch from Nitrokey bootloader to Nitrokey firmware."""
-    p = nitrokey.client.find(serial)
+    p = pynitrokey.client.find(serial)
     # this is a bit too low-level...
-    # p.exchange(nitrokey.commands.SoloBootloader.done, 0, b"A" * 64)
+    # p.exchange(pynitrokey.commands.SoloBootloader.done, 0, b"A" * 64)
     p.reboot()
 
 
@@ -263,7 +263,7 @@ def enter_dfu(serial):
     take effect after a powercycle.
     """
 
-    p = nitrokey.client.find(serial)
+    p = pynitrokey.client.find(serial)
     p.enter_st_dfu()
     # this doesn't really work yet ;)
     # p.reboot()
@@ -286,7 +286,7 @@ def leave_dfu(serial):
 
     """
 
-    dfu = nitrokey.dfu.find(serial)  # select option bytes
+    dfu = pynitrokey.dfu.find(serial)  # select option bytes
     dfu.init()
     dfu.prepare_options_bytes_detach()
     try:
@@ -313,7 +313,7 @@ def reboot(serial):
 
     # this implementation actually only works for bootloader
     # firmware doesn't have a reboot command
-    nitrokey.client.find(serial).reboot()
+    pynitrokey.client.find(serial).reboot()
 
 
 aux.add_command(reboot)
@@ -323,7 +323,7 @@ aux.add_command(reboot)
 @click.option("-s", "--serial", help="Serial number of Nitrokey to use")
 def bootloader_version(serial):
     """Version of bootloader."""
-    p = nitrokey.client.find(serial)
+    p = pynitrokey.client.find(serial)
     print(".".join(map(str, p.bootloader_version())))
 
 

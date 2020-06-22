@@ -14,7 +14,7 @@ import sys
 import tempfile
 import time
 
-import nitrokey.exceptions
+import pynitrokey.exceptions
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 from fido2.attestation import Attestation
@@ -25,14 +25,14 @@ from fido2.ctap2 import CTAP2
 from fido2.hid import CTAPHID, CtapHidDevice
 from fido2.utils import Timeout
 from intelhex import IntelHex
-from nitrokey import helpers
-from nitrokey.commands import SoloBootloader, SoloExtension
+from pynitrokey import helpers
+from pynitrokey.commands import SoloBootloader, SoloExtension
 
 
 def find(solo_serial=None, retries=5, raw_device=None, udp=False):
 
     if udp:
-        nitrokey.fido2.force_udp_backend()
+        pynitrokey.fido2.force_udp_backend()
 
     # TODO: change `p` (for programmer) throughout
     p = SoloClient()

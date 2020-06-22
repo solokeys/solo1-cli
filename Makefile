@@ -1,6 +1,6 @@
 .PHONY: black build clean publish reinstall
 
-PACKAGE_NAME=nitrokey
+PACKAGE_NAME=pynitrokey
 VENV=venv
 
 
@@ -9,20 +9,20 @@ init: update-venv
 
 # ensure this passes before commiting
 check: lint
-	$(VENV)/bin/black --check $(PACKAGE_NAME)/
-	$(VENV)/bin/isort --check-only --recursive $(PACKAGE_NAME)/
+	$(VENV)/bin/python3 -m black --check $(PACKAGE_NAME)/
+	$(VENV)/bin/python3 -m isort --check-only --recursive $(PACKAGE_NAME)/
 
 # automatic code fixes
 fix: black isort
 
 black:
-	$(VENV)/bin/black $(PACKAGE_NAME)/
+	$(VENV)/bin/python3 -m black $(PACKAGE_NAME)/
 
 isort:
-	$(VENV)/bin/isort -y --recursive $(PACKAGE_NAME)/
+	$(VENV)/bin/python3 -m isort -y --recursive $(PACKAGE_NAME)/
 
 lint:
-	$(VENV)/bin/flake8 $(PACKAGE_NAME)/
+	$(VENV)/bin/python3 -m flake8 $(PACKAGE_NAME)/
 
 semi-clean:
 	rm -rf **/__pycache__
@@ -42,13 +42,13 @@ tag:
 
 .PHONY: build-forced
 build-forced:
-	$(VENV)/bin/flit build
+	$(VENV)/bin/python3 -m flit build
 
 build: check
-	$(VENV)/bin/flit build
+	$(VENV)/bin/python3 -m flit build
 
 publish: check
-	$(VENV)/bin/flit --repository pypi publish
+	$(VENV)/bin/python3 -m flit --repository pypi publish
 
 $(VENV):
 	python3 -m venv $(VENV)
@@ -59,7 +59,7 @@ $(VENV):
 update-venv: $(VENV)
 	$(VENV)/bin/python3 -m pip install -U pip
 	$(VENV)/bin/python3 -m pip install -U -r dev-requirements.txt
-	$(VENV)/bin/flit install --symlink
+	$(VENV)/bin/python3 -m flit install --symlink
 
 .PHONY: CI
 CI:

@@ -3,8 +3,8 @@ requires = ["flit"]
 build-backend = "flit.buildapi"
 
 [tool.flit.metadata]
-module = "nitrokey"
-dist-name = "nitro-python"
+module = "pynitrokey"
+dist-name = "pynitrokey"
 author = "Nitrokey"
 author-email = "info@nitrokey.com"
 home-page = "https://github.com/Nitrokey/nitro-python"
@@ -32,4 +32,4 @@ classifiers=[
 ]
 
 [tool.flit.scripts]
-nitrokey = "nitrokey.cli:solo_cli"
+nitropy = "pynitrokey.cli:nitropy"

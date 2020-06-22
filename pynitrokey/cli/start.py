@@ -13,12 +13,12 @@ from subprocess import check_output
 
 import click
 
-from nitrokey.start.gnuk_token import get_gnuk_device
-from nitrokey.start.usb_strings import get_devices as get_devices_strings
+from pynitrokey.start.gnuk_token import get_gnuk_device
+from pynitrokey.start.usb_strings import get_devices as get_devices_strings
 
-from nitrokey.start.upgrade_by_passwd import validate_gnuk, validate_regnual, logger, \
+from pynitrokey.start.upgrade_by_passwd import validate_gnuk, validate_regnual, logger, \
     start_update, DEFAULT_WAIT_FOR_REENUMERATION, DEFAULT_PW3, IS_LINUX
-from nitrokey.start.threaded_log import ThreadLog
+from pynitrokey.start.threaded_log import ThreadLog
 
 from usb.core import USBError
 
