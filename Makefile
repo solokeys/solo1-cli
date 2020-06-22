@@ -68,6 +68,8 @@ CI:
 	$(MAKE) check || true
 	env LC_ALL=C.UTF-8 LANG=C.UTF-8 $(VENV)/bin/nitropy --help
 	env LC_ALL=C.UTF-8 LANG=C.UTF-8 $(VENV)/bin/nitropy
+	env LC_ALL=C.UTF-8 LANG=C.UTF-8 $(VENV)/bin/nitropy version
+	git describe
 
 .PHONY: build-CI-test
 build-CI-test:
