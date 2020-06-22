@@ -51,7 +51,7 @@ def dfu(serial, connect_attempts, detach, dry_run, firmware):
     """Program via STMicroelectronics DFU interface.
 
 
-    Enter dfu mode using `solo program aux enter-dfu` first.
+    Enter dfu mode using `nitropy fido2 util program aux enter-dfu` first.
     """
 
     import time
@@ -178,7 +178,7 @@ def bootloader(serial, firmware):
     match the bootloader's verifying key, you will be stuck in bootloader
     mode until you find a signed firmware that does match.
 
-    Enter bootloader mode using `solo program aux enter-bootloader` first.
+    Enter bootloader mode using `nitropy fido2 util program aux enter-bootloader` first.
     """
 
     p = pynitrokey.client.find(serial)

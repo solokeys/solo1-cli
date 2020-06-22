@@ -25,13 +25,13 @@ if (os.name == "posix") and os.environ.get("ALLOW_ROOT") is None:
         print("THIS COMMAND SHOULD NOT BE RUN AS ROOT!")
         print()
         print(
-            "Please install udev rules and run `pynitrokey` as regular user (without sudo)."
+            "Please install udev rules and run `nitropy` as regular user (without sudo)."
         )
         print(
-            "We suggest using: https://github.com/solokeys/solo/blob/master/udev/70-solokeys-access.rules"
+            "We suggest using: https://raw.githubusercontent.com/Nitrokey/libnitrokey/master/data/41-nitrokey.rules"
         )
         print()
-        print("For more information, see: https://docs.solokeys.io/solo/udev/")
+        print("For more information, see: https://www.nitrokey.com/documentation/installation#p:nitrokey-fido2&os:linux")
 
 
 @click.group()
@@ -45,95 +45,13 @@ nitropy.add_command(start)
 
 @click.command()
 def version():
-    """Version of python-solo library and tool."""
+    """Version of pynitrokey library and tool."""
     print(pynitrokey.__version__)
 
 
 nitropy.add_command(version)
 
 
-@click.command()
-@click.option("--input-seed-file")
-@click.argument("output_pem_file")
-def genkey(input_seed_file, output_pem_file):
-    """Generates key pair that can be used for Nitrokey signed firmware updates.
-
-    \b
-    * Generates NIST P256 keypair.
-    * Public key must be copied into correct source location in Nitrokey's bootloader
-    * The private key can be used for signing updates.
-    * You may optionally supply a file to seed the RNG for key generating.
-    """
-
-    vk = pynitrokey.operations.genkey(output_pem_file, input_seed_file=input_seed_file)
-
-    print("Public key in various formats:")
-    print()
-    print([c for c in vk.to_string()])
-    print()
-    print("".join(["%02x" % c for c in vk.to_string()]))
-    print()
-    print('"\\x' + "\\x".join(["%02x" % c for c in vk.to_string()]) + '"')
-    print()
-
-
-nitropy.add_command(genkey)
-
-
-@click.command()
-@click.argument("verifying-key")
-@click.argument("app-hex")
-@click.argument("output-json")
-@click.option("--end_page", help="Set APPLICATION_END_PAGE. Should be in sync with firmware settings.", default=20, type=int)
-def sign(verifying_key, app_hex, output_json, end_page):
-    """Signs a firmware hex file, outputs a .json file that can be used for signed update."""
-
-    msg = pynitrokey.operations.sign_firmware(verifying_key, app_hex, APPLICATION_END_PAGE=end_page)
-    print("Saving signed firmware to", output_json)
-    with open(output_json, "wb+") as fh:
-        fh.write(json.dumps(msg).encode())
-
-
-nitropy.add_command(sign)
-
-
-@click.command()
-@click.option("--attestation-key", help="attestation key in hex")
-@click.option("--attestation-cert", help="attestation certificate file")
-@click.option(
-    "--lock",
-    help="Indicate to lock device from unsigned changes permanently.",
-    default=False,
-    is_flag=True,
-)
-@click.argument("input_hex_files", nargs=-1)
-@click.argument("output_hex_file")
-@click.option(
-    "--end_page",
-    help="Set APPLICATION_END_PAGE. Should be in sync with firmware settings.",
-    default=20,
-    type=int,
-)
-def mergehex(
-    attestation_key, attestation_cert, lock, input_hex_files, output_hex_file, end_page
-):
-    """Merges hex files, and patches in the attestation key.
-
-    \b
-    If no attestation key is passed, uses default Solo Hacker one.  <---- TODO: remove?
-    Note that later hex files replace data of earlier ones, if they overlap.
-    """
-    pynitrokey.operations.mergehex(
-        input_hex_files,
-        output_hex_file,
-        attestation_key=attestation_key,
-        APPLICATION_END_PAGE=end_page,
-        attestation_cert=attestation_cert,
-        lock=lock,
-    )
-
-
-nitropy.add_command(mergehex)
 
 
 @click.command()

@@ -20,37 +20,37 @@ Automatic firmware update is not configured, since we plan to use browser-based 
 It is possible to run the update with this tool by hand, e.g. by executing:
 ```bash
 # enter bootloader
-nitrokey program aux enter-bootloader
-nitrokey program aux bootloader-version
+nitropy fido2 util program aux enter-bootloader
+nitropy fido2 util program aux bootloader-version
 # download firmware by hand
 wget https://github.com/Nitrokey/nitrokey-fido2-firmware/releases/download/1.1.0.nitrokey/fido2-firmware-1.1.0.nitrokey-app-signed.json
 # and program it through the bootloader:
-nitrokey program bootloader fido2-firmware-1.1.0.nitrokey-app-signed.json
-nitrokey program aux leave-bootloader
+nitropy fido2 util program bootloader fido2-firmware-1.1.0.nitrokey-app-signed.json
+nitropy fido2 util program aux leave-bootloader
 # test key
-nitrokey key verify
+nitropy fido2 verify
 ```
 ### Nitrokey Start
 
 Here is brief guide for the Nitrokey Start automatic firmware download and update:
 ```
-# install the current alpha package
-$ pip3 install https://github.com/Nitrokey/nitro-python/releases/download/0.2.0.nitrokey/nitro_python-0.2.0-py3-none-any.whl
+# install package
+$ pip3 install pynitrokey
 
 # verify installation and device connection
-$ nitrokey version
-0.2.0
-$ nitrokey start list
+$ nitropy version
+0.3.0
+$ nitropy start list
 FSIJ-1.2.15-87042524: Nitrokey Nitrokey Start (RTM.10)
 
 # starts update process, logs saved to upgrade.log, handy in case of failure
-$ nitrokey start update
+$ nitropy start update
 
 # does not ask for confirmation nor the default Admin PIN, handy for batch calls
-$ nitrokey start update -p 12345678 -y
+$ nitropy start update -p 12345678 -y
 
 # following will flash files from the local disk, instead of downloading them
-$ nitrokey start update --regnual $(FIRMWARE_DIR)/regnual.bin --gnuk ${FIRMWARE_DIR}/gnuk.bin
+$ nitropy start update --regnual $(FIRMWARE_DIR)/regnual.bin --gnuk ${FIRMWARE_DIR}/gnuk.bin
 ```
 
 
