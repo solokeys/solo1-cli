@@ -12,4 +12,4 @@ firmware-*.json
 *.pyc
 .tags*
 .idea/
-
+*.log
