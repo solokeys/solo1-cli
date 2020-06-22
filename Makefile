@@ -66,8 +66,8 @@ CI:
 	env FLIT_ROOT_INSTALL=1 $(MAKE) init VENV=$(VENV)
 	env FLIT_ROOT_INSTALL=1 $(MAKE) build-forced VENV=$(VENV)
 	$(MAKE) check || true
-	$(VENV)/bin/nitropy --help
-	$(VENV)/bin/nitropy
+	env LC_ALL=C.UTF-8 LANG=C.UTF-8 $(VENV)/bin/nitropy --help
+	env LC_ALL=C.UTF-8 LANG=C.UTF-8 $(VENV)/bin/nitropy
 
 .PHONY: build-CI-test
 build-CI-test:
