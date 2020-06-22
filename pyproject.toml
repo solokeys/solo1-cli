@@ -7,7 +7,7 @@ module = "pynitrokey"
 dist-name = "pynitrokey"
 author = "Nitrokey"
 author-email = "info@nitrokey.com"
-home-page = "https://github.com/Nitrokey/nitro-python"
+home-page = "https://github.com/Nitrokey/pynitrokey"
 requires-python = ">=3.6"
 description-file = "README.md"
 requires = [
