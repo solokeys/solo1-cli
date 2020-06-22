@@ -48,7 +48,7 @@ def find(solo_serial=None, retries=5, raw_device=None, udp=False):
             time.sleep(0.2)
 
     # return None
-    raise solo.exceptions.NoSoloFoundError("no Nitrokey found")
+    raise pynitrokey.exceptions.NoSoloFoundError("no Nitrokey found")
 
 
 def find_all():
@@ -98,7 +98,7 @@ class SoloClient:
                     d for d in devices if d.descriptor["serial_number"] == solo_serial
                 ]
             if len(devices) > 1:
-                raise solo.exceptions.NonUniqueDeviceError
+                raise pynitrokey.exceptions.NonUniqueDeviceError
             if len(devices) == 0:
                 raise RuntimeError("No FIDO device found")
             dev = devices[0]
