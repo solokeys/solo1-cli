@@ -24,6 +24,7 @@ License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
+import tempfile
 
 IMPORT_ERROR_HELP = """
 Some required modules are missing from this environment.
@@ -70,7 +71,7 @@ from pynitrokey.start.rsa_pub_key import rsa_key_data
 
 LOG_FORMAT_STDOUT = '*** %(asctime)-15s %(levelname)6s %(name)10s %(message)s'
 LOG_FORMAT = '%(relativeCreated)-8d %(levelname)6s %(name)10s %(message)s'
-UPGRADE_LOG_FN = 'upgrade.log'
+UPGRADE_LOG_FN = tempfile.NamedTemporaryFile(prefix="nitropy.log.").name
 # This should be event driven, not guessing some period, or polling.
 TIME_DETECT_DEVICE_AFTER_UPDATE_LONG_S = 5
 TIME_DETECT_DEVICE_AFTER_UPDATE_S = 30
