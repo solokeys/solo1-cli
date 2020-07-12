@@ -15,20 +15,11 @@ Differences:
 
 ## Firmware update (manual)
 ### Nitrokey FIDO2
-Automatic firmware update is not configured, since we plan to use browser-based application to do so. See https://update.nitrokey.com for details.
+Automatic firmware update is prefered via https://update.nitrokey.com.
 
-It is possible to run the update with this tool by hand, e.g. by executing:
+Apart from that it is also possible to update the Nitrokey FIDO2 using:
 ```bash
-# enter bootloader
-nitropy fido2 util program aux enter-bootloader
-nitropy fido2 util program aux bootloader-version
-# download firmware by hand
-wget https://github.com/Nitrokey/nitrokey-fido2-firmware/releases/download/1.1.0.nitrokey/fido2-firmware-1.1.0.nitrokey-app-signed.json
-# and program it through the bootloader:
-nitropy fido2 util program bootloader fido2-firmware-1.1.0.nitrokey-app-signed.json
-nitropy fido2 util program aux leave-bootloader
-# test key
-nitropy fido2 verify
+nitropy fido2 update
 ```
 ### Nitrokey Start
 
@@ -39,7 +30,7 @@ $ pip3 install pynitrokey
 
 # verify installation and device connection
 $ nitropy version
-0.3.0
+0.3.2
 $ nitropy start list
 FSIJ-1.2.15-87042524: Nitrokey Nitrokey Start (RTM.10)
 
