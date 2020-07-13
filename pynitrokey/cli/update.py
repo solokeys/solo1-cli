@@ -39,9 +39,7 @@ def update(serial):
         print("No Nitrokey key found!")
         print()
         print("If you are on Linux, are your udev rules up to date?")
-        print("Try adding a rule line such as the following:")
-        print('ATTRS{idVendor}=="0483", ATTRS{idProduct}=="a2ca", TAG+="uaccess"')
-        print("For more, see https://docs.solokeys.io/solo/udev/")
+        print("For more, see https://www.nitrokey.com/documentation/installation#os:linux")
         print()
         sys.exit(1)
     except pynitrokey.exceptions.NonUniqueDeviceError:
