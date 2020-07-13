@@ -10,72 +10,95 @@
 import os
 import click
 import requests
-import re
+import sys
 import tempfile
-from pynitrokey.cli.program import program
+import json
+import time
+
+import pynitrokey
 from fido2.ctap import CtapError
 from fido2.ctap1 import ApduError
 
 
 @click.command()
-@click.option("-s", "--serial", help="Serial number of Nitrokey key to target")
-@click.option(
-    "-y", "--yes", is_flag=True, help="Don't ask for confirmation before flashing"
-)
-@click.option(
-    "-lfs",
-    "--local-firmware-server",
-    is_flag=True,
-    default=False,
-    hidden=True,
-    help="Development option: pull firmware from http://localhost:8000",
-)
-@click.option(
-    "--alpha",
-    is_flag=True,
-    default=False,
-    hidden=True,
-    help="Development option: use release refered to by ALPHA_VERSION",
-)
-def update(serial, yes, local_firmware_server, alpha):
+@click.option("-s", "--serial", help="Serial number of Nitrokey key to target",
+              default=None)
+def update(serial):
     """Update Nitrokey key to latest firmware version."""
 
     #update_url = 'https://update.nitrokey.com/'
     #print('Please use {} to run the firmware update'.format(update_url))
     #return
 
+    # Determine target key
+    try:
+        client = pynitrokey.client.find(serial)
 
-    latest_release_url = "https://github.com/Nitrokey/nitrokey-fido2-firmware/releases/latest"
+    except pynitrokey.exceptions.NoSoloFoundError:
+        print()
+        print("No Nitrokey key found!")
+        print()
+        print("If you are on Linux, are your udev rules up to date?")
+        print("Try adding a rule line such as the following:")
+        print('ATTRS{idVendor}=="0483", ATTRS{idProduct}=="a2ca", TAG+="uaccess"')
+        print("For more, see https://docs.solokeys.io/solo/udev/")
+        print()
+        sys.exit(1)
+    except pynitrokey.exceptions.NonUniqueDeviceError:
+        print()
+        print("Multiple Nitrokey keys are plugged in! Please:")
+        print("  * unplug all but one key")
+        print()
+        sys.exit(1)
+    except Exception:
+        print()
+        print("Unhandled error connecting to key.")
+        print("Please report via https://github.com/Nitrokey/pynitrokey/issues/")
+        print()
+        sys.exit(1)
 
-    web_data = requests.get(latest_release_url)
-
-    res = re.findall(r'a href="([^"]+)"', web_data.text)
-    _url = None
-    for item in res:
-        if "firmware" in item and "download" in item and item.endswith(".json"):
-            _url = item
+    # determine asset url: we want the (signed) json file
+    api_url = "https://api.github.com/repos/Nitrokey/nitrokey-fido2-firmware/releases/latest"
+    assets = [(x["name"], x["browser_download_url"])
+              for x in json.loads(requests.get(api_url).text)["assets"]]
+    download_url = None
+    for fn, url in assets:
+        if fn.endswith(".json"):
+            download_url = url
             break
-    download_url = f"https://github.com{_url}"
+    if download_url is None:
+        print("Failed to determine latest release")
+        return
+
+    # download asset url
+    print("Downloading latest firmware")
     tmp_dir = tempfile.gettempdir()
     fw_fn = os.path.join(tmp_dir, "fido2_firmware.json")
     with open(fw_fn, "wb") as fd:
         firmware = requests.get(download_url)
         fd.write(firmware.content)
 
-    print("entering bootloader mode - please confirm by touching the device's button")
-    program.commands["aux"].commands["enter-bootloader"].callback(None)
+    # Ensure we are in bootloader mode
+    if client.is_solo_bootloader():
+        print("Key already in bootloader mode, continuing...")
+    else:
+        print("Entering bootloader mode, please confirm with button on key!")
+        client.enter_bootloader_or_die()
+        time.sleep(0.5)
 
-    program.commands["aux"].commands["bootloader-version"].callback(None)
-
-    print("updating Nitrokey FIDO2 using bootloader mode")
-    program.commands["bootloader"].callback(None, fw_fn)
-
-    # ensure that we are not stuck in bootloader mode...
+    # reconnect and actually flash it...
     try:
-        program.commands["aux"].commands["leave-bootloader"].callback(None)
-        print("had to leave bootloader explicitly, please check firware version:")
-        print("$ nitropy fido2 verify")
-    except CtapError as e:
-        pass
+        client = pynitrokey.client.find(serial)
+        client.use_hid()
+        client.program_file(fw_fn)
+    except Exception as e:
+        print("ERROR - problem flashing firmware:")
+        print(e)
+        sys.exit(1)
+    print("Congratulations, your key was updated to the latest firmware.")
+
+
+
+
 
 
