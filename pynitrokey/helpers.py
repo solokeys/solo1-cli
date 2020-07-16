@@ -30,9 +30,10 @@ LOG_FORMAT = '%(relativeCreated)-8d %(levelname)6s %(name)10s %(message)s'
 logging.basicConfig(format=LOG_FORMAT, level=logging.DEBUG, filename=UPGRADE_LOG_FN)
 logger = logging.getLogger()
 
-def local_print(message: str = '', **kwargs):
+def local_print(message: str = '', exc: Exception=None, **kwargs):
     if message and message != '.':
-        logger.debug('print: {}'.format(message.strip()))
+        if exc:
+            logger.exception(message, exc_info=exc)
+        else:
+            logger.debug('print: {}'.format(message.strip()))
     print(message, **kwargs)
-
-

@@ -36,23 +36,23 @@ def update(serial, yes):
     try:
         client = pynitrokey.client.find(serial)
 
-    except pynitrokey.exceptions.NoSoloFoundError:
+    except pynitrokey.exceptions.NoSoloFoundError as e:
         print()
-        local_print("No Nitrokey key found!")
+        local_print("No Nitrokey key found!", exc=e)
         print()
         local_print("If you are on Linux, are your udev rules up to date?")
         local_print("For more, see https://www.nitrokey.com/documentation/installation#os:linux")
         print()
         sys.exit(1)
-    except pynitrokey.exceptions.NonUniqueDeviceError:
+    except pynitrokey.exceptions.NonUniqueDeviceError as e:
         print()
-        local_print("Multiple Nitrokey keys are plugged in! Please:")
-        local_print("  * unplug all but one key")
+        local_print("Multiple Nitrokey keys are plugged in!", exc=e)
+        local_print("Please unplug all but one key")
         print()
         sys.exit(1)
-    except Exception:
+    except Exception as e:
         print()
-        local_print("Unhandled error connecting to key.")
+        local_print("Unhandled error connecting to key.", exc=e)
         local_print("Please report via https://github.com/Nitrokey/pynitrokey/issues/")
         print()
         sys.exit(1)
@@ -96,8 +96,7 @@ def update(serial, yes):
             client.enter_bootloader_or_die()
             time.sleep(0.5)
         except Exception as e:
-            local_print("ERROR - problem switching to bootloader mode:")
-            local_print(str(e))
+            local_print("ERROR - problem switching to bootloader mode:", exc=e)
             sys.exit(1)
 
     # reconnect and actually flash it...
@@ -106,8 +105,7 @@ def update(serial, yes):
         client.use_hid()
         client.program_file(fw_fn)
     except Exception as e:
-        local_print("ERROR - problem flashing firmware:")
-        local_print(str(e))
+        local_print("ERROR - problem flashing firmware:", exc=e)
         sys.exit(1)
     local_print("Congratulations, your key was updated to the latest firmware.")
 
