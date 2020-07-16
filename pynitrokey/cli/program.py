@@ -17,19 +17,11 @@ from fido2.ctap import CtapError
 from pynitrokey.dfu import hot_patch_windows_libusb
 
 
+
 @click.group()
 def program():
     """Program a key."""
     pass
-
-
-# @click.command()
-# def ctap():
-#     """Program via CTAP (either CTAP1 or CTAP2) (assumes Nitrokey bootloader)."""
-#     pass
-
-
-# program.add_command(ctap)
 
 
 @click.command()

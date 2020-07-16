@@ -14,21 +14,11 @@ import sys
 import tempfile
 import json
 import time
-import logging
 
 import pynitrokey
 
-# @fixme: redundant copy from 'pynitrokey.start.upgrade_by_passwd'
-UPGRADE_LOG_FN = tempfile.NamedTemporaryFile(prefix="nitropy.log.").name
-LOG_FORMAT_STDOUT = '*** %(asctime)-15s %(levelname)6s %(name)10s %(message)s'
-LOG_FORMAT = '%(relativeCreated)-8d %(levelname)6s %(name)10s %(message)s'
-logging.basicConfig(format=LOG_FORMAT, level=logging.DEBUG, filename=UPGRADE_LOG_FN)
-logger = logging.getLogger()
+from pynitrokey.helpers import local_print
 
-def local_print(message: str = '', **kwargs):
-    if message and message != '.':
-        logger.debug('print: {}'.format(message.strip()))
-    print(message, **kwargs)
 
 
 @click.command()
@@ -93,7 +83,6 @@ def update(serial, yes):
         local_print('This will update your Nitrokey FIDO2...')
         answer = input('Do you want to continue? [yes/no]: ')
         local_print('Entered: "{}"'.format(answer))
-        logger.debug('Continue? "{}"'.format(answer))
         if answer != 'yes':
             local_print('Device is not modified. Exiting.')
             sys.exit(1)

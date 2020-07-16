@@ -68,10 +68,9 @@ from pynitrokey.start.threaded_log import ThreadLog
 from pynitrokey.start.usb_strings import get_devices, print_device
 from pynitrokey.start.rsa_pub_key import rsa_key_data
 
+from pynitrokey.helpers import local_print, UPGRADE_LOG_FN, LOG_FORMAT_STDOUT
 
-LOG_FORMAT_STDOUT = '*** %(asctime)-15s %(levelname)6s %(name)10s %(message)s'
-LOG_FORMAT = '%(relativeCreated)-8d %(levelname)6s %(name)10s %(message)s'
-UPGRADE_LOG_FN = tempfile.NamedTemporaryFile(prefix="nitropy.log.").name
+
 # This should be event driven, not guessing some period, or polling.
 TIME_DETECT_DEVICE_AFTER_UPDATE_LONG_S = 5
 TIME_DETECT_DEVICE_AFTER_UPDATE_S = 30
@@ -81,16 +80,9 @@ DEFAULT_WAIT_FOR_REENUMERATION = 20
 DEFAULT_PW3 = "12345678"
 BY_ADMIN = 3
 KEYNO_FOR_AUTH = 2
-logging.basicConfig(format=LOG_FORMAT, level=logging.DEBUG, filename=UPGRADE_LOG_FN)
-logger = logging.getLogger()
 IS_LINUX = platform.system() == "Linux"
 
-
-def local_print(message: str = '', **kwargs):
-    if message and message != '.':
-        logger.debug('print: {}'.format(message.strip()))
-    print(message, **kwargs)
-
+logger = logging.getLogger()
 
 def progress_func(x):
     x = x * 100
