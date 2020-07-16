@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - static password vendor command @rgerganov
 - sign-file vendor command @rgerganov
 - typo @lolaum
+- use `main` as main branch
 
 ## [0.0.24] - 2020-02-27
 ## Added
