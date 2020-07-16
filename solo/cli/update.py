@@ -92,7 +92,7 @@ def update(serial, yes, local_firmware_server, alpha):
         else:
             version_file = "STABLE_VERSION"
         fetch_url = (
-            f"https://raw.githubusercontent.com/solokeys/solo/main/{version_file}"
+            f"https://raw.githubusercontent.com/solokeys/solo/master/{version_file}"
         )
 
         r = requests.get(fetch_url)

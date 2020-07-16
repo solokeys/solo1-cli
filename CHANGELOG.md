@@ -6,7 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.0.25] - 2020-06-18
+## [0.0.25] - 2020-07-17
+- fix bungled reference to `STABLE_VERSION` file
+
+## [0.0.25] - 2020-07-17
 - credential management commands @rgerganov
 - static password vendor command @rgerganov
 - sign-file vendor command @rgerganov
