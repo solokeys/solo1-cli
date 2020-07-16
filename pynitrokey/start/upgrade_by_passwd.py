@@ -47,7 +47,7 @@ import hashlib
 import logging
 import os
 import time
-from sys import platform
+from sys import platform, exit
 from collections import defaultdict
 from datetime import datetime
 from enum import Enum
