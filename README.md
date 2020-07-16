@@ -1,4 +1,4 @@
-# Nitro-python
+# pynitrokey
 
 A command line interface for the Nitrokey FIDO2. Work in progress.
 
