@@ -1,8 +1,6 @@
-# Nitro-python
+# pynitrokey
 
-A command line interface for the Nitrokey FIDO2. Work in progress.
-
-This is a fork of https://github.com/solokeys/solo-python (see [README-parent.md](README-parent.md)).
+A command line interface for the Nitrokey FIDO2 and Nitrokey Start.
 
 ## Current state
 Project is in alpha stage, not meant yet to be used by end-users (not everything was tested), although almost all features should work out-of-the-box. The strings referring to the device were not changed yet as well.
@@ -12,6 +10,15 @@ Differences:
 - firmware signing adjusted for Nitrokey FIDO2 bootloader
 - monitor command with timestamps
 - disabled automatic update (however manual update works)
+
+## Installation
+
+### Linux, Unix
+
+```
+sudo apt install python3-pip
+pip3 install --user pynitrokey
+```
 
 ## Firmware update (manual)
 ### Nitrokey FIDO2
@@ -53,6 +60,13 @@ $ nitropy start update -p 12345678 -y
 $ nitropy start update --regnual $(FIRMWARE_DIR)/regnual.bin --gnuk ${FIRMWARE_DIR}/gnuk.bin
 ```
 
+## Nitrokey Start: Switching ID
+
+```
+nitropy start set-identity [0,1,2]
+```
+
+Where 0, 1 and 2 are the available IDs.
 
 ## License
 
