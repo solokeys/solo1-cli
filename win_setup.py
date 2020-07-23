@@ -16,7 +16,7 @@ executables = [
 ]
 
 setup(name='pynitrokey',
-      version = '0.3.2',
+      version = '0.4.0',
       description = 'Nitrokey Python Tools',
       options = dict(build_exe = buildOptions,
                      bdist_msi = msiOptions),
