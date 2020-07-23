@@ -37,6 +37,17 @@ nitropy fido2 util program aux leave-bootloader
 # test key
 nitropy fido2 verify
 ```
+### Nitrokey FIDO2 (Windows)
+For Windows there is an installer for **pynitrokey**, just follow these steps to 
+update your Nitrokey FIDO2 key:
+
+* Download the latest `.msi` installer from the [releases](https://github.com/Nitrokey/pynitrokey/releases/)
+* Double-click the installer and click through (`Next` and `Finish`)
+* Open the windows start menu and type `cmd` and press enter
+* Inside the terminal window type: `nitropy fido2 update` and follow the instructions
+
+Your Nitrokey FIDO2 is now updated to the latest firmware.
+
 ### Nitrokey Start
 
 Here is brief guide for the Nitrokey Start automatic firmware download and update:
