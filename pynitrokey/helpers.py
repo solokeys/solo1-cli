@@ -34,6 +34,7 @@ def local_print(message: str = '', exc: Exception=None, **kwargs):
     if message and message != '.':
         if exc:
             logger.exception(message, exc_info=exc)
+            message += f'\nError: {str(exc)}'
         else:
             logger.debug('print: {}'.format(message.strip()))
     print(message, **kwargs)
