@@ -1,0 +1,12 @@
+cx-Freeze==6.1
+click>=7.0
+cryptography
+ecdsa
+fido2==0.7.3
+intelhex
+pyserial
+pyusb
+requests
+pygments
+cffi
+

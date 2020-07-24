@@ -1,20 +1,9 @@
 # Please do not add runtime dependencies here.
 # Please do not add a `requirements.txt` file, use `pyproject.toml` instead.
 
-cx-Freeze==6.1
 black
 flake8
 flit
 ipython
 isort
-click>=7.0
-cryptography
-ecdsa
-fido2==0.7.3
-intelhex
-pyserial
-pyusb
-requests
-pygments
-cffi
 
