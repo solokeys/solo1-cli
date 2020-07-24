@@ -15,54 +15,52 @@ Differences:
 
 ### Linux, Unix
 
-```
+```bash
 sudo apt install python3-pip
 pip3 install --user pynitrokey
 ```
 
-## Firmware update (manual)
-### Nitrokey FIDO2
-Automatic firmware update is prefered via https://update.nitrokey.com.
+### Windows
 
-Apart from that it is also possible to update the Nitrokey FIDO2 using:
+1. Download the latest `.msi` installer from the [releases](https://github.com/Nitrokey/pynitrokey/releases/)
+1. Double-click the installer and click through (`Next` and `Finish`)
+1. Open the windows start menu and type `cmd` and press enter
+
+## Nitrokey FIDO2
+### Firmware Update
+Automatic firmware update is recommended via https://update.nitrokey.com. Alternatively, it is also possible to update the Nitrokey FIDO2 using:
 ```bash
 nitropy fido2 update
 ```
-### Nitrokey FIDO2 (Windows)
-For Windows there is an installer for **pynitrokey**, just follow these steps to 
-update your Nitrokey FIDO2 key:
-
-* Download the latest `.msi` installer from the [releases](https://github.com/Nitrokey/pynitrokey/releases/)
-* Double-click the installer and click through (`Next` and `Finish`)
-* Open the windows start menu and type `cmd` and press enter
-* Inside the terminal window type: `nitropy fido2 update` and follow the instructions
 
 Your Nitrokey FIDO2 is now updated to the latest firmware.
 
-### Nitrokey Start
+## Nitrokey Start
+### Firmware Update
 
-Here is brief guide for the Nitrokey Start automatic firmware download and update:
-```
-# install package
-$ pip3 install pynitrokey
+Verify device connection
 
-# verify installation and device connection
-$ nitropy version
-0.3.2
-$ nitropy start list
+```bash
+nitropy start list
 FSIJ-1.2.15-87042524: Nitrokey Nitrokey Start (RTM.10)
+```
+Start update process, logs saved to upgrade.log, handy in case of failure
 
-# starts update process, logs saved to upgrade.log, handy in case of failure
-$ nitropy start update
-
-# does not ask for confirmation nor the default Admin PIN, handy for batch calls
-$ nitropy start update -p 12345678 -y
-
-# following will flash files from the local disk, instead of downloading them
-$ nitropy start update --regnual $(FIRMWARE_DIR)/regnual.bin --gnuk ${FIRMWARE_DIR}/gnuk.bin
+```bash
+nitropy start update
 ```
 
-## Nitrokey Start: Switching ID
+Does not ask for confirmation nor the default Admin PIN, handy for batch calls
+```
+nitropy start update -p 12345678 -y
+```
+
+Following will flash files from the local disk, instead of downloading them
+```
+nitropy start update --regnual $(FIRMWARE_DIR)/regnual.bin --gnuk ${FIRMWARE_DIR}/gnuk.bin
+```
+
+### Switching ID
 
 ```
 nitropy start set-identity [0,1,2]
