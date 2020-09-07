@@ -7,6 +7,7 @@
 # http://opensource.org/licenses/MIT>, at your option. This file may not be
 # copied, modified, or distributed except according to those terms.
 
+import errno
 import struct
 import time
 
@@ -136,11 +137,25 @@ class DFUDevice:
     def close(self):
         pass
 
-    def get_status(self):
-        # bmReqType, bmReq, wValue, wIndex, data/size
-        s = self.dev.ctrl_transfer(
-            DFU.type.RECEIVE, DFU.bmReq.GETSTATUS, 0, self.intNum, 6
-        )
+    def get_status(self,):
+        tries = 3
+        while True:
+            try:
+                # bmReqType, bmReq, wValue, wIndex, data/size
+                s = self.dev.ctrl_transfer(
+                    DFU.type.RECEIVE, DFU.bmReq.GETSTATUS, 0, self.intNum, 6
+                )
+                break
+            except usb.core.USBError as e:
+                if e.errno == errno.EPIPE:
+                    if tries > 0:
+                        tries -= 1
+                        time.sleep(0.01)
+                    else:
+                        # do not pass on EPIPE which might be swallowed by 'click'
+                        raise RuntimeError("Failed to get status from DFU.")
+                else:
+                    raise
         return DFU.status(s)
 
     def state(self):
