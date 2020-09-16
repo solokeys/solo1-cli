@@ -23,7 +23,7 @@ def monitor(serial_port):
     Automatically reconnects. Baud rate is 115200.
     """
 
-    ser = serial.Serial(serial_port, 115200, timeout=0.05)
+    ser = None
 
     def reconnect():
         while True:
@@ -36,10 +36,14 @@ def monitor(serial_port):
 
     while True:
         try:
+            if ser is None:
+                ser = serial.Serial(serial_port, 115200, timeout=0.05)
             data = ser.read(1)
+            sys.stdout.buffer.write(data)
+            sys.stdout.flush()
         except serial.SerialException:
-            print("reconnecting...")
+            if ser is not None:
+                ser.close()
+            print(f"reconnecting {serial_port}...")
             ser = reconnect()
             print("done")
-        sys.stdout.buffer.write(data)
-        sys.stdout.flush()
