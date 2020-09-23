@@ -70,24 +70,24 @@ def find_all():
 
 
 class SoloClient:
-    def __init__(self,):
+    def __init__(self):
         self.origin = "https://example.org"
         self.host = "example.org"
         self.user_id = b"they"
         self.exchange = self.exchange_hid
         self.do_reboot = True
 
-    def use_u2f(self,):
+    def use_u2f(self):
         self.exchange = self.exchange_u2f
 
-    def use_hid(self,):
+    def use_hid(self):
         self.exchange = self.exchange_hid
 
     def set_reboot(self, val):
         """ option to reboot after programming """
         self.do_reboot = val
 
-    def reboot(self,):
+    def reboot(self):
         """ option to reboot after programming """
         try:
             self.exchange(SoloBootloader.reboot)
@@ -183,13 +183,13 @@ class SoloClient:
 
         return res.signature[1:]
 
-    def bootloader_version(self,):
+    def bootloader_version(self):
         data = self.exchange(SoloBootloader.version)
         if len(data) > 2:
             return (data[0], data[1], data[2])
         return (0, 0, data[0])
 
-    def solo_version(self,):
+    def solo_version(self):
         try:
             return self.send_data_hid(0x61, b"")
         except CtapError:
@@ -211,13 +211,13 @@ class SoloClient:
         """
         self.exchange(SoloBootloader.done, 0, sig)
 
-    def wink(self,):
+    def wink(self):
         self.send_data_hid(CTAPHID.WINK, b"")
 
     def ping(self, data="pong"):
         return self.send_data_hid(CTAPHID.PING, data)
 
-    def reset(self,):
+    def reset(self):
         self.ctap2.reset()
 
     def change_pin(self, old_pin, new_pin):
@@ -253,7 +253,7 @@ class SoloClient:
         pin_protocol = 1
         return CredentialManagement(self.ctap2, pin_protocol, token)
 
-    def enter_solo_bootloader(self,):
+    def enter_solo_bootloader(self):
         """
         If solo is configured as solo hacker or something similar,
         this command will tell the token to boot directly to the bootloader
@@ -277,7 +277,7 @@ class SoloClient:
             else:
                 raise (e)
 
-    def is_solo_bootloader(self,):
+    def is_solo_bootloader(self):
         try:
             self.bootloader_version()
             return True
@@ -288,7 +288,7 @@ class SoloClient:
                 raise (e)
         return False
 
-    def enter_st_dfu(self,):
+    def enter_st_dfu(self):
         """
         If solo is configured as solo hacker or something similar,
         this command will tell the token to boot directly to the st DFU
@@ -302,7 +302,7 @@ class SoloClient:
         else:
             self.send_only_hid(SoloBootloader.HIDCommandEnterSTBoot, "")
 
-    def disable_solo_bootloader(self,):
+    def disable_solo_bootloader(self):
         """
         Disables the Solo bootloader.  Only do this if you want to void the possibility
         of any updates.
