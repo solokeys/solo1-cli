@@ -5,5 +5,5 @@ black
 flake8
 flit
 ipython
-isort
+isort>=5.0.0
 
