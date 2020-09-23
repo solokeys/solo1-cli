@@ -82,8 +82,8 @@ def feedkernel(count, serial):
 
     p = solo.client.find(serial)
 
-    import struct
     import fcntl
+    import struct
 
     RNDADDENTROPY = 0x40085203
 
