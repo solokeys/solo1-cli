@@ -16,7 +16,7 @@ from solo import helpers
 
 
 def genkey(output_pem_file, input_seed_file=None):
-    from ecdsa import SigningKey, NIST256p
+    from ecdsa import NIST256p, SigningKey
     from ecdsa.util import randrange_from_seed__trytryagain
 
     if input_seed_file is not None:
@@ -191,10 +191,10 @@ def sign_firmware_for_version(sk_name, hex_file, APPLICATION_END_PAGE):
     # Maybe this is not the optimal module...
 
     import base64
-
     import binascii
-    from ecdsa import SigningKey
     from hashlib import sha256
+
+    from ecdsa import SigningKey
     from intelhex import IntelHex
 
     sk = SigningKey.from_pem(open(sk_name).read())

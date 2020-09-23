@@ -16,8 +16,8 @@ if sys.platform.startswith("win32"):
     import fido2._pyu2f.windows
 
     oldDevAttrFunc = fido2._pyu2f.windows.FillDeviceAttributes
-    from ctypes import wintypes
     import ctypes
+    from ctypes import wintypes
 
     fido2._pyu2f.windows.hid.HidD_GetSerialNumberString.restype = wintypes.BOOLEAN
     fido2._pyu2f.windows.hid.HidD_GetSerialNumberString.argtypes = [
@@ -43,18 +43,18 @@ if sys.platform.startswith("darwin"):
     import fido2._pyu2f.macos
     from fido2._pyu2f import base
     from fido2._pyu2f.macos import (
-        iokit,
+        HID_DEVICE_PROPERTY_PRIMARY_USAGE,
+        HID_DEVICE_PROPERTY_PRIMARY_USAGE_PAGE,
+        HID_DEVICE_PROPERTY_PRODUCT,
+        HID_DEVICE_PROPERTY_PRODUCT_ID,
+        HID_DEVICE_PROPERTY_REPORT_ID,
+        HID_DEVICE_PROPERTY_VENDOR_ID,
         IO_HID_DEVICE_REF,
         GetDeviceIntProperty,
         GetDevicePath,
         GetDeviceStringProperty,
-        HID_DEVICE_PROPERTY_VENDOR_ID,
-        HID_DEVICE_PROPERTY_PRODUCT_ID,
-        HID_DEVICE_PROPERTY_PRODUCT,
-        HID_DEVICE_PROPERTY_PRIMARY_USAGE,
-        HID_DEVICE_PROPERTY_PRIMARY_USAGE_PAGE,
-        HID_DEVICE_PROPERTY_REPORT_ID,
         cf,
+        iokit,
     )
 
     HID_DEVICE_PROPERTY_SERIAL_NUMBER = b"SerialNumber"
