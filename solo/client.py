@@ -343,8 +343,8 @@ class SoloClient:
             return base64.b64decode(helpers.from_websafe(f).encode())
 
         def isCorrectVersion(current, target):
-            """ current is tuple (x,y,z).  target is string '>=x.y.z'.
-                Return True if current satisfies the target expression.
+            """current is tuple (x,y,z).  target is string '>=x.y.z'.
+            Return True if current satisfies the target expression.
             """
             if "=" in target:
                 target = target.split("=")
