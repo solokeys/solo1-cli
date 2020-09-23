@@ -6,7 +6,7 @@ init: update-venv
 # ensure this passes before commiting
 check: lint
 	black --check solo/
-	isort --check-only --recursive solo/
+	isort --profile black --check-only solo/
 
 # automatic code fixes
 fix: black isort
@@ -15,7 +15,7 @@ black:
 	black solo/
 
 isort:
-	isort -y --recursive solo/
+	isort --profile black solo/
 
 lint:
 	flake8 solo/
