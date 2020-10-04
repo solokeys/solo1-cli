@@ -3,7 +3,7 @@
 
 black
 flake8
-flit
+poetry
 ipython
 isort
 

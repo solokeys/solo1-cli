@@ -55,7 +55,9 @@ def hot_patch_windows_libusb():
 
 
 class DFUDevice:
-    def __init__(self,):
+    def __init__(
+        self,
+    ):
         pass
 
     @staticmethod
@@ -129,24 +131,34 @@ class DFUDevice:
                     self.intNum = intf.bInterfaceNumber
                     # return self.dev
 
-    def init(self,):
+    def init(
+        self,
+    ):
         if self.state() == DFU.state.ERROR:
             self.clear_status()
 
-    def close(self,):
+    def close(
+        self,
+    ):
         pass
 
-    def get_status(self,):
+    def get_status(
+        self,
+    ):
         # bmReqType, bmReq, wValue, wIndex, data/size
         s = self.dev.ctrl_transfer(
             DFU.type.RECEIVE, DFU.bmReq.GETSTATUS, 0, self.intNum, 6
         )
         return DFU.status(s)
 
-    def state(self,):
+    def state(
+        self,
+    ):
         return self.get_status().state
 
-    def clear_status(self,):
+    def clear_status(
+        self,
+    ):
         # bmReqType, bmReq, wValue, wIndex, data/size
         self.dev.ctrl_transfer(DFU.type.SEND, DFU.bmReq.CLRSTATUS, 0, self.intNum, None)
 
@@ -212,7 +224,9 @@ class DFUDevice:
             time.sleep(s.timeout / 1000.0)
             s = self.get_status()
 
-    def read_option_bytes(self,):
+    def read_option_bytes(
+        self,
+    ):
         ptr = 0x1FFF7800  # option byte address for STM32l432
         self.set_addr(ptr)
         self.block_on_state(DFU.state.DOWNLOAD_BUSY)
@@ -227,7 +241,9 @@ class DFUDevice:
         except OSError:
             print("Warning: OSError with write_page")
 
-    def prepare_options_bytes_detach(self,):
+    def prepare_options_bytes_detach(
+        self,
+    ):
 
         # Necessary to prevent future errors...
         m = self.read_mem(0, 16)
@@ -245,7 +261,9 @@ class DFUDevice:
             m = struct.pack("<L", op) + m[4:]
             self.write_option_bytes(m)
 
-    def detach(self,):
+    def detach(
+        self,
+    ):
         if self.state() not in (DFU.state.IDLE, DFU.state.DOWNLOAD_IDLE):
             self.clear_status()
             self.clear_status()

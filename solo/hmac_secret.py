@@ -33,7 +33,7 @@ def make_credential(
     udp=False,
 ):
     user_id = user_id.encode()
-    client = solo.client.find(solo_serial=serial, udp=udp).client
+    client = solo.client.find(solo_serial=serial, udp=udp).get_current_fido_client()
 
     rp = {"id": host, "name": "Example RP"}
     client.host = host
@@ -78,7 +78,7 @@ def simple_secret(
 ):
     user_id = user_id.encode()
 
-    client = solo.client.find(solo_serial=serial, udp=udp).client
+    client = solo.client.find(solo_serial=serial, udp=udp).get_current_fido_client()
     hmac_ext = HmacSecretExtension(client.ctap2)
 
     # rp = {"id": host, "name": "Example RP"}

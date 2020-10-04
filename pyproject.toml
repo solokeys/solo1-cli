@@ -1,25 +1,12 @@
-[build-system]
-requires = ["flit"]
-build-backend = "flit.buildapi"
 
-[tool.flit.metadata]
-module = "solo"
-dist-name = "solo-python"  # Unfortunately, `solo` is in use on PyPI
-author = "SoloKeys"
-author-email = "hello@solokeys.com"
-home-page = "https://github.com/solokeys/solo-python"
-requires-python = ">=3.6"
-description-file = "README.md"
-requires = [
-  "click >= 7.0",
-  "cryptography",
-  "ecdsa",
-  "fido2 >= 0.8",
-  "intelhex",
-  "pyserial",
-  "pyusb",
-  "requests",
-]
+
+[tool.poetry]
+name = "solo"
+version = "0.0.27"
+description = ""
+authors = ["SoloKeys <hello@solokeys.com>"]
+readme = "README.md"
+homepage = "https://github.com/solokeys/solo-python"
 classifiers=[
     "License :: OSI Approved :: MIT License",
     "License :: OSI Approved :: Apache Software License",
@@ -30,5 +17,20 @@ classifiers=[
     "Programming Language :: Python :: 3.7",
 ]
 
-[tool.flit.scripts]
+[tool.poetry.dependencies]
+python = ">=3.6.0"
+click = '>=7.0'
+cryptography= '*'
+ecdsa="*"
+fido2 =">=0.8.1"
+intelhex ="*"
+pyserial ="*"
+pyusb ="*"
+requests ="*"
+pyscard="*"
+mboot = {git="https://github.com/conorpp/pyMBoot", branch="master"}
+
+
+
+[tool.poetry.scripts]
 solo = "solo.cli:solo_cli"

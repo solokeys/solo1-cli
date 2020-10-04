@@ -51,4 +51,5 @@ venv:
 update-venv: venv
 	venv/bin/pip install -U pip
 	venv/bin/pip install -U -r dev-requirements.txt
-	venv/bin/flit install --symlink
+	venv/bin/poetry run pip install bincopy
+	venv/bin/poetry install
