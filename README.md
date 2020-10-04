@@ -18,7 +18,7 @@ For development, we suggest you run `make init` instead, which
 
 - sets up a virtual environment
 - installs development requirements such as `black`
-- installs `solo` as symlink using our packaging tool `flit`, including all runtime dependencies listed in [`pyproject.toml`](pyproject.toml)
+- installs `solo` as symlink using our packaging tool `poetry`, including all runtime dependencies listed in [`pyproject.toml`](pyproject.toml)
 
 One way to ensure the virtual environment is active is to use [direnv](https://direnv.net/).
 
