@@ -132,7 +132,7 @@ class Client(SoloClient):
                 return self.find_bootloader_device()
 
     def find_bootloader_device(self, dev=None, solo_serial=None):
-        devices = mboot.connection.usb.RawHid.enumerate(0x1209, 0xBEEE)
+        devices = mboot.connection.usb.RawHid.enumerate(0x1209, 0xb000)
         # we'll take devices that haven't had their bootroms reconfigured yet too.
         devices += mboot.connection.usb.RawHid.enumerate(0x1FC9, 0x0021)
         if len(devices):

@@ -22,6 +22,14 @@ For development, we suggest you run `make init` instead, which
 
 One way to ensure the virtual environment is active is to use [direnv](https://direnv.net/).
 
+To install globally instead of using virtualenv, you will need to install the dev dependency poetry and then run the following.
+
+```
+pip install poetry
+poetry config virtualenvs.create false
+poetry install
+```
+
 ## Solo Tool
 For help, run `solo --help` after installation. The tool has a hierarchy of commands and subcommands.
 

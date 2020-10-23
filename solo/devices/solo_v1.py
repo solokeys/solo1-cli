@@ -92,8 +92,13 @@ class Client(SoloClient):
     ):
         self.exchange = self.exchange_hid
 
+    def send_only_hid(self, cmd, data):
+        if not isinstance(data, bytes):
+            data = struct.pack("%dB" % len(data), *[ord(x) for x in data])
+        self.dev._dev.InternalSend(0x80 | cmd, bytearray(data))
+
     def exchange_hid(self, cmd, addr=0, data=b"A" * 16):
-        req = SoloClient.format_request(cmd, addr, data)
+        req = Client.format_request(cmd, addr, data)
 
         data = self.send_data_hid(SoloBootloader.CommandBoot, req)
 
@@ -107,7 +112,7 @@ class Client(SoloClient):
         appid = b"A" * 32
         chal = b"B" * 32
 
-        req = SoloClient.format_request(cmd, addr, data)
+        req = Client.format_request(cmd, addr, data)
 
         res = self.ctap1.authenticate(chal, appid, req)
 
@@ -120,7 +125,7 @@ class Client(SoloClient):
     def exchange_fido2(self, cmd, addr=0, data=b"A" * 16):
         chal = b"B" * 32
 
-        req = SoloClient.format_request(cmd, addr, data)
+        req = Client.format_request(cmd, addr, data)
 
         assertion = self.ctap2.get_assertion(
             self.host, chal, [{"id": req, "type": "public-key"}]
@@ -215,7 +220,7 @@ class Client(SoloClient):
         soloboot = self.is_solo_bootloader()
 
         if soloboot or self.exchange == self.exchange_u2f:
-            req = SoloClient.format_request(SoloBootloader.st_dfu)
+            req = Client.format_request(SoloBootloader.st_dfu)
             self.send_only_hid(SoloBootloader.CommandBoot, req)
         else:
             self.send_only_hid(SoloBootloader.CommandEnterSTBoot, "")
