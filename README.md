@@ -74,7 +74,7 @@ Comprehensive documentation coming, for now these are the main components
 ## Challenge-Response
 
 By abuse of the `hmac-secret` extension, we can generate static challenge responses,
-which are scoped to a credential. A use case might be e.g. unlocking a LUKS-encrypted drive.
+which are scoped to a credential. A use case might be e.g. unlocking a [LUKS-encrypted](https://github.com/saravanan30erd/solokey-full-disk-encryption) drive.
 
 **DANGER** The generated reponses depend on both the key and the credential.
 There is no way to extract or backup from the physical key, so if you intend to use the
@@ -124,4 +124,3 @@ For maintainers:
 - run `make build` to double check
 - run `make publish` (assumes a `~/.pypirc` file with entry `[pypi]`), or `flit publish` manually
 - run `make tag` to tag the release and push it
-
