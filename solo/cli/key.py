@@ -144,7 +144,7 @@ def make_credential(serial, host, user, udp, prompt, pin):
 
     # check for PIN
     if not pin:
-        pin = getpass.getpass("PIN (leave empty for no PIN: ")
+        pin = getpass.getpass("PIN (leave empty for no PIN): ")
     if not pin:
         pin = None
 
@@ -194,7 +194,7 @@ def challenge_response(serial, host, user, prompt, credential_id, challenge, udp
 
     # check for PIN
     if not pin:
-        pin = getpass.getpass("PIN (leave empty for no PIN: ")
+        pin = getpass.getpass("PIN (leave empty for no PIN): ")
     if not pin:
         pin = None
 
