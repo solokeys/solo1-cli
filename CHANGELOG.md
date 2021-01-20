@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.0.27] - 2021-01-20
 - pin fido2 dep to 0.8 series @uli-heller
 - improve programming robustness @enrikb
+- prompt for PIN in `solo key verify`, if needed @enrikb
 
 ## [0.0.26] - 2020-07-17
 - fix bungled reference to `STABLE_VERSION` file
