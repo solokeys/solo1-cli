@@ -137,7 +137,7 @@ class DFUDevice:
     def close(self):
         pass
 
-    def get_status(self,):
+    def get_status(self):
         tries = 3
         while True:
             try:
