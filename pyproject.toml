@@ -14,7 +14,7 @@ requires = [
   "click >= 7.0",
   "cryptography",
   "ecdsa",
-  "fido2 ~= 0.8.1",
+  "fido2 >= 0.8, <0.9",
   "intelhex",
   "pyserial",
   "pyusb",
