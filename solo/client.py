@@ -9,6 +9,7 @@
 
 import base64
 import json
+import os
 import struct
 import sys
 import tempfile
@@ -16,6 +17,7 @@ import time
 
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
+from fido2._pyu2f import hidtransport
 from fido2.attestation import Attestation
 from fido2.client import Fido2Client
 from fido2.ctap import CtapError
@@ -259,9 +261,25 @@ class SoloClient:
         this command will tell the token to boot directly to the bootloader
         so it can be reprogrammed
         """
+        statinfo = os.stat(self.dev.descriptor["path"])
+        serial_number = self.dev.descriptor.get("serial_number")
+
         if self.exchange != self.exchange_hid:
             self.send_data_hid(CTAPHID.INIT, "\x11\x11\x11\x11\x11\x11\x11\x11")
         self.send_data_hid(SoloBootloader.HIDCommandEnterBoot, "")
+
+        print("Wait for device %r..." % serial_number)
+        for i in range(0, 5):
+            time.sleep(0.5)
+            for d in hidtransport.hid.Enumerate():
+                if hidtransport.HidUsageSelector(d):
+                    if d.get("serial_number") == serial_number:
+                        statnew = os.stat(d["path"])
+                        if (
+                            statinfo.st_uid == statnew.st_uid
+                            and statinfo.st_gid == statnew.st_gid
+                        ):
+                            break
 
     def enter_bootloader_or_die(self):
         try:

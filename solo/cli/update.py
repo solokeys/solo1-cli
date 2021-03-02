@@ -12,7 +12,6 @@ import hashlib
 import json
 import sys
 import tempfile
-import time
 
 import click
 import requests
@@ -184,7 +183,6 @@ def update(serial, yes, local_firmware_server, alpha):
         if not solo_client.is_solo_bootloader():
             print("Switching into bootloader mode...")
             solo_client.enter_bootloader_or_die()
-            time.sleep(0.5)
             solo_client = solo.client.find(serial)
 
         solo_client.set_reboot(False)
