@@ -110,13 +110,19 @@ if sys.platform.startswith("linux"):
     oldnewParseUevent = fido2._pyu2f.linux.ParseUevent
 
     def newParseUevent(uevent, desc):
-        oldnewParseUevent(uevent, desc)
+        try:
+            oldnewParseUevent(uevent, desc)
+        except ValueError:
+            pass
         lines = uevent.split(b"\n")
         for line in lines:
             line = line.strip()
             if not line:
                 continue
-            k, v = line.split(b"=")
+            try:
+                k, v = line.split(b"=")
+            except ValueError:
+                continue
             if k == b"HID_UNIQ":
                 desc.serial_number = v.decode("utf8")
 
