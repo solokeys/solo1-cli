@@ -410,7 +410,6 @@ class SoloClient:
         size = sum(seg[1] - seg[0] for seg in ih.segments())
         total = 0
         t1 = time.time() * 1000
-        print("erasing firmware...")
         for seg in ih.segments():
             for i in range(seg[0], seg[1], chunk):
                 s = i
