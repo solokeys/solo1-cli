@@ -8,7 +8,7 @@ from fido2.ctap2 import CTAP2
 from fido2.hid import CTAPHID, CtapHidDevice
 from fido2.utils import hmac_sha256
 
-import mboot
+import mboot2
 import solo
 from solo.commands import SoloBootloader
 from solo.smartcard import SmartCardDevice, assert_ok
@@ -38,7 +38,7 @@ class Client(SoloClient):
         elif self.mboot_dev is not None:
             try:
                 self.mboot_dev.reset(timeout=2000, reopen=True)
-            except mboot.McuBootConnectionError:
+            except mboot2.McuBootConnectionError:
                 pass
 
     def is_booted(
@@ -132,11 +132,11 @@ class Client(SoloClient):
                 return self.find_bootloader_device()
 
     def find_bootloader_device(self, dev=None, solo_serial=None):
-        devices = mboot.connection.usb.RawHid.enumerate(0x1209, 0xb000)
+        devices = mboot2.connection.usb.RawHid.enumerate(0x1209, 0xb000)
         # we'll take devices that haven't had their bootroms reconfigured yet too.
-        devices += mboot.connection.usb.RawHid.enumerate(0x1FC9, 0x0021)
+        devices += mboot2.connection.usb.RawHid.enumerate(0x1FC9, 0x0021)
         if len(devices):
-            self.mboot_dev = mboot.McuBoot(devices[0])
+            self.mboot_dev = mboot2.McuBoot(devices[0])
             self.mboot_dev.open()
             return devices[0]
 

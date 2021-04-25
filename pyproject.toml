@@ -28,7 +28,7 @@ pyserial ="*"
 pyusb ="*"
 requests ="*"
 pyscard="*"
-mboot = {git="https://github.com/conorpp/pyMBoot", branch="master"}
+mboot2 = ">=0.3.5"
 
 
 
