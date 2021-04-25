@@ -144,7 +144,7 @@ def make_credential(serial, host, user, udp, prompt, pin):
 
     # check for PIN
     if not pin:
-        pin = getpass.getpass("PIN (leave empty for no PIN: ")
+        pin = getpass.getpass("PIN (leave empty for no PIN): ")
     if not pin:
         pin = None
 
@@ -194,7 +194,7 @@ def challenge_response(serial, host, user, prompt, credential_id, challenge, udp
 
     # check for PIN
     if not pin:
-        pin = getpass.getpass("PIN (leave empty for no PIN: ")
+        pin = getpass.getpass("PIN (leave empty for no PIN): ")
     if not pin:
         pin = None
 
@@ -347,14 +347,24 @@ def set_pin(serial):
 def verify(pin, serial, udp):
     """Verify key is valid Solo Secure or Solo Hacker."""
 
+    key = solo.client.find(serial, udp=udp)
+
+    if (
+        key.client
+        and ("clientPin" in key.client.info.options)
+        and key.client.info.options["clientPin"]
+        and not pin
+    ):
+        pin = getpass.getpass("PIN: ")
+
     # Any longer and this needs to go in a submodule
     print("Please press the button on your Solo key")
     try:
-        cert = solo.client.find(serial, udp=udp).make_credential(pin=pin)
+        cert = key.make_credential(pin=pin)
     except Fido2ClientError as e:
         cause = str(e.cause)
         if "PIN required" in cause:
-            print("Your key has a PIN set. Please pass it using `--pin <your PIN>`")
+            print("Your key has a PIN set but none was provided.")
             sys.exit(1)
         # error 0x31
         if "PIN_INVALID" in cause:

@@ -6,5 +6,5 @@ flake8
 flit_core==2.3.0
 flit==2.3.0
 ipython
-isort
+isort>=5.0.0
 

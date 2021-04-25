@@ -5,8 +5,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+- bumped isort version to >=5.0.0 and changed Makefile accordingly, see [Upgrading isort to 5.0.0](https://pycqa.github.io/isort/docs/upgrade_guides/5.0.0/)
 
-## [0.0.25] - 2020-07-17
+## [0.0.27] - 2021-01-20
+- pin fido2 dep to 0.8 series @uli-heller
+- improve programming robustness @enrikb
+- prompt for PIN in `solo key verify`, if needed @enrikb
+
+## [0.0.26] - 2020-07-17
 - fix bungled reference to `STABLE_VERSION` file
 
 ## [0.0.25] - 2020-07-17
