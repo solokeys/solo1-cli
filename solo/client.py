@@ -53,3 +53,4 @@ def find_all():
         )
     ]
     return [find(raw_device=device) for device in solo_devices]
+
