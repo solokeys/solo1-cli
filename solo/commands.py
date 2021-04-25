@@ -29,11 +29,11 @@ class SoloBootloader:
     st_dfu = 0x46
     disable = 0x47
 
-    HIDCommandBoot = 0x50
-    HIDCommandEnterBoot = 0x51
-    HIDCommandEnterSTBoot = 0x52
-    HIDCommandRNG = 0x60
-    HIDCommandProbe = 0x70
+    CommandBoot = 0x50
+    CommandEnterBoot = 0x51
+    CommandEnterSTBoot = 0x52
+    CommandRNG = 0x60
+    CommandProbe = 0x70
 
     TAG = b"\x8C\x27\x90\xf6"
 

@@ -1,3 +1,4 @@
+
 [build-system]
 requires = ["flit"]
 build-backend = "flit.buildapi"
@@ -11,10 +12,10 @@ home-page = "https://github.com/solokeys/solo-python"
 requires-python = ">=3.6"
 description-file = "README.md"
 requires = [
-  "click >= 7.0",
+  "click >= 7.1",
   "cryptography",
   "ecdsa",
-  "fido2 ~= 0.8.1",
+  "fido2 >= 0.9.1",
   "intelhex",
   "pyserial",
   "pyusb",

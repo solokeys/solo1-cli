@@ -56,7 +56,9 @@ def hot_patch_windows_libusb():
 
 
 class DFUDevice:
-    def __init__(self):
+    def __init__(
+        self,
+    ):
         pass
 
     @staticmethod

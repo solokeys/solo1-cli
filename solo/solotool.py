@@ -8,7 +8,6 @@
 # copied, modified, or distributed except according to those terms.
 
 # Programs solo using the Solo bootloader
-
 import argparse
 import array
 import base64
@@ -246,10 +245,8 @@ def programmer_main():
 
     fw = args.__dict__["[firmware]"]
 
-    p = solo.client.SoloClient()
-
     try:
-        p.find_device()
+        p = solo.client.find()
         if args.use_dfu:
             print("entering dfu..")
             try:
