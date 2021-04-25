@@ -20,7 +20,7 @@ def find(solo_serial=None, retries=5, raw_device=None, udp=False):
 
     if udp:
         print("UDP is not supported in latest version of solo-python.")
-        print("Please install version solo-python==0.0.12 and fido2==8.1 to do that.")
+        print("Please install version solo-python==0.0.27 and fido2==8.1 to do that.")
 
     # Try looking for V1 device.
     p = solo_v1.Client()
