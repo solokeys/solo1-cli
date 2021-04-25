@@ -326,19 +326,20 @@ class Client(SoloClient):
         else:
             chunk = 240
 
-        seg = ih.segments()[0]
-        size = seg[1] - seg[0]
         total = 0
+        size = sum(seg[1] - seg[0] for seg in ih.segments())
+
         t1 = time.time() * 1000
         print("erasing firmware...")
-        for i in range(seg[0], seg[1], chunk):
-            s = i
-            e = min(i + chunk, seg[1])
-            data = ih.tobinarray(start=i, size=e - s)
-            self.write_flash(i, data)
-            total += chunk
-            progress = total / float(size) * 100
-            sys.stdout.write("updating firmware %.2f%%...\r" % progress)
+        for seg in ih.segments():
+            for i in range(seg[0], seg[1], chunk):
+                s = i
+                e = min(i + chunk, seg[1])
+                data = ih.tobinarray(start=i, size=e - s)
+                self.write_flash(i, data)
+                total += chunk
+                progress = total / float(size) * 100
+                sys.stdout.write("updating firmware %.2f%%...\r" % progress)
         sys.stdout.write("updated firmware 100%             \r\n")
         t2 = time.time() * 1000
         print("time: %.2f s" % ((t2 - t1) / 1000.0))
