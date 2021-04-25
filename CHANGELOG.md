@@ -5,6 +5,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [0.0.28] - 2021-04-25
+- Upgraded to new 0.9.1 fido2 library
+- Removed use of serial_number if it's not present in upstream fido2 library
+- Removed use of UDP communication
 - bumped isort version to >=5.0.0 and changed Makefile accordingly, see [Upgrading isort to 5.0.0](https://pycqa.github.io/isort/docs/upgrade_guides/5.0.0/)
 
 ## [0.0.27] - 2021-01-20
