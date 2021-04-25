@@ -23,7 +23,7 @@ class SoloClient:
         self.do_reboot = True
 
     def set_reboot(self, val):
-        """ option to reboot after programming """
+        """option to reboot after programming"""
         self.do_reboot = val
 
     def reboot(
@@ -37,13 +37,13 @@ class SoloClient:
     def get_current_hid_device(
         self,
     ):
-        """ Return current device class for CTAPHID interface if available. """
+        """Return current device class for CTAPHID interface if available."""
         pass
 
     def get_current_fido_client(
         self,
     ):
-        """ Return current fido2 client if available. """
+        """Return current fido2 client if available."""
         pass
 
     def send_data_hid(self, cmd, data):
@@ -80,11 +80,11 @@ class SoloClient:
 
     def change_pin(self, old_pin, new_pin):
         client = self.get_current_fido_client()
-        client.pin_protocol.change_pin(old_pin, new_pin)
+        client.client_pin.change_pin(old_pin, new_pin)
 
     def set_pin(self, new_pin):
         client = self.get_current_fido_client()
-        client.pin_protocol.set_pin(new_pin)
+        client.client_pin.set_pin(new_pin)
 
     def make_credential(self, pin=None):
         client = self.get_current_fido_client()
@@ -97,7 +97,9 @@ class SoloClient:
             challenge,
             [{"type": "public-key", "alg": -8}, {"type": "public-key", "alg": -7}],
         )
-        attest, data = client.make_credential(options, pin=pin)
+        result = client.make_credential(options, pin=pin)
+        attest = result.attestation_object
+        data = result.client_data
         try:
             attest.verify(data.hash)
         except AttributeError:
@@ -110,10 +112,10 @@ class SoloClient:
         return cert
 
     def cred_mgmt(self, pin):
-        token = self.pin_protocol.get_pin_token(pin)
-        pin_protocol = 1
+        client = self.get_current_fido_client()
+        token = client.client_pin.get_pin_token(pin)
         ctap2 = CTAP2(self.get_current_hid_device())
-        return CredentialManagement(ctap2, pin_protocol, token)
+        return CredentialManagement(ctap2, client.client_pin.protocol, token)
 
     def enter_solo_bootloader(
         self,
@@ -131,7 +133,7 @@ class SoloClient:
     def is_solo_bootloader(
         self,
     ):
-        """ For now, solo bootloader could be the NXP bootrom on Solo v2. """
+        """For now, solo bootloader could be the NXP bootrom on Solo v2."""
         pass
 
     def program_kbd(self, cmd):
@@ -142,7 +144,7 @@ class SoloClient:
         ctap2 = CTAP2(self.get_current_hid_device())
         client = self.get_current_fido_client()
         if pin:
-            pin_token = client.pin_protocol.get_pin_token(pin)
+            pin_token = client.client_pin.get_pin_token(pin)
             pin_auth = hmac_sha256(pin_token, dgst)[:16]
             return ctap2.send_cbor(
                 0x50,

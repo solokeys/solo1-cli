@@ -13,25 +13,16 @@ from fido2.hid import CtapHidDevice
 
 import solo.exceptions
 
-from .devices import solo_v1, solo_v2
+from .devices import solo_v1
 
 
 def find(solo_serial=None, retries=5, raw_device=None, udp=False):
 
     if udp:
-        solo.fido2.force_udp_backend()
+        print("UDP is not supported in latest version of solo-python.")
+        print("Please install version solo-python==0.0.12 and fido2==8.1 to do that.")
 
-    # First try looking for V2 device.
-    p = solo_v2.Client()
-    for i in range(retries):
-        try:
-            p.find_device(dev=raw_device, solo_serial=solo_serial)
-            print("Got a V2 device")
-            return p
-        except RuntimeError:
-            time.sleep(0.2)
-
-    # Then try looking for V1 device.
+    # Try looking for V1 device.
     p = solo_v1.Client()
 
     # This... is not the right way to do it yet
@@ -40,8 +31,6 @@ def find(solo_serial=None, retries=5, raw_device=None, udp=False):
     for i in range(retries):
         try:
             p.find_device(dev=raw_device, solo_serial=solo_serial)
-            print("Got a V1 device")
-            print(p.dev)
             return p
         except RuntimeError:
             time.sleep(0.2)
@@ -57,8 +46,8 @@ def find_all():
         for d in hid_devices
         if all(
             (
-                d.descriptor["vendor_id"] == 1155,
-                d.descriptor["product_id"] == 41674,
+                d.descriptor.vid == 1155,
+                d.descriptor.pid == 41674,
                 # "Solo" in d.descriptor["product_string"],
             )
         )

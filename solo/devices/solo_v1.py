@@ -5,12 +5,12 @@ import sys
 import tempfile
 import time
 
-from intelhex import IntelHex
 from fido2.client import Fido2Client
 from fido2.ctap import CtapError
 from fido2.ctap1 import CTAP1
 from fido2.ctap2 import CTAP2
 from fido2.hid import CTAPHID, CtapHidDevice
+from intelhex import IntelHex
 
 import solo
 from solo import helpers
@@ -39,7 +39,7 @@ class Client(SoloClient):
     def reboot(
         self,
     ):
-        """ option to reboot after programming """
+        """option to reboot after programming"""
         try:
             self.exchange(SoloBootloader.reboot)
         except OSError:
@@ -49,8 +49,14 @@ class Client(SoloClient):
         if dev is None:
             devices = list(CtapHidDevice.list_devices())
             if solo_serial is not None:
+                for d in devices:
+                    if not hasattr(d, "serial_number"):
+                        print(
+                            "Currently serial numbers are not supported with current fido2 library.  Please upgrade: pip3 install fido2 --upgrade"
+                        )
+                        sys.exit(1)
                 devices = [
-                    d for d in devices if d.descriptor["serial_number"] == solo_serial
+                    d for d in devices if d.descriptor.serial_number == solo_serial
                 ]
             if len(devices) > 1:
                 raise solo.exceptions.NonUniqueDeviceError
@@ -60,7 +66,11 @@ class Client(SoloClient):
         self.dev = dev
 
         self.ctap1 = CTAP1(dev)
-        self.ctap2 = CTAP2(dev)
+        try:
+            self.ctap2 = CTAP2(dev)
+        except CtapError:
+            self.ctap2 = None
+
         try:
             self.client = Fido2Client(dev, self.origin)
         except CtapError:

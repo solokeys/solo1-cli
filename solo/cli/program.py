@@ -57,8 +57,8 @@ def dfu(serial, connect_attempts, detach, dry_run, firmware):
 
     import time
 
-    from intelhex import IntelHex
     import usb.core
+    from intelhex import IntelHex
 
     dfu = solo.dfu.find(serial, attempts=connect_attempts)
 

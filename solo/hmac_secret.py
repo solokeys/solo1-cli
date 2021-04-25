@@ -14,12 +14,6 @@ import binascii
 import hashlib
 import secrets
 
-from fido2.extensions import HmacSecretExtension
-from fido2.webauthn import (
-    PublicKeyCredentialCreationOptions,
-    PublicKeyCredentialRequestOptions,
-)
-
 import solo.client
 
 
@@ -45,17 +39,18 @@ def make_credential(
     if prompt:
         print(prompt)
 
-    hmac_ext = HmacSecretExtension(client.ctap2)
-
-    options = PublicKeyCredentialCreationOptions(
-        rp,
-        user,
-        challenge,
-        [{"type": "public-key", "alg": -8}, {"type": "public-key", "alg": -7}],
-        extensions=hmac_ext.create_dict(),
-    )
-
-    attestation_object, client_data = client.make_credential(options, pin=pin)
+    attestation_object = client.make_credential(
+        {
+            "rp": rp,
+            "user": user,
+            "challenge": challenge,
+            "pubKeyCredParams": [
+                {"type": "public-key", "alg": -8},
+                {"type": "public-key", "alg": -7},
+            ],
+            "extensions": {"hmacCreateSecret": True},
+        }
+    ).attestation_object
 
     credential = attestation_object.auth_data.credential_data
     credential_id = credential.credential_id
@@ -79,7 +74,6 @@ def simple_secret(
     user_id = user_id.encode()
 
     client = solo.client.find(solo_serial=serial, udp=udp).get_current_fido_client()
-    hmac_ext = HmacSecretExtension(client.ctap2)
 
     # rp = {"id": host, "name": "Example RP"}
     client.host = host
@@ -99,14 +93,18 @@ def simple_secret(
     if prompt:
         print(prompt)
 
-    options = PublicKeyCredentialRequestOptions(
-        challenge, 30000, host, allow_list, extensions=hmac_ext.get_dict(salt)
-    )
-    assertions, client_data = client.get_assertion(options, pin=pin)
+    assertion = client.get_assertion(
+        {
+            "rpId": host,
+            "challenge": challenge,
+            "allowCredentials": allow_list,
+            "extensions": {"hmacGetSecret": {"salt1": salt}},
+        },
+        pin=pin,
+    ).get_response(0)
 
-    assertion = assertions[0]  # Only one cred in allowList, only one response.
-    response = hmac_ext.results_for(assertion.auth_data)[0]
+    output = assertion.extension_results["hmacGetSecret"]["output1"]
     if output:
-        print(response.hex())
+        print(output.hex())
 
-    return response
+    return output
