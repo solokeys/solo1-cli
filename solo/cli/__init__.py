@@ -136,13 +136,20 @@ def ls(all):
     print(":: Solos")
     for c in solos:
         descriptor = c.dev.descriptor
-        if hasattr(descriptor, "serial_number") and descriptor.serial_number:
-            print(f"{descriptor.serial_number}: {descriptor.product_string}")
+
+        if hasattr(descriptor, "product_name"):
+            product_name = descriptor.product_name
+        elif c.is_solo_bootloader():
+            product_name = "Solo Bootloader device"
         else:
-            if c.is_solo_bootloader():
-                print(f"{descriptor.path}: Solo Bootloader device")
-            else:
-                print(f"{descriptor.path}: FIDO2 device")
+            product_name = "FIDO2 device"
+
+        if hasattr(descriptor, "serial_number"):
+            serial_or_path = descriptor.serial_number
+        else:
+            serial_or_path = descriptor.path
+
+        print(f"{serial_or_path}: {product_name}")
 
     if all:
         print(":: Potential Solos in DFU mode")
