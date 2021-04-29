@@ -4,6 +4,7 @@ import struct
 import sys
 import tempfile
 import time
+from threading import Event
 
 from fido2.client import Fido2Client
 from fido2.ctap import CtapError
@@ -105,7 +106,13 @@ class Client(SoloClient):
     def send_only_hid(self, cmd, data):
         if not isinstance(data, bytes):
             data = struct.pack("%dB" % len(data), *[ord(x) for x in data])
-        self.dev._dev.InternalSend(0x80 | cmd, bytearray(data))
+
+        no_reply = Event()
+        no_reply.set()
+        try:
+            self.dev.call(0x80 | cmd, bytearray(data), no_reply)
+        except IOError:
+            pass
 
     def exchange_hid(self, cmd, addr=0, data=b"A" * 16):
         req = Client.format_request(cmd, addr, data)
