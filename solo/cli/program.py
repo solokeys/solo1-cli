@@ -245,11 +245,12 @@ def enter_dfu(serial):
     """
 
     p = solo.client.find(serial)
-    p.enter_st_dfu()
-    # this doesn't really work yet ;)
-    # p.reboot()
-
-    print("Please powercycle the device (pull out, plug in again)")
+    try:
+        p.enter_st_dfu()
+        print("Please powercycle the device (pull out, plug in again)")
+    except Exception as e:
+        if "wrong channel" in str(e).lower():
+            print("Command wasn't accepted by Solo.  It must be in bootloader mode first and be a 'hacker' device.")
 
 
 aux.add_command(enter_dfu)
