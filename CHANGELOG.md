@@ -6,8 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.30] - 2021-04-29
+- Replace old python-fido2 internal method used with fix from @enrikb
+
 ## [0.0.29] - 2021-04-28
-- Fix some typos in last release
+- Fix some typos in last release @enrikb
 
 ## [0.0.28] - 2021-04-25
 - Upgraded to new 0.9.1 fido2 library
