@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.29] - 2021-04-28
+- Fix some typos in last release
+
 ## [0.0.28] - 2021-04-25
 - Upgraded to new 0.9.1 fido2 library
 - Removed use of serial_number if it's not present in upstream fido2 library
