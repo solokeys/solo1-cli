@@ -49,7 +49,8 @@ def make_credential(
                 {"type": "public-key", "alg": -7},
             ],
             "extensions": {"hmacCreateSecret": True},
-        }
+        },
+        pin=pin,
     ).attestation_object
 
     credential = attestation_object.auth_data.credential_data
