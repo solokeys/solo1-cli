@@ -14,6 +14,13 @@ import binascii
 import hashlib
 import secrets
 
+import fido2.cose
+from fido2.webauthn import (
+    PublicKeyCredentialCreationOptions,
+    PublicKeyCredentialParameters, PublicKeyCredentialDescriptor,
+    PublicKeyCredentialType, PublicKeyCredentialRpEntity,
+)
+
 import solo.client
 
 
@@ -25,15 +32,19 @@ def make_credential(
     prompt="Touch your authenticator to generate a credential...",
     output=True,
     udp=False,
+    algs=None
 ):
+    if algs is None:
+        algs = [fido2.cose.EdDSA.ALGORITHM, fido2.cose.ES256.ALGORITHM]
+
     user_id = user_id.encode()
     client = solo.client.find(solo_serial=serial, udp=udp).get_current_fido_client()
 
-    rp = {"id": host, "name": "Example RP"}
+    rp = PublicKeyCredentialRpEntity(host, "Example RP")
     client.host = host
     client.origin = f"https://{client.host}"
     client.user_id = user_id
-    user = {"id": user_id, "name": "A. User"}
+    user = fido2.webauthn.PublicKeyCredentialUserEntity(user_id, "A. User")
     challenge = secrets.token_bytes(32)
 
     if prompt:
@@ -45,8 +56,8 @@ def make_credential(
             "user": user,
             "challenge": challenge,
             "pubKeyCredParams": [
-                {"type": "public-key", "alg": -8},
-                {"type": "public-key", "alg": -7},
+                PublicKeyCredentialParameters(PublicKeyCredentialType.PUBLIC_KEY, alg)
+                for alg in algs
             ],
             "extensions": {"hmacCreateSecret": True},
         },
@@ -58,7 +69,7 @@ def make_credential(
     if output:
         print(credential_id.hex())
 
-    return credential_id
+    return credential_id, credential.public_key
 
 
 def simple_secret(
@@ -83,7 +94,7 @@ def simple_secret(
     # user = {"id": user_id, "name": "A. User"}
     credential_id = binascii.a2b_hex(credential_id)
 
-    allow_list = [{"type": "public-key", "id": credential_id}]
+    allow_list = [PublicKeyCredentialDescriptor(PublicKeyCredentialType.PUBLIC_KEY, credential_id)]
 
     challenge = secrets.token_bytes(32)
 

@@ -19,6 +19,7 @@ from cryptography.hazmat.primitives import hashes
 from fido2.client import ClientError as Fido2ClientError
 from fido2.ctap1 import ApduError
 from fido2.ctap2 import CredentialManagement
+import fido2.cose
 
 import solo
 import solo.fido2
@@ -134,13 +135,20 @@ def feedkernel(count, serial):
     default="Touch your authenticator to generate a credential...",
     show_default=True,
 )
-def make_credential(serial, host, user, udp, prompt, pin):
+@click.option("--alg", default="EdDSA,ES256", help="Algorithm(s) for key, separated by ',', in order of preference")
+@click.option("--no-pubkey", is_flag=True, default=False, help="Do not display public key")
+def make_credential(serial, host, user, udp, prompt, pin, alg, no_pubkey):
     """Generate a credential.
 
-    Pass `--prompt ""` to output only the `credential_id` as hex.
+    Pass `--prompt "" --no-pubkey` to output only the `credential_id` as hex.
     """
 
     import solo.hmac_secret
+
+    algs = [fido2.cose.CoseKey.for_name(a).ALGORITHM for a in alg.split(",")]
+    if None in algs:
+        print("Error: Unknown algorithm(s): ", [a for a, aid in zip(alg.split(","), algs) if aid is None])
+        return 1
 
     # check for PIN
     if not pin:
@@ -148,7 +156,7 @@ def make_credential(serial, host, user, udp, prompt, pin):
     if not pin:
         pin = None
 
-    solo.hmac_secret.make_credential(
+    cred_id, pk = solo.hmac_secret.make_credential(
         host=host,
         user_id=user,
         serial=serial,
@@ -156,7 +164,13 @@ def make_credential(serial, host, user, udp, prompt, pin):
         prompt=prompt,
         udp=udp,
         pin=pin,
+        algs=algs
     )
+
+    pk_bytes = pk[-2]
+
+    if not no_pubkey:
+        print(f"Public key ({type(pk).__name__}) (HEX): {pk_bytes.hex()}")
 
 
 @click.command()
