@@ -6,7 +6,8 @@ from fido2.attestation import Attestation
 from fido2.ctap2 import CTAP2, CredentialManagement
 from fido2.hid import CTAPHID
 from fido2.utils import hmac_sha256
-from fido2.webauthn import PublicKeyCredentialCreationOptions
+from fido2.webauthn import PublicKeyCredentialCreationOptions, PublicKeyCredentialDescriptor
+import fido2.ctap2.base
 
 from solo import helpers
 
@@ -140,20 +141,24 @@ class SoloClient:
         ctap2 = CTAP2(self.get_current_hid_device())
         return ctap2.send_cbor(0x51, cmd)
 
-    def sign_hash(self, credential_id, dgst, pin):
+    def sign_hash(self, credential_id, dgst, pin, trusted_comment=None):
         ctap2 = CTAP2(self.get_current_hid_device())
         client = self.get_current_fido_client()
+
+        pin_auth = None
         if pin:
             pin_token = client.client_pin.get_pin_token(pin)
             pin_auth = hmac_sha256(pin_token, dgst)[:16]
-            return ctap2.send_cbor(
-                0x50,
-                {1: dgst, 2: {"id": credential_id, "type": "public-key"}, 3: pin_auth},
+
+        return ctap2.send_cbor(
+            0x50,
+            fido2.ctap2.base.args(
+                dgst,
+                PublicKeyCredentialDescriptor("public-key", credential_id),
+                pin_auth,
+                trusted_comment
             )
-        else:
-            return ctap2.send_cbor(
-                0x50, {1: dgst, 2: {"id": credential_id, "type": "public-key"}}
-            )
+        )
 
     def program_file(self, name):
         pass
