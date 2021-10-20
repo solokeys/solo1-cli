@@ -122,6 +122,17 @@ def feedkernel(count, serial):
 
 
 @click.command()
+def list_algorithms():
+    """Display algorithms supported by client.
+
+    These can be passed to `solo key make-credential`.
+    """
+
+    alg_names = (fido2.cose.CoseKey.for_alg(alg).__name__ for alg in fido2.cose.CoseKey.supported_algorithms())
+    print(f"Supported algorithms: {', '.join(alg_names)}")
+
+
+@click.command()
 @click.option("-s", "--serial", help="Serial number of Solo use")
 @click.option(
     "--host", help="Relying party's host", default="solokeys.dev", show_default=True
@@ -137,7 +148,8 @@ def feedkernel(count, serial):
     default="Touch your authenticator to generate a credential...",
     show_default=True,
 )
-@click.option("--alg", default="EdDSA,ES256", help="Algorithm(s) for key, separated by ',', in order of preference")
+@click.option("--alg", default="EdDSA,ES256", show_default=True,
+              help="Algorithm(s) for key, separated by ',', in order of preference")
 @click.option("--no-pubkey", is_flag=True, default=False, help="Do not display public key")
 @click.option("--minisign", is_flag=True, default=False, help="Display public key in Minisign-compatible format")
 @click.option("--key-file", default=None, help="File to store public key (use with --minisign)")
@@ -145,7 +157,8 @@ def feedkernel(count, serial):
                                              " [default: <hash of credential ID>]")
 @click.option("--untrusted-comment", default=None,
               help="Untrusted comment to write to public key file (use with --key-file) [default: <key ID>]")
-def make_credential(serial, host, user, udp, prompt, pin, alg, no_pubkey, minisign, key_file, key_id, untrusted_comment):
+def make_credential(serial, host, user, udp, prompt, pin,
+                    alg, no_pubkey, minisign, key_file, key_id, untrusted_comment):
     """Generate a credential.
 
     Pass `--prompt "" --no-pubkey` to output only the `credential_id` as hex.
@@ -775,6 +788,7 @@ key.add_command(rng)
 rng.add_command(hexbytes)
 rng.add_command(raw)
 rng.add_command(feedkernel)
+key.add_command(list_algorithms)
 key.add_command(make_credential)
 key.add_command(challenge_response)
 key.add_command(reset)
