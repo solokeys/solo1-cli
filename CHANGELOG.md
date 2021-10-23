@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.31] - 2021-10-23
+- pin argument for make-credential @HeroicKatora
+
 ## [0.0.30] - 2021-04-29
 - Replace old python-fido2 internal method used with fix from @enrikb
 
