@@ -73,7 +73,8 @@ class Client(SoloClient):
             self.ctap2 = None
 
         try:
-            self.client = Fido2Client(dev, self.origin)
+            # Accept any RP ID, including e.g. 'solo-sign-hash:...'
+            self.client = Fido2Client(dev, self.origin, verify=lambda _rp_id, _origin: True)
         except CtapError:
             print("Not using FIDO2 interface.")
             self.client = None

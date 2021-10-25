@@ -42,7 +42,7 @@ def make_credential(
 
     rp = PublicKeyCredentialRpEntity(host, "Example RP")
     client.host = host
-    client.origin = f"https://{client.host}"
+    client.origin = client.host if ":" in client.host else f"https://{client.host}"
     client.user_id = user_id
     user = fido2.webauthn.PublicKeyCredentialUserEntity(user_id, "A. User")
     challenge = secrets.token_bytes(32)
@@ -89,7 +89,7 @@ def simple_secret(
 
     # rp = {"id": host, "name": "Example RP"}
     client.host = host
-    client.origin = f"https://{client.host}"
+    client.origin = client.host if ":" in client.host else f"https://{client.host}"
     client.user_id = user_id
     # user = {"id": user_id, "name": "A. User"}
     credential_id = binascii.a2b_hex(credential_id)
