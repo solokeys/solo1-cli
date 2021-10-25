@@ -748,7 +748,7 @@ def sign_file(pin, serial, udp, prompt, credential_id, host, filename, sig_file,
             elif err.code == CtapError.ERR.INVALID_CREDENTIAL:
                 print("Got CTAP error 0x22 INVALID_CREDENTIAL.")
                 if host.startswith("solo-sign-hash:"):
-                    print("Are you sure you created this credential using a 'solo-sign-hash:...' host?")
+                    print(f"Are you sure you created this credential using host '{host}'?")
                 else:
                     print("Host should start with 'solo-sign-hash:'")
                 sys.exit(1)
@@ -794,7 +794,7 @@ def sign_file(pin, serial, udp, prompt, credential_id, host, filename, sig_file,
             if err.code == CtapError.ERR.INVALID_CREDENTIAL:
                 print("Got CTAP error 0x22 INVALID_CREDENTIAL.")
                 if host.startswith("solo-sign-hash:"):
-                    print("Are you sure you created this credential using a 'solo-sign-hash:...' host?")
+                    print(f"Are you sure you created this credential using host '{host}'?")
                 else:
                     print("Host should start with 'solo-sign-hash:'")
                 sys.exit(1)
