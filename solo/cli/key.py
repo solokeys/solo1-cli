@@ -135,8 +135,10 @@ def list_algorithms():
 @click.command()
 @click.option("-s", "--serial", help="Serial number of Solo use")
 @click.option(
-    "--host", help="Relying party's host", default="solokeys.dev", show_default=True
+    "--host", help="Relying party's host  [default: solokeys.dev]", default=None
 )
+@click.option("--default-sign-host", is_flag=True, default=False,
+              help="Set host to default value for sign-file, shorthand for --host 'solo-sign-hash:'")
 @click.option("--user", help="User ID", default="they", show_default=True)
 @click.option("--pin", help="PIN", default=None)
 @click.option(
@@ -151,13 +153,14 @@ def list_algorithms():
 @click.option("--alg", default="EdDSA,ES256", show_default=True,
               help="Algorithm(s) for key, separated by ',', in order of preference")
 @click.option("--no-pubkey", is_flag=True, default=False, help="Do not display public key")
-@click.option("--minisign", is_flag=True, default=False, help="Display public key in Minisign-compatible format")
+@click.option("--minisign", is_flag=True, default=False,
+              help="Display public key in Minisign-compatible format and set host to 'solo-sign-hash:' for sign-hash")
 @click.option("--key-file", default=None, help="File to store public key (use with --minisign)")
 @click.option("--key-id", default=None, help="Key ID to write to key file (8 bytes as HEX) (use with --key-file)"
                                              " [default: <hash of credential ID>]")
 @click.option("--untrusted-comment", default=None,
               help="Untrusted comment to write to public key file (use with --key-file) [default: <key ID>]")
-def make_credential(serial, host, user, udp, prompt, pin,
+def make_credential(serial, host, default_sign_host, user, udp, prompt, pin,
                     alg, no_pubkey, minisign, key_file, key_id, untrusted_comment):
     """Generate a credential.
 
@@ -176,6 +179,14 @@ def make_credential(serial, host, user, udp, prompt, pin,
         pin = getpass.getpass("PIN (leave empty for no PIN): ")
     if not pin:
         pin = None
+
+    if default_sign_host:
+        if host is not None:
+            print("Error: Cannot specify both --host and --default-sign-host")
+            return 1
+        host = "solo-sign-hash:"
+    elif host is None:
+        host = "solokeys.dev"
 
     cred_id, pk = solo.hmac_secret.make_credential(
         host=host,
@@ -674,6 +685,7 @@ def cred_rm(pin, credential_id, serial, udp):
     default="Touch your authenticator to generate a response...",
     show_default=True,
 )
+@click.option("--host", default="solo-sign-hash:", help="Choose relying host, must start with 'solo-sign-hash:'")
 @click.option("--minisign", is_flag=True, default=False, help="Use Minisign-compatible signatures (pre-hashed)")
 @click.option("--sig-file", default=None, help="Destination file for signature"
                                                " (<filename>.(mini)sig if empty)")
@@ -687,7 +699,7 @@ def cred_rm(pin, credential_id, serial, udp):
                    "[default: <hash of credential ID>]")
 @click.argument("credential-id")
 @click.argument("filename")
-def sign_file(pin, serial, udp, prompt, credential_id, filename, sig_file,
+def sign_file(pin, serial, udp, prompt, credential_id, host, filename, sig_file,
               minisign, trusted_comment, untrusted_comment, key_id):
     """Sign the specified file using the given credential-id"""
 
@@ -728,7 +740,7 @@ def sign_file(pin, serial, udp, prompt, credential_id, filename, sig_file,
         print(f"Trusted comment: {trusted_comment}")
 
         try:
-            ret = dev.sign_hash(credential_id, dgst.digest(), pin, trusted_comment_bytes)
+            ret = dev.sign_hash(credential_id, dgst.digest(), pin, host, trusted_comment_bytes)
         except CtapError as err:
             if err.code == CtapError.ERR.INVALID_OPTION:
                 print("Got CTAP error 0x2C INVALID_OPTION. Are you sure you used an EdDSA credential with Minisign?")
@@ -769,7 +781,7 @@ def sign_file(pin, serial, udp, prompt, credential_id, filename, sig_file,
             print(f"Signature using key {key_id_hex} written to {sig_file}")
 
     else:
-        ret = dev.sign_hash(credential_id, dgst.digest(), pin)
+        ret = dev.sign_hash(credential_id, dgst.digest(), pin, host)
         signature = ret[1]
 
         print(f"Signature (Base64): {base64.b64encode(signature).decode()}")

@@ -141,7 +141,7 @@ class SoloClient:
         ctap2 = CTAP2(self.get_current_hid_device())
         return ctap2.send_cbor(0x51, cmd)
 
-    def sign_hash(self, credential_id, dgst, pin, trusted_comment=None):
+    def sign_hash(self, credential_id, dgst, pin, rp_id, trusted_comment=None):
         ctap2 = CTAP2(self.get_current_hid_device())
         client = self.get_current_fido_client()
 
@@ -156,7 +156,8 @@ class SoloClient:
                 dgst,
                 PublicKeyCredentialDescriptor("public-key", credential_id),
                 pin_auth,
-                trusted_comment
+                trusted_comment,
+                rp_id
             )
         )
 
