@@ -172,21 +172,21 @@ def make_credential(serial, host, default_sign_host, user, udp, prompt, pin,
     algs = [fido2.cose.CoseKey.for_name(a).ALGORITHM for a in alg.split(",")]
     if None in algs:
         print("Error: Unknown algorithm(s): ", [a for a, aid in zip(alg.split(","), algs) if aid is None])
-        return 1
+        sys.exit(1)
+
+    if default_sign_host:
+        if host is not None:
+            print("Error: Cannot specify both --host and --default-sign-host")
+            sys.exit(2)
+        host = "solo-sign-hash:"
+    elif host is None:
+        host = "solokeys.dev"
 
     # check for PIN
     if not pin:
         pin = getpass.getpass("PIN (leave empty for no PIN): ")
     if not pin:
         pin = None
-
-    if default_sign_host:
-        if host is not None:
-            print("Error: Cannot specify both --host and --default-sign-host")
-            return 1
-        host = "solo-sign-hash:"
-    elif host is None:
-        host = "solokeys.dev"
 
     cred_id, pk = solo.hmac_secret.make_credential(
         host=host,
@@ -204,7 +204,7 @@ def make_credential(serial, host, default_sign_host, user, udp, prompt, pin,
     if minisign:
         if pk.ALGORITHM != fido2.cose.EdDSA.ALGORITHM:
             print(f"Error: Minisign only supports EdDSA keys but this credential was created using {type(pk).__name__}")
-            return 1
+            sys.exit(1)
 
         if key_id is not None:
             key_id_hex = key_id
@@ -744,14 +744,21 @@ def sign_file(pin, serial, udp, prompt, credential_id, host, filename, sig_file,
         except CtapError as err:
             if err.code == CtapError.ERR.INVALID_OPTION:
                 print("Got CTAP error 0x2C INVALID_OPTION. Are you sure you used an EdDSA credential with Minisign?")
-                return 1
+                sys.exit(1)
+            elif err.code == CtapError.ERR.INVALID_CREDENTIAL:
+                print("Got CTAP error 0x22 INVALID_CREDENTIAL.")
+                if host.startswith("solo-sign-hash:"):
+                    print("Are you sure you created this credential using a 'solo-sign-hash:...' host?")
+                else:
+                    print("Host should start with 'solo-sign-hash:'")
+                sys.exit(1)
             else:
                 raise
 
         file_signature = ret[1]
         if ret[2] is None:
             print("Authenticator does not support Minisign")
-            return 1
+            sys.exit(1)
         global_signature = ret[2]
 
         print(f"File signature (Base64): {base64.b64encode(file_signature).decode()}")
@@ -781,7 +788,17 @@ def sign_file(pin, serial, udp, prompt, credential_id, host, filename, sig_file,
             print(f"Signature using key {key_id_hex} written to {sig_file}")
 
     else:
-        ret = dev.sign_hash(credential_id, dgst.digest(), pin, host)
+        try:
+            ret = dev.sign_hash(credential_id, dgst.digest(), pin, host)
+        except CtapError as err:
+            if err.code == CtapError.ERR.INVALID_CREDENTIAL:
+                print("Got CTAP error 0x22 INVALID_CREDENTIAL.")
+                if host.startswith("solo-sign-hash:"):
+                    print("Are you sure you created this credential using a 'solo-sign-hash:...' host?")
+                else:
+                    print("Host should start with 'solo-sign-hash:'")
+                sys.exit(1)
+
         signature = ret[1]
 
         print(f"Signature (Base64): {base64.b64encode(signature).decode()}")
