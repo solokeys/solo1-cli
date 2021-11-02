@@ -686,7 +686,9 @@ def cred_rm(pin, credential_id, serial, udp):
     show_default=True,
 )
 @click.option("--host", default="solo-sign-hash:", help="Choose relying host, must start with 'solo-sign-hash:'")
-@click.option("--minisign", is_flag=True, default=False, help="Use Minisign-compatible signatures (pre-hashed)")
+@click.option("--minisign", is_flag=True, default=False,
+              help="Use Minisign-compatible signature (pre-hashed) with EdDSA credential,"
+                   " default is to try ES256 signature")
 @click.option("--sig-file", default=None, help="Destination file for signature"
                                                " (<filename>.(mini)sig if empty)")
 @click.option("--trusted-comment", default=None,
@@ -745,6 +747,9 @@ def sign_file(pin, serial, udp, prompt, credential_id, host, filename, sig_file,
             if err.code == CtapError.ERR.INVALID_OPTION:
                 print("Got CTAP error 0x2C INVALID_OPTION. Are you sure you used an EdDSA credential with Minisign?")
                 sys.exit(1)
+            elif err.code == CtapError.ERR.INVALID_LENGTH:
+                print("Got CTAP error 0x03 INVALID_LENGTH. Are you sure you used an EdDSA credential with Minisign?")
+                sys.exit(1)
             elif err.code == CtapError.ERR.INVALID_CREDENTIAL:
                 print("Got CTAP error 0x22 INVALID_CREDENTIAL.")
                 if host.startswith("solo-sign-hash:"):
@@ -791,7 +796,11 @@ def sign_file(pin, serial, udp, prompt, credential_id, host, filename, sig_file,
         try:
             ret = dev.sign_hash(credential_id, dgst.digest(), pin, host)
         except CtapError as err:
-            if err.code == CtapError.ERR.INVALID_CREDENTIAL:
+            if err.code == CtapError.ERR.INVALID_LENGTH:
+                print("Got CTAP error 0x03 INVALID_LENGTH. Are you sure you used an ES256 credential, "
+                      "or did you mean to specify --minisign?")
+                sys.exit(1)
+            elif err.code == CtapError.ERR.INVALID_CREDENTIAL:
                 print("Got CTAP error 0x22 INVALID_CREDENTIAL.")
                 if host.startswith("solo-sign-hash:"):
                     print(f"Are you sure you created this credential using host '{host}'?")
