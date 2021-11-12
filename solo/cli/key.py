@@ -693,7 +693,7 @@ def cred_rm(pin, credential_id, serial, udp):
                                                " (<filename>.(mini)sig if empty)")
 @click.option("--trusted-comment", default=None,
               help="Trusted comment included in global signature (combine with --minisign)"
-                   " [default: <time and file name, prehashed>]")
+                   " [default: <time and file name, hashed>]")
 @click.option("--untrusted-comment", default="signature created on solokey", show_default=True,
               help="Untrusted comment not included in global signature (combine with --minisign and --sig-file)")
 @click.option("--key-id", default=None,
@@ -731,10 +731,10 @@ def sign_file(pin, serial, udp, prompt, credential_id, host, filename, sig_file,
         if trusted_comment is None:
             timestamp = int(time.time())
             just_file_name = pathlib.Path(filename).name
-            trusted_comment = f"timestamp:{timestamp}\tfile:{just_file_name}\tprehashed"
+            trusted_comment = f"timestamp:{timestamp}\tfile:{just_file_name}\thashed"
             trusted_comment_bytes = trusted_comment.encode()
             if len(trusted_comment_bytes) > 128:
-                trusted_comment = f"timestamp:{timestamp}\tfile:<name too long>\tprehashed"
+                trusted_comment = f"timestamp:{timestamp}\tfile:<name too long>\thashed"
             trusted_comment_bytes = trusted_comment.encode()
         else:
             trusted_comment_bytes = trusted_comment.encode()
