@@ -8,7 +8,7 @@ from fido2.hid import CTAPHID
 from fido2.utils import hmac_sha256
 from fido2.webauthn import PublicKeyCredentialCreationOptions
 
-from solo import helpers
+from .. import helpers
 
 
 # Base class

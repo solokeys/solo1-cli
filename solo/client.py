@@ -11,7 +11,7 @@ import time
 
 from fido2.hid import CtapHidDevice
 
-import solo.exceptions
+from . import exceptions
 
 from .devices import solo_v1
 
