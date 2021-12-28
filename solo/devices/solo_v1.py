@@ -13,9 +13,8 @@ from fido2.ctap2 import CTAP2
 from fido2.hid import CTAPHID, CtapHidDevice
 from intelhex import IntelHex
 
-import solo
-from solo import helpers
-from solo.commands import SoloBootloader, SoloExtension
+from .. import helpers
+from ..commands import SoloBootloader, SoloExtension
 
 from .base import SoloClient
 

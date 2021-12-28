@@ -12,7 +12,7 @@ import struct
 
 from intelhex import IntelHex
 
-from solo import helpers
+from . import helpers
 
 
 def genkey(output_pem_file, input_seed_file=None):
