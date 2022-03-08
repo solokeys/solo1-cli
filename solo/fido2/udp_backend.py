@@ -1,7 +1,7 @@
-import typing
 import socket
+import typing
 
-from fido2.hid.base import HidDescriptor, CtapHidConnection
+from fido2.hid.base import CtapHidConnection, HidDescriptor
 
 
 class UdpCtapHidConnection(CtapHidConnection):
@@ -10,8 +10,10 @@ class UdpCtapHidConnection(CtapHidConnection):
     def __init__(self, descriptor: HidDescriptor):
         self.descriptor = descriptor
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.remote, self.local = ((addr, int(port)) for [addr, port] in
-                                   (host.split(":") for host in descriptor.path.split("<")))
+        self.remote, self.local = (
+            (addr, int(port))
+            for [addr, port] in (host.split(":") for host in descriptor.path.split("<"))
+        )
         self.sock.bind(self.local)
         self.sock.settimeout(5.0)
 
@@ -32,11 +34,8 @@ def open_connection(descriptor: HidDescriptor) -> UdpCtapHidConnection:
 
 def get_descriptor(path: str) -> HidDescriptor:
     return HidDescriptor(
-        path,
-        0x1234, 0x5678,
-        64, 64,
-        "software test interface",
-        "12345678")
+        path, 0x1234, 0x5678, 64, 64, "software test interface", "12345678"
+    )
 
 
 def list_descriptors() -> typing.Iterable[HidDescriptor]:

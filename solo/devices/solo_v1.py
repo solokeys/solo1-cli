@@ -13,9 +13,8 @@ from fido2.ctap2 import CTAP2
 from fido2.hid import CTAPHID, CtapHidDevice
 from intelhex import IntelHex
 
-from .. import helpers
+from .. import exceptions, helpers
 from ..commands import SoloBootloader, SoloExtension
-
 from .base import SoloClient
 
 
@@ -59,7 +58,7 @@ class Client(SoloClient):
                     d for d in devices if d.descriptor.serial_number == solo_serial
                 ]
             if len(devices) > 1:
-                raise solo.exceptions.NonUniqueDeviceError
+                raise exceptions.NonUniqueDeviceError
             if len(devices) == 0:
                 raise RuntimeError("No FIDO device found")
             dev = devices[0]

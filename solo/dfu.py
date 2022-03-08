@@ -90,7 +90,7 @@ class DFUDevice:
                     d for d in devs if ser == usb.util.get_string(d, d.iSerialNumber)
                 ]
                 if len(eligible) > 1:
-                    raise solo.exceptions.NonUniqueDeviceError
+                    raise exceptions.NonUniqueDeviceError
                 if len(eligible) == 0:
                     raise RuntimeError("No ST DFU devices found.")
 
@@ -101,7 +101,7 @@ class DFUDevice:
                     usb.core.find(idVendor=0x0483, idProduct=0xDF11, find_all=True)
                 )
                 if len(eligible) > 1:
-                    raise solo.exceptions.NonUniqueDeviceError
+                    raise exceptions.NonUniqueDeviceError
                 if len(eligible) == 0:
                     raise RuntimeError("No ST DFU devices found.")
                 self.dev = eligible[0]

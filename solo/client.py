@@ -11,15 +11,14 @@ import time
 
 from fido2.hid import CtapHidDevice
 
-from . import exceptions
-
+from . import exceptions, fido2
 from .devices import solo_v1
 
 
 def find(solo_serial=None, retries=5, raw_device=None, udp=False):
 
     if udp:
-        solo.fido2.force_udp_backend()
+        fido2.force_udp_backend()
 
     # Try looking for V1 device.
     p = solo_v1.Client()
@@ -35,7 +34,7 @@ def find(solo_serial=None, retries=5, raw_device=None, udp=False):
             time.sleep(0.2)
 
     # return None
-    raise solo.exceptions.NoSoloFoundError("no Solo found")
+    raise exceptions.NoSoloFoundError("no Solo found")
 
 
 def find_all():
