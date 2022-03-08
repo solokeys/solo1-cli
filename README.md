@@ -1,6 +1,8 @@
 ![](https://img.shields.io/pypi/l/solo-python.svg?style=flat) ![](https://img.shields.io/pypi/pyversions/solo-python.svg?style=flat) ![](https://img.shields.io/pypi/v/solo-python.svg) ![](https://img.shields.io/pypi/wheel/solo-python.svg?style=flat)
 
-# Python tool and library for SoloKeys
+# Python tool and library for SoloKeys Solo 1
+
+This CLI is for Solo 1, for the Solo 2 device use [solo2-cli](https://github.com/solokeys/solo2-cli).
 
 ## Getting Started
 We require Python >= 3.6 and corresponding `pip3` command.
