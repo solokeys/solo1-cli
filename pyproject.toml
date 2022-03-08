@@ -3,22 +3,15 @@ requires = ["flit"]
 build-backend = "flit.buildapi"
 
 [tool.flit.metadata]
-module = "solo"
-dist-name = "solo1"
+module = "removed"
+dist-name = "solo-python"
 author = "SoloKeys"
 author-email = "hello@solokeys.com"
 home-page = "https://github.com/solokeys/solo1-cli"
 requires-python = ">=3.6"
 description-file = "README.md"
 requires = [
-  "click >= 7.1",
-  "cryptography",
-  "ecdsa",
-  "fido2 >= 0.9.1",
-  "intelhex",
-  "pyserial",
-  "pyusb",
-  "requests",
+    "solo1",
 ]
 classifiers=[
     "License :: OSI Approved :: MIT License",
@@ -32,7 +25,3 @@ classifiers=[
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
 ]
-
-[tool.flit.scripts]
-solo = "solo.cli:solo_cli"
-solo1 = "solo.cli:solo_cli"

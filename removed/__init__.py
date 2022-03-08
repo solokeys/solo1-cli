@@ -6,16 +6,12 @@
 # http://apache.org/licenses/LICENSE-2.0> or the MIT license <LICENSE-MIT or
 # http://opensource.org/licenses/MIT>, at your option. This file may not be
 # copied, modified, or distributed except according to those terms.
+#
 
-from enum import Enum
+"""Dummy package pulling in solo1."""
 
+import pathlib
 
-class SoloMode(Enum):
-    firmware = 1
-    bootloader = 2
-    dfu = 3
+__version__ = open(pathlib.Path(__file__).parent / "VERSION").read().strip()
 
-
-class SoloVariant(Enum):
-    secure = 1
-    hacker = 2
+del pathlib
