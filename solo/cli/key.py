@@ -183,7 +183,7 @@ def challenge_response(serial, host, user, prompt, credential_id, challenge, udp
     a 32 byte value is expected (in original usage, it's a salt).
 
     This means that we first need to setup a credential_id; this depends on the
-    specific authenticator used. To do this, use `solo key make-credential`.
+    specific authenticator used. To do this, use `solo1 key make-credential`.
 
     If so desired, user and relying party can be changed from the defaults.
 
@@ -385,12 +385,12 @@ def verify(pin, serial, udp):
             print(
                 "Your key's PIN is blocked. To use it again, you need to fully reset it."
             )
-            print("You can do this using: `solo key reset`")
+            print("You can do this using: `solo1 key reset`")
             sys.exit(1)
         # error 0x01
         if "INVALID_COMMAND" in cause:
             print("Error getting credential, is your key in bootloader mode?")
-            print("Try: `solo program aux leave-bootloader`")
+            print("Try: `solo1 program aux leave-bootloader`")
             sys.exit(1)
         raise
 
