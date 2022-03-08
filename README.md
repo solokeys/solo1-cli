@@ -4,7 +4,7 @@
 
 This CLI is for Solo 1, for the Solo 2 device use [solo2-cli](https://github.com/solokeys/solo2-cli).
 
-v0.1.0 was the last to be named `solo-python`, since v0.2.0 this project is named `solo1-cli` for clarity, and available from PyPI as `solo1`.
+v0.1.0 was the last to be named `solo-python`, since v0.1.1 this project is named `solo1-cli` for clarity, and available from PyPI as `solo1`.
 
 The CLI is now called `solo1`, for the time being `solo` will also be removed, but this is deprecated.
 
