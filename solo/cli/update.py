@@ -73,7 +73,7 @@ def update(serial, yes, local_firmware_server, alpha):
     except Exception:
         print()
         print("Unhandled error connecting to key.")
-        print("Please report via https://github.com/solokeys/solo-python/issues/")
+        print("Please report via https://github.com/solokeys/solo1-cli/issues/")
         print()
         sys.exit(1)
 
