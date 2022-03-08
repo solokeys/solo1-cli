@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.0] - 2022-03-08
+- fix build @innir
+- UDP simulator is back @stevenwdv
+- bump flit versions
+- leave the patch-only versioning
+
 ## [0.0.31] - 2021-10-23
 - pin argument for make-credential @HeroicKatora
 

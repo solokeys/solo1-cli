@@ -3,8 +3,8 @@
 
 black
 flake8
-flit_core==2.3.0
-flit==2.3.0
+flit_core>=3.7.1
+flit>=3.7.1
 ipython
 isort>=5.0.0
 
