@@ -82,7 +82,7 @@ Comprehensive documentation coming, for now these are the main components
 By abuse of the `hmac-secret` extension, we can generate static challenge responses,
 which are scoped to a credential. A use case might be e.g. unlocking a [LUKS-encrypted](https://github.com/saravanan30erd/solokey-full-disk-encryption) drive.
 
-**DANGER** The generated reponses depend on both the key and the credential.
+**DANGER** The generated responses depend on both the key and the credential.
 There is no way to extract or backup from the physical key, so if you intend to use the
 "response" as a static password, make sure to store it somewhere separately, e.g. on paper.
 
@@ -125,7 +125,7 @@ For maintainers:
 
 - adjust `solo/VERSION` file as appropriate
 - add entry or entries to `CHANGELOG.md` (no need to repeat commit messages, but point out major changes
-  in such a way that a user of the library has an easy entrypoint to follow development)
+  in such a way that a user of the library has an easy entry point to follow development)
 - run `make check` and/or `make fix` to ensure code consistency
 - run `make build` to double check
 - run `make publish` (assumes a `~/.pypirc` file with entry `[pypi]`), or `flit publish` manually
