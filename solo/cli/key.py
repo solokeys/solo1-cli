@@ -11,14 +11,17 @@ import base64
 import getpass
 import hashlib
 import os
+import pathlib
 import sys
 import time
 
 import click
 from cryptography.hazmat.primitives import hashes
 from fido2.client import ClientError as Fido2ClientError
+from fido2.ctap import CtapError
 from fido2.ctap1 import ApduError
 from fido2.ctap2 import CredentialManagement
+import fido2.cose
 
 import solo
 import solo.fido2
@@ -119,10 +122,23 @@ def feedkernel(count, serial):
 
 
 @click.command()
+def list_algorithms():
+    """Display algorithms supported by client.
+
+    These can be passed to `solo key make-credential`.
+    """
+
+    alg_names = (fido2.cose.CoseKey.for_alg(alg).__name__ for alg in fido2.cose.CoseKey.supported_algorithms())
+    print(f"Supported algorithms: {', '.join(alg_names)}")
+
+
+@click.command()
 @click.option("-s", "--serial", help="Serial number of Solo use")
 @click.option(
-    "--host", help="Relying party's host", default="solokeys.dev", show_default=True
+    "--host", help="Relying party's host  [default: solokeys.dev]", default=None
 )
+@click.option("--default-sign-host", is_flag=True, default=False,
+              help="Set host to default value for sign-file, shorthand for --host 'solo-sign-hash:'")
 @click.option("--user", help="User ID", default="they", show_default=True)
 @click.option("--pin", help="PIN", default=None)
 @click.option(
@@ -134,13 +150,37 @@ def feedkernel(count, serial):
     default="Touch your authenticator to generate a credential...",
     show_default=True,
 )
-def make_credential(serial, host, user, udp, prompt, pin):
+@click.option("--alg", default="EdDSA,ES256", show_default=True,
+              help="Algorithm(s) for key, separated by ',', in order of preference")
+@click.option("--no-pubkey", is_flag=True, default=False, help="Do not display public key")
+@click.option("--minisign", is_flag=True, default=False,
+              help="Display public key in Minisign-compatible format and set host to 'solo-sign-hash:' for sign-hash")
+@click.option("--key-file", default=None, help="File to store public key (use with --minisign)")
+@click.option("--key-id", default=None, help="Key ID to write to key file (8 bytes as HEX) (use with --key-file)"
+                                             " [default: <hash of credential ID>]")
+@click.option("--untrusted-comment", default=None,
+              help="Untrusted comment to write to public key file (use with --key-file) [default: <key ID>]")
+def make_credential(serial, host, default_sign_host, user, udp, prompt, pin,
+                    alg, no_pubkey, minisign, key_file, key_id, untrusted_comment):
     """Generate a credential.
 
-    Pass `--prompt ""` to output only the `credential_id` as hex.
+    Pass `--prompt "" --no-pubkey` to output only the `credential_id` as hex.
     """
 
     import solo.hmac_secret
+
+    algs = [fido2.cose.CoseKey.for_name(a).ALGORITHM for a in alg.split(",")]
+    if None in algs:
+        print("Error: Unknown algorithm(s): ", [a for a, aid in zip(alg.split(","), algs) if aid is None])
+        sys.exit(1)
+
+    if default_sign_host:
+        if host is not None:
+            print("Error: Cannot specify both --host and --default-sign-host")
+            sys.exit(2)
+        host = "solo-sign-hash:"
+    elif host is None:
+        host = "solokeys.dev"
 
     # check for PIN
     if not pin:
@@ -148,7 +188,7 @@ def make_credential(serial, host, user, udp, prompt, pin):
     if not pin:
         pin = None
 
-    solo.hmac_secret.make_credential(
+    cred_id, pk = solo.hmac_secret.make_credential(
         host=host,
         user_id=user,
         serial=serial,
@@ -156,7 +196,49 @@ def make_credential(serial, host, user, udp, prompt, pin):
         prompt=prompt,
         udp=udp,
         pin=pin,
+        algs=algs
     )
+
+    pk_bytes = pk[-2]
+
+    if minisign:
+        if pk.ALGORITHM != fido2.cose.EdDSA.ALGORITHM:
+            print(f"Error: Minisign only supports EdDSA keys but this credential was created using {type(pk).__name__}")
+            sys.exit(1)
+
+        if key_id is not None:
+            key_id_hex = key_id
+            key_id = int(key_id, 16).to_bytes(8, "little")
+        else:
+            key_id = hashlib.blake2b(cred_id).digest()[:8]
+            # key_id is interpreted as little endian integer and then converted to hex (omitting leading zeros)
+            key_id_hex = f"{int.from_bytes(key_id, 'little'):X}"
+
+        minisign_pk = base64.b64encode(b"Ed" + key_id + pk_bytes)
+        if not no_pubkey:
+            print(f"Public key ({type(pk).__name__}) {key_id_hex} (Minisign Base64): {minisign_pk.decode()}")
+
+    elif not no_pubkey:
+        print(f"Public key ({type(pk).__name__}) (HEX): {pk_bytes.hex()}")
+
+    if key_file is not None:
+        if minisign:
+            if untrusted_comment is not None:
+                untrusted_comment_bytes = untrusted_comment.encode()
+            else:
+                untrusted_comment_bytes = b"minisign solokey public key " + key_id_hex.encode()
+
+            with open(key_file, "wb") as f:
+                f.write(b"untrusted comment: ")
+                f.write(untrusted_comment_bytes)
+                f.write(b"\n")
+                f.write(minisign_pk)
+                f.write(b"\n")
+
+            print(f"Minisign public key written to {key_file}")
+
+        else:
+            print("Writing key file is only supported for minisign keys")
 
 
 @click.command()
@@ -594,33 +676,157 @@ def cred_rm(pin, credential_id, serial, udp):
 @click.command()
 @click.option("--pin", help="PIN for to access key")
 @click.option("-s", "--serial", help="Serial number of Solo to use")
+@click.option(
+    "--udp", is_flag=True, default=False, help="Communicate over UDP with software key"
+)
+@click.option(
+    "--prompt",
+    help="Prompt for user",
+    default="Touch your authenticator to generate a response...",
+    show_default=True,
+)
+@click.option("--host", default="solo-sign-hash:", help="Choose relying host, must start with 'solo-sign-hash:'")
+@click.option("--minisign", is_flag=True, default=False,
+              help="Use Minisign-compatible signature (pre-hashed) with EdDSA credential,"
+                   " default is to try ES256 signature")
+@click.option("--sig-file", default=None, help="Destination file for signature"
+                                               " (<filename>.(mini)sig if empty)")
+@click.option("--trusted-comment", default=None,
+              help="Trusted comment included in global signature (combine with --minisign)"
+                   " [default: <time and file name, hashed>]")
+@click.option("--untrusted-comment", default="signature created on solokey", show_default=True,
+              help="Untrusted comment not included in global signature (combine with --minisign and --sig-file)")
+@click.option("--key-id", default=None,
+              help="Key ID to write to signature file (8 bytes as HEX) (combine with --minisign and --sig-file) "
+                   "[default: <hash of credential ID>]")
 @click.argument("credential-id")
 @click.argument("filename")
-def sign_file(pin, serial, credential_id, filename):
+def sign_file(pin, serial, udp, prompt, credential_id, host, filename, sig_file,
+              minisign, trusted_comment, untrusted_comment, key_id):
     """Sign the specified file using the given credential-id"""
 
-    dev = solo.client.find(serial)
-    dgst = hashlib.sha256()
+    # check for PIN
+    if not pin:
+        pin = getpass.getpass("PIN (leave empty for no PIN): ")
+    if not pin:
+        pin = None
+
+    dev = solo.client.find(solo_serial=serial, udp=udp)
+
+    credential_id = bytes.fromhex(credential_id)
+
+    dgst = hashlib.blake2b() if minisign else hashlib.sha256()
     with open(filename, "rb") as f:
         while True:
             data = f.read(64 * 1024)
             if not data:
                 break
             dgst.update(data)
-    print("{0}  {1}".format(dgst.hexdigest(), filename))
-    print("Please press the button on your Solo key")
-    ret = dev.sign_hash(base64.b64decode(credential_id), dgst.digest(), pin)
-    sig = ret[1]
-    sig_file = filename + ".sig"
-    print("Saving signature to " + sig_file)
-    with open(sig_file, "wb") as f:
-        f.write(sig)
+    print(f"{dgst.hexdigest()}  {filename}")
+
+    if prompt:
+        print(prompt)
+
+    if minisign:
+        if trusted_comment is None:
+            timestamp = int(time.time())
+            just_file_name = pathlib.Path(filename).name
+            trusted_comment = f"timestamp:{timestamp}\tfile:{just_file_name}\thashed"
+            trusted_comment_bytes = trusted_comment.encode()
+            if len(trusted_comment_bytes) > 128:
+                trusted_comment = f"timestamp:{timestamp}\tfile:<name too long>\thashed"
+            trusted_comment_bytes = trusted_comment.encode()
+        else:
+            trusted_comment_bytes = trusted_comment.encode()
+
+        print(f"Trusted comment: {trusted_comment}")
+
+        try:
+            ret = dev.sign_hash(credential_id, dgst.digest(), pin, host, trusted_comment_bytes)
+        except CtapError as err:
+            if err.code == CtapError.ERR.INVALID_OPTION:
+                print("Got CTAP error 0x2C INVALID_OPTION. Are you sure you used an EdDSA credential with Minisign?")
+                sys.exit(1)
+            elif err.code == CtapError.ERR.INVALID_LENGTH:
+                print("Got CTAP error 0x03 INVALID_LENGTH. Are you sure you used an EdDSA credential with Minisign?")
+                sys.exit(1)
+            elif err.code == CtapError.ERR.INVALID_CREDENTIAL:
+                print("Got CTAP error 0x22 INVALID_CREDENTIAL.")
+                if host.startswith("solo-sign-hash:"):
+                    print(f"Are you sure you created this credential using host '{host}'?")
+                else:
+                    print("Host should start with 'solo-sign-hash:'")
+                sys.exit(1)
+            else:
+                raise
+
+        file_signature = ret[1]
+        if ret[2] is None:
+            print("Authenticator does not support Minisign")
+            sys.exit(1)
+        global_signature = ret[2]
+
+        print(f"File signature (Base64): {base64.b64encode(file_signature).decode()}")
+        print(f"Global signature (Base64): {base64.b64encode(global_signature).decode()}")
+
+        if sig_file is not None:
+            untrusted_comment_bytes = untrusted_comment.encode()
+            if key_id is not None:
+                key_id = int(key_id, 16).to_bytes(8, "little")
+            else:
+                key_id = hashlib.blake2b(credential_id).digest()[:8]
+            key_id_hex = f"{int.from_bytes(key_id, 'little'):X}"
+
+            if sig_file == "":
+                sig_file = filename + ".minisig"
+            with open(sig_file, "wb") as f:
+                f.write(b"untrusted comment: ")
+                f.write(untrusted_comment_bytes)
+                f.write(b"\n")
+                f.write(base64.b64encode(b"ED" + key_id + file_signature))
+                f.write(b"\ntrusted comment: ")
+                f.write(trusted_comment_bytes)
+                f.write(b"\n")
+                f.write(base64.b64encode(global_signature))
+                f.write(b"\n")
+
+            print(f"Signature using key {key_id_hex} written to {sig_file}")
+
+    else:
+        try:
+            ret = dev.sign_hash(credential_id, dgst.digest(), pin, host)
+        except CtapError as err:
+            if err.code == CtapError.ERR.INVALID_LENGTH:
+                print("Got CTAP error 0x03 INVALID_LENGTH. Are you sure you used an ES256 credential, "
+                      "or did you mean to specify --minisign?")
+                sys.exit(1)
+            elif err.code == CtapError.ERR.INVALID_CREDENTIAL:
+                print("Got CTAP error 0x22 INVALID_CREDENTIAL.")
+                if host.startswith("solo-sign-hash:"):
+                    print(f"Are you sure you created this credential using host '{host}'?")
+                else:
+                    print("Host should start with 'solo-sign-hash:'")
+                sys.exit(1)
+
+        signature = ret[1]
+
+        print(f"Signature (Base64): {base64.b64encode(signature).decode()}")
+
+        if sig_file is not None:
+            if sig_file == "":
+                sig_file = filename + ".sig"
+
+            with open(sig_file, "wb") as f:
+                f.write(signature)
+
+            print(f"Signature written to {sig_file}")
 
 
 key.add_command(rng)
 rng.add_command(hexbytes)
 rng.add_command(raw)
 rng.add_command(feedkernel)
+key.add_command(list_algorithms)
 key.add_command(make_credential)
 key.add_command(challenge_response)
 key.add_command(reset)
