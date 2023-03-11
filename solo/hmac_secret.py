@@ -104,8 +104,8 @@ def simple_secret(
         pin=pin,
     ).get_response(0)
 
-    output = assertion.extension_results["hmacGetSecret"]["output1"]
+    response = assertion.extension_results["hmacGetSecret"]["output1"]
     if output:
-        print(output.hex())
+        print(response.hex())
 
-    return output
+    return response
