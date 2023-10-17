@@ -21,8 +21,6 @@ def make_credential(
     host="solokeys.dev",
     user_id="they",
     serial=None,
-    pin=None,
-    prompt="Touch your authenticator to generate a credential...",
     output=True,
     udp=False,
 ):
@@ -36,9 +34,6 @@ def make_credential(
     user = {"id": user_id, "name": "A. User"}
     challenge = secrets.token_bytes(32)
 
-    if prompt:
-        print(prompt)
-
     attestation_object = client.make_credential(
         {
             "rp": rp,
@@ -50,7 +45,6 @@ def make_credential(
             ],
             "extensions": {"hmacCreateSecret": True},
         },
-        pin=pin,
     ).attestation_object
 
     credential = attestation_object.auth_data.credential_data
@@ -67,8 +61,6 @@ def simple_secret(
     host="solokeys.dev",
     user_id="they",
     serial=None,
-    pin=None,
-    prompt="Touch your authenticator to generate a response...",
     output=True,
     udp=False,
 ):
@@ -91,9 +83,6 @@ def simple_secret(
     h.update(secret_input.encode())
     salt = h.digest()
 
-    if prompt:
-        print(prompt)
-
     assertion = client.get_assertion(
         {
             "rpId": host,
@@ -101,7 +90,6 @@ def simple_secret(
             "allowCredentials": allow_list,
             "extensions": {"hmacGetSecret": {"salt1": salt}},
         },
-        pin=pin,
     ).get_response(0)
 
     output = assertion.extension_results["hmacGetSecret"]["output1"]

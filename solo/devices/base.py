@@ -87,7 +87,7 @@ class SoloClient:
         client = ClientPin(self.ctap2)
         client.set_pin(new_pin)
 
-    def make_credential(self, pin=None):
+    def make_credential(self):
         client = self.get_current_fido_client()
         rp = {"id": self.host, "name": "example site"}
         user = {"id": self.user_id, "name": "example user"}
