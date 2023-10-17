@@ -6,17 +6,29 @@ import tempfile
 import time
 from threading import Event
 
-from fido2.client import Fido2Client
+from fido2.client import Fido2Client, UserInteraction
 from fido2.ctap import CtapError
-from fido2.ctap1 import CTAP1
-from fido2.ctap2 import CTAP2
+from fido2.ctap1 import Ctap1
+from fido2.ctap2 import Ctap2
 from fido2.hid import CTAPHID, CtapHidDevice
 from intelhex import IntelHex
+from getpass import getpass
 
 from .. import exceptions, helpers
 from ..commands import SoloBootloader, SoloExtension
 from .base import SoloClient
 
+# Handle user interaction
+class CliInteraction(UserInteraction):
+    def prompt_up(self):
+        print("\nTouch your authenticator device now...\n")
+
+    def request_pin(self, permissions, rd_id):
+        return getpass("Enter PIN: ")
+
+    def request_uv(self, permissions, rd_id):
+        print("User Verification required.")
+        return True
 
 class Client(SoloClient):
     def __init__(
@@ -64,14 +76,14 @@ class Client(SoloClient):
             dev = devices[0]
         self.dev = dev
 
-        self.ctap1 = CTAP1(dev)
+        self.ctap1 = Ctap1(dev)
         try:
-            self.ctap2 = CTAP2(dev)
+            self.ctap2 = Ctap2(dev)
         except CtapError:
             self.ctap2 = None
 
         try:
-            self.client = Fido2Client(dev, self.origin)
+            self.client = Fido2Client(dev, self.origin, user_interaction=CliInteraction())
         except CtapError:
             print("Not using FIDO2 interface.")
             self.client = None
