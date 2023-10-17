@@ -234,10 +234,10 @@ def probe(serial, udp, hash_type, filename):
     p = solo.client.find(serial, udp=udp)
     import fido2
 
-    serialized_command = fido2.cbor.dumps({"subcommand": hash_type, "data": data})
+    serialized_command = fido2.cbor.encode({"subcommand": hash_type, "data": data})
     from solo.commands import SoloBootloader
 
-    result = p.send_data_hid(SoloBootloader.HIDCommandProbe, serialized_command)
+    result = p.send_data_hid(SoloBootloader.CommandProbe, serialized_command)
     result_hex = result.hex()
     print(result_hex)
     if hash_type == "Ed25519":
