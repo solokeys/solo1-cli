@@ -349,18 +349,9 @@ def verify(pin, serial, udp):
 
     key = solo.client.find(serial, udp=udp)
 
-    if (
-        key.client
-        and ("clientPin" in key.client.info.options)
-        and key.client.info.options["clientPin"]
-        and not pin
-    ):
-        pin = getpass.getpass("PIN: ")
-
     # Any longer and this needs to go in a submodule
-    print("Please press the button on your Solo key")
     try:
-        cert = key.make_credential(pin=pin)
+        cert = key.make_credential()
     except Fido2ClientError as e:
         cause = str(e.cause)
         if "PIN required" in cause:

@@ -4,6 +4,7 @@ from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 from fido2.attestation import Attestation
 from fido2.ctap2 import Ctap2, CredentialManagement
+from fido2.ctap2.pin import ClientPin
 from fido2.hid import CTAPHID
 from fido2.utils import hmac_sha256
 from fido2.webauthn import PublicKeyCredentialCreationOptions
@@ -79,12 +80,12 @@ class SoloClient:
         Ctap2(self.get_current_hid_device()).reset()
 
     def change_pin(self, old_pin, new_pin):
-        client = self.get_current_fido_client()
-        client.client_pin.change_pin(old_pin, new_pin)
+        client = ClientPin(self.ctap2)
+        client.change_pin(old_pin, new_pin)
 
     def set_pin(self, new_pin):
-        client = self.get_current_fido_client()
-        client.client_pin.set_pin(new_pin)
+        client = ClientPin(self.ctap2)
+        client.set_pin(new_pin)
 
     def make_credential(self, pin=None):
         client = self.get_current_fido_client()
@@ -97,25 +98,24 @@ class SoloClient:
             challenge,
             [{"type": "public-key", "alg": -8}, {"type": "public-key", "alg": -7}],
         )
-        result = client.make_credential(options, pin=pin)
+        result = client.make_credential(options)
         attest = result.attestation_object
         data = result.client_data
         try:
             attest.verify(data.hash)
         except AttributeError:
             verifier = Attestation.for_type(attest.fmt)
-            verifier().verify(attest.att_statement, attest.auth_data, data.hash)
+            verifier().verify(attest.att_stmt, attest.auth_data, data.hash)
         print("Register valid")
-        x5c = attest.att_statement["x5c"][0]
+        x5c = attest.att_stmt["x5c"][0]
         cert = x509.load_der_x509_certificate(x5c, default_backend())
 
         return cert
 
     def cred_mgmt(self, pin):
-        client = self.get_current_fido_client()
-        token = client.client_pin.get_pin_token(pin)
-        return CredentialManagement(ctap2, client.client_pin.protocol, token)
-        ctap2 = Ctap2(self.get_current_hid_device())
+        client = ClientPin(self.ctap2)
+        token = client.get_pin_token(pin)
+        return CredentialManagement(self.ctap2, client.protocol, token)
 
     def enter_solo_bootloader(
         self,
@@ -142,9 +142,9 @@ class SoloClient:
 
     def sign_hash(self, credential_id, dgst, pin):
         ctap2 = Ctap2(self.get_current_hid_device())
-        client = self.get_current_fido_client()
+        client = ClientPin(ctap2)
         if pin:
-            pin_token = client.client_pin.get_pin_token(pin)
+            pin_token = client.get_pin_token(pin)
             pin_auth = hmac_sha256(pin_token, dgst)[:16]
             return ctap2.send_cbor(
                 0x50,
