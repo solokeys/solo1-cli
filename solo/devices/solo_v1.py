@@ -8,8 +8,8 @@ from threading import Event
 
 from fido2.client import Fido2Client
 from fido2.ctap import CtapError
-from fido2.ctap1 import CTAP1
-from fido2.ctap2 import CTAP2
+from fido2.ctap1 import Ctap1
+from fido2.ctap2 import Ctap2
 from fido2.hid import CTAPHID, CtapHidDevice
 from intelhex import IntelHex
 
@@ -64,9 +64,9 @@ class Client(SoloClient):
             dev = devices[0]
         self.dev = dev
 
-        self.ctap1 = CTAP1(dev)
+        self.ctap1 = Ctap1(dev)
         try:
-            self.ctap2 = CTAP2(dev)
+            self.ctap2 = Ctap2(dev)
         except CtapError:
             self.ctap2 = None
 
