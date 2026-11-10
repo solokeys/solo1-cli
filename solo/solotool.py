@@ -32,8 +32,8 @@ from cryptography.hazmat.primitives import hashes
 from fido2.attestation import Attestation
 from fido2.client import ClientError, Fido2Client
 from fido2.ctap import CtapError
-from fido2.ctap1 import CTAP1, ApduError
-from fido2.ctap2 import CTAP2
+from fido2.ctap1 import Ctap1, ApduError
+from fido2.ctap2 import Ctap2
 from fido2.hid import CTAPHID, CtapHidDevice
 from intelhex import IntelHex
 
